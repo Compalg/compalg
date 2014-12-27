@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="8">
+        <file>
+            <url>src/Portugol/Language/Criar/Intermediario.java</url>
+            <bookmark id="7">
+                <name/>
+                <line>143</line>
+                <key/>
+            </bookmark>
+            <bookmark id="8">
+                <name/>
+                <line>151</line>
+                <key/>
+            </bookmark>
+            <bookmark id="6">
+                <name/>
+                <line>207</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/Portugol/Language/Criar/ExpandDefinirVariavel.java</url>
+            <bookmark id="4">
+                <name/>
+                <line>28</line>
+                <key/>
+            </bookmark>
+            <bookmark id="3">
+                <name/>
+                <line>62</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/Portugol/Language/Criar/ExpandDefinirSimbol.java</url>
+            <bookmark id="2">
+                <name/>
+                <line>101</line>
+                <key/>
+            </bookmark>
+        </file>
+    </editor-bookmarks>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/David/CompAlg%201.2/src/Portugol/Language/Analisador/Keyword.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Editor/GUI/EditorCAlg.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Editor/GUI/CodeDocument/AlgoCodeStyle.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Editor/GUI/FormAjuda.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Testes/Main.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Portugol/Language/Calcular/Aritmeticos.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Portugol/Language/Analisador/Simbolo.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Editor/GUI/CodeDocument/AlgoCodeBlank.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Editor/help/WWWHelpText.java</file>
+            <file>file:/D:/David/CompAlg%201.2/src/Editor/GUI/FormAjudaWWW.java</file>
+        </group>
+    </open-files>
+</project-private>

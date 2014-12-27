@@ -1,0 +1,59 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="pt">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>CompAlg</title>
+<LINK REL="stylesheet" TYPE="text/css" HREF="algoritmos.css">
+<style type="text/css">
+<!--
+body {
+	background-color: #FFFF99;
+}
+.style9 {
+	font-size: medium;
+	font-weight: bold;
+}
+.style15 {color: #0000FF}
+.style16 {font-family: Georgia, "Times New Roman", Times, serif; font-size: 10px; }
+.style17 {font-family: Georgia, "Times New Roman", Times, serif; font-size: xx-small; }
+.style20 {color: #000000; font-family: "Courier New"; font-size: 14px;}
+.style22 {font-family: "Courier New"; color: #000000;}
+.style23 {font-size: 12px}
+.style24 {color: #0000FF; font-size: 12px; }
+.style26 {
+	color: #0000FF;
+	font-weight: bold;
+	font-size: 14px;
+}
+.style27 {
+	font-size: 14px;
+	font-weight: bold;
+}
+-->
+</style>
+</head>
+
+<body>
+<table width="572" height="409" border="0" align="center">
+  <tr>
+    <td><div align="center">
+      <p align="center" class="style20"><span class="style23">Universidade Agostinho Neto <br>
+          <span class="style22">Faculdade de Ci&ecirc;ncias</span></span><b><font size="3"><br>
+      </font></b> <a href="http://www.augustobilabila.blogspot.com/"><img src="images/fc1.jpg" width="76" height="63"></a></p>
+      <p align="center" class="style20">&nbsp;</p>
+      <p class="style9" style="text-align: center"><span class="style15">Comp</span><font color="#FF0000">Alg </font>1.2 </p>
+      <p class="style16" style="text-align: center"><span class="style26">Autor:</span> <span class="style27">Augusto Bilabila</span><br>
+      <span class="style24">http://augustobilabila.blogspot.com/p/compilador-de-algoritmos-compalg.html</span><br>
+      (augustobilabila@gmail.com)
+      <p>&nbsp;</p>
+      <p class="style16" style="text-align: center">Desenvolvido em Dezembro de 2011, alterado em 15 de Março de 2014</p>
+      <p class="style17" style="text-align: center"><span style="font-size: 10px">Luanda, <strong>Angola</strong></span></p>
+      <p class="style17" style="text-align: center"><img src="images/BandeiraAngola.png" width="50" height="33"></p>
+    </div></td>
+  </tr>
+</table>
+<p align="center">&nbsp;</p>
+</body>
+
+</html>

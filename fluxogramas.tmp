@@ -1,0 +1,8 @@
+inicio
+	inteiro i
+	i <- 1
+	enquanto i <= 10 faz
+		escrever "Ola bila"
+		i <- i + 3
+	fimenquanto
+fim

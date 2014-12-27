@@ -1,0 +1,88 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="pt">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>CompAlg 1.0</title>
+<LINK REL="stylesheet" TYPE="text/css" HREF="algoritmos.css">
+<style type="text/css">
+<!--
+body {
+	background-color: #FFFFFF;
+}
+.style1 {color: #0000FF}
+.style2 {color: #0000CC}
+.style3 {color: #FF0000}
+.style4 {color: #000000}
+.style10 {color: #666666; font-size: 11px; }
+.style12 {font-size: 12px}
+-->
+</style></head>
+
+<body>
+
+<h1>Tipos de dados Estruturados</h1>
+<h3>Sintaxe:</h3>
+<p class="SINTAX">&lt;tipo dados&gt; <span class="style2">nome[dimens&atilde;o]</span><br>
+  &lt;constante&gt; &lt;tipo dados&gt; <span class="style2">nome[dimens&atilde;o]</span><br>
+  &lt;tipo dados&gt; <span class="style2">nome[dim1][dim2]. . . [dimN]</span><br>
+  &lt;constante&gt; &lt;tipo dados&gt; <span class="style2">nome[dim1][dim2]. . .  [dimN]</span><br>
+  &lt;tipo dados&gt; nome[dimens&atilde;o] &lt;- <span class="style1">{valor1, valor2, .  . . , valorN}</span><br>
+&lt;constante&gt; &lt;tipo dados&gt; nome<span class="style1">[dimens&atilde;o] &lt;-  {valor1, valor2, . . . , valorN}</span></p>
+<h3>Estruturas de dados homogéneas  (Arrays):</h3>
+<p>Define um conjunto de vari&aacute;veis do  mesmo tipo de dados,   que podem ser acedidos 
+através de um índice.<br>
+</p>
+<p><strong>Regras:</strong></p>
+<p>1- A defini&ccedil;&atilde;o do nome obede&ccedil;e &aacute;s mesmas regras das <a href="tipo_dados_variaveis.html">vari&aacute;veis</a> ; <br>
+2- A dimensão obrigat&oacute;riamente tem de ser um valor inteiro ou uma expressão com resultado inteiro;<br>
+3- A dimens&atilde;o ou o <a href="tamanho_array.html">tamanho do array</a> deve ser colocada  dentro de parênteses rectos;<br>
+5- São permitidas tantas dimensões quantas as desejadas.<br>
+6- Se o valor de inicialização for omitido, ent&atilde;o o array é inicializado com 
+os valores por <a href="tipo_dados_basicos.html">defeito</a><br>
+7- A inicialização é feita com os dados compreendidos entre chavetas e 
+separados por virgulas<br>
+8- Se o número de valores for insuficiente os últimos elementos são incializado 
+com os valores por <a href="tipo_dados_basicos.html">defeito</a> </p>
+<p><strong>Nota: </strong>A primeira posi&ccedil;&atilde;o de um array &eacute; sempre <span class="style3">0</span> e a &uacute;ltima &eacute; a <span class="style3">dimens&atilde;o <span class="style4">-</span> 1</span>, ou seja se definir o a dimens&atilde;o
+<br>
+<span class="style3">10</span> <span class="style4">para um array qualquer, ent&atilde;o a primeira posi&ccedil;&atilde;o &eacute; <span class="style3">0</span> e a &uacute;ltima &eacute; <span class="style3">9</span>. </span>
+<h3>Exemplo:</h3>
+<p class="SINTAX">constante literal sexo[2]&lt;-{&quot;Masculino&quot;, &quot;Femenino&quot;}<br>
+  inteiro vari1 [ 2 ] [ 4 ] [ 1 ] [ 1 ] <span class="style10">// array <strong>vari1</strong> com oito elementos.</span><br>
+  real nota [ 10 ] <span class="style10"> // array nota<strong> </strong>com 10 elementos.</span></p>
+<p>&nbsp;</p>
+<h3>Estruturas de dados heterog&eacute;nio  (Registo):</h3>
+<p>Define um conjunto de vari&aacute;veis com tipos de dados diferente.<br>
+</p>
+<p><strong>Regras:</strong></p>
+<p>1- A defini&ccedil;&atilde;o do nome obede&ccedil;e &aacute;s mesmas regras das <a href="tipo_dados_variaveis.html">vari&aacute;veis</a> ; <br>
+  2- A dimens&atilde;o obrigat&oacute;riamente tem de ser um valor inteiro ou uma express&atilde;o com resultado inteiro;<br>
+  3- A dimens&atilde;o ou o <a href="tamanho_array.html">tamanho do array</a> deve ser colocada  dentro de par&ecirc;nteses rectos;<br>
+  5- S&atilde;o permitidas tantas dimens&otilde;es quantas as desejadas.<br>
+  6- Se o valor de inicializa&ccedil;&atilde;o for omitido, ent&atilde;o o array &eacute; inicializado com 
+  os valores por defeito<br>
+  7- A inicializa&ccedil;&atilde;o &eacute; feita com os dados compreendidos entre chavetas e 
+  separados por virgulas<br>
+  8- Se o n&uacute;mero de valores for insuficiente os &uacute;ltimos elementos s&atilde;o incializado 
+  com os valores por defeito </p>
+<p><strong>Nota: </strong>A primeira posi&ccedil;&atilde;o de um array &eacute; sempre <span class="style3">0</span> e a &uacute;ltima &eacute; a <span class="style3">dimens&atilde;o <span class="style4">-</span> 1</span>, ou seja se definir o a dimens&atilde;o <br>
+    <span class="style3">10</span> <span class="style4">para um array qualquer, ent&atilde;o a primeira posi&ccedil;&atilde;o &eacute; <span class="style3">0</span> e a &uacute;ltima &eacute; <span class="style3">9</span>. </span>
+<p>
+<h3>Exemplo:</h3>
+<p class="SINTAX"><strong>registo</strong> pessoa<br>
+  &nbsp;&nbsp;&nbsp;inteiro idade<br>
+  &nbsp;&nbsp;&nbsp;caracter sexo<br>
+  &nbsp;&nbsp;&nbsp;literal nome<br>
+  <strong>fimregisto</strong></p>
+</blockquote>
+<h3>Sugest&atilde;o de pesquisa:</h3>
+<ul>
+	<li><a href="tipo_dados_basicos.html">tipos de dados Básicos</a></li>
+	<li><a href="tipo_dados_variaveis.html">Variáveis</a></li>
+	<li><a href="tipo_dados_constantes.html">Constantes</a></li>
+</ul>
+
+</body>
+
+</html>

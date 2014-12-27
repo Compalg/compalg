@@ -1,0 +1,58 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="pt">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>CompAlg 1.0</title>
+<LINK REL="stylesheet" TYPE="text/css" HREF="algoritmos.css">
+<style type="text/css">
+<!--
+body {
+	background-color: #FFFFFF;
+}
+.style3 {color: #0000FF}
+.style4 {color: #333333}
+-->
+</style></head>
+
+<body>
+
+<h1>Procedimento</h1>
+<h3>Sintaxe:</h3>
+<p class="SINTAX"><span class="style3">procedimento</span> nome ( tipo args ) <br>
+&nbsp;&nbsp;&nbsp;//comando<br>
+<span class="style3">fimprocedimento</span></p>
+<h3>Descrição:</h3>
+<p>Os procedimentos s&atilde;o pequenos algoritmos ou sub-algoritmo, que realizam pequenas tarefas e que normalmente s&atilde;o </p>
+<p>chamadas ou utilizadas no programa principal (entre o inicio e fim). </p>
+<h3>Exemplo:</h3>
+<p class="CODE"><span class="style4">/*ALGORITMO: Uso de Procedimentos<br>
+  --AUTOR: Bilabila<br>
+  --DATA E HORA: 7 de Fevereiro de 2012 | 13:26:40 */</span><br><br>
+  <span class="style3">procedimento</span> idade ( inteiro idade )<br>
+&nbsp;&nbsp;&nbsp;<span class="style3">se</span> ( idade &gt; 18 ) entao<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="style3">mostre</span> ( &quot;Adulto &quot; ) , idade<br>
+&nbsp;&nbsp;&nbsp;<span class="style3">senao</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="style3">mostre</span> ( &quot;Crian&ccedil;a&quot; ) , idade<br>
+&nbsp;&nbsp;&nbsp;<span class="style3">fimse</span><br>
+<span class="style3">fimprocedimento</span><br>
+<span class="style3">inicio</span><br>
+&nbsp;&nbsp;&nbsp;<span class="style3">escreva</span> ( &quot;Uso de procedimento &quot; )<br>
+&nbsp;&nbsp;&nbsp;<span class="style3">mostre</span> ( &quot;\n--------------------------------\n&quot; )<br>
+&nbsp;&nbsp;&nbsp;<span class="style3">escreva</span> &quot;Digite a sua idade:&quot;<br>
+&nbsp;&nbsp;&nbsp;<span class="style3">inteiro</span> a<br>
+&nbsp;&nbsp;&nbsp;<span class="style3">leia</span> a<br>
+&nbsp;&nbsp;&nbsp;idade ( a )<br>
+<span class="style3">fimalgoritmo</span><br>
+</p>
+<h3>Resultado:</h3>
+<p class="MONITOR">Uso de procedimento <br>
+  --------------------------------<br>
+  Digite a sua idade:30<br>
+Adulto 30</p>
+<h3>Sugest&atilde;o de pesquisa: </h3>
+<p><a href="funcao.html">Fun&ccedil;&atilde;o</a></p>
+<p>&nbsp;</p>
+</body>
+
+</html>

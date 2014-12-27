@@ -1,0 +1,7 @@
+inicio
+inteiro i
+    para i de 1 ate 10 passo 3
+        escrever "Ola bila"
+    proximo
+fim
+
