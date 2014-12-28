@@ -2,10 +2,12 @@ registo cadastro
     literal nome
     inteiro idade
 fimregisto
+
 registo datos
     logico varon
     cadastro pessoa
 fimregisto
+
 inicio
     escreva "Codigo principal \n"
     datos x [ 3 ]
@@ -21,9 +23,9 @@ inicio
     inteiro t
     para t de 0 ate 2
         se x [ t ] .varon = verdadeiro entao
-            escreva x [ t ] .pessoa.nome
+            escreva x [ t ] .pessoa.nome , "\n"
         senao
-            escreva x [ t ] .pessoa.idade
+            escreva x [ t ] .pessoa.idade , "\n"
         fimse
     fimpara
 fimalgoritmo

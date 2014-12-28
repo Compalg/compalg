@@ -2,27 +2,33 @@ registo pc
     literal marca
     real custo
 fimregisto
+
 registo cadastro
     literal nome
     inteiro idade
     pc computadoras [ 5 ]
 fimregisto
+
 registo datos
     logico varon
     cadastro pessoa
 fimregisto
+
 procedimento fazoa ( datos p , datos t )
     escreva " 3 hola " , p.pessoa.nome , " " , " 3 " , t.pessoa.computadoras [ 0 ] .marca , "\n"
 fimprocedimento
+
 procedimento fazo ( datos p , datos t )
     escreva " 2 hola " , p.pessoa.nome , " " , " 2 " , t.pessoa.computadoras [ 0 ] .marca , "\n"
     p.pessoa.nome <- "pepe"
     fazoa ( p , t )
 fimprocedimento
+
 procedimento fazer ( datos p , inteiro a )
-    escreva " 1 hola " , p.pessoa.nome , " " , a , "  ", t.pessoa.computadoras [ 0 ] .marca , "\n"
+    escreva " 1 hola " , p.pessoa.nome , " " , a , " " , p.pessoa.computadoras [ 0 ] .marca , "\n"
     fazo ( p , p )
 fimprocedimento
+
 inicio
     escreva "Codigo principal \n"
     datos x [ 3 ]
@@ -61,6 +67,6 @@ inicio
         fimpara
         escreva "\n"
     fimpara
-    fazer(x[0], 555)
+    fazer ( x [ 0 ] , 555 )
 fimalgoritmo
 

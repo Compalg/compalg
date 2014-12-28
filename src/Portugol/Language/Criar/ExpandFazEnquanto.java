@@ -24,6 +24,15 @@ public class ExpandFazEnquanto {
         doNode.SetLevel(level);
         
         NodeInstruction tmp = doNode.GetNext();
+        if (tmp.equals(endNode)) {
+            //no caso do ciclo vazio, não permitir, mas se permitere tem as condições para executar sem problemas
+            throw new LanguageException(
+                    endNode.GetCharNum(),
+                    doNode.GetText()+" - "+endNode.GetText(),
+                    "O ciclo Faz-ENQUANTO está vazío",
+                    "Acrecente instruções dentro do ciclo.");
+        }
+        
         //procurar o fim do ciclo
         while(!tmp.equals(endNode)){
             tmp.SetLevel(level+1);

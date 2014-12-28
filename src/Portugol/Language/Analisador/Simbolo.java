@@ -4,7 +4,7 @@ import Portugol.Language.Utilitario.LanguageException;
 import Portugol.Language.Utilitario.Values;
 import javax.swing.JOptionPane;
 
-public class Simbolo {
+public class Simbolo extends ParteDeExpresion {
 
     /**
      * tipo Vazio
@@ -47,7 +47,7 @@ public class Simbolo {
      */
     protected int type;
     public String typeLexema;//David: Paa almacenar o nome real do tipo do dado
-    public String TextoOrigen; //David: vai ter a linha origen da declaração 
+    //public String TextoOrigen; //David: vai ter a linha origen da declaração 
     /**
      * nome do simbolo
      */
@@ -76,7 +76,7 @@ public class Simbolo {
         this.name = name.trim();
 
         if (value == null) {
-            setValue(this.getDefaultValue(this.type));
+            setValue(Values.getDefault(typeLexema));
         } else {
             //setValue(getNormalizedValue((String) value).getValue());
             setValue(value);
@@ -165,71 +165,15 @@ public class Simbolo {
         level = l;
     }
 
-    /**
-     * devolve os valores por defeito de cada tipo
-     *
-     * @param varType tipo
-     * @return valor
-     */
-    public static Object getDefaultValue(int varType) {
-        if (varType == LOGICO) {
-            return new String(Values.FALSO);
-        }
-        if (varType == TEXTO) {
-            return new String("\"\"");
-        }
-        if (varType == INTEIRO) {
-            return new Integer(0);
-        }
-        if (varType == REAL) {
-            return new Double(0.0);
-        }
-        if (varType == CARACTER) {
-            return new String("\"_\"");
-        }
-        if (varType == REGISTO) {
-            return new String("REGISTO");
-        }
-
-        return new String("ERRO");
-    }
-
-    /**
-     * devolve os valores por defeito de cada tipo e 1 para os numericos
-     *
-     * @param varType tipo
-     * @return valor
-     */
-    public static String getSafeDefaultValue(int varType) {
-        if (varType == LOGICO) {
-            return Values.FALSO;
-        }
-        if (varType == TEXTO) {
-            return new String("\"\"");
-        }
-        if (varType == INTEIRO) {
-            return "1";
-        }
-        if (varType == REAL) {
-            return "1.0";
-        }
-        if (varType == CARACTER) {
-            return new String("\" \" ");
-        }
-        return "ERRO";
-    }
-
-    /**
-     * devolve os valores por defeito de cada tipo
-     *
-     * @param varType tipo
-     * @return valor
-     */
-    public static Object getDefaultValue(String varType) {
-        return getDefaultValue(getType(varType));
-    }
-
     //------------------------------------------------------------------------
+    public boolean isLogico() {
+        if (type == LOGICO) {
+            return true;
+        }
+        return false;
+    }
+    //------------------------------------------------------------------------
+
     public boolean isNumber() {
         if (type == REAL) {
             return true;
@@ -252,41 +196,39 @@ public class Simbolo {
     }
 
     //------------------------------------------------------------------------
-//    protected void setCanonicalValue(String val) throws LanguageException{
-//        if(this.isString())
-//            //value = getNormalizedValue("\"" + val + "\"");
-//            setValue((String)getNormalizedValue("\"" + val + "\""));//David: usar el metodo
-//        else
-//            //value = getNormalizedValue(val);
-//            setValue((String)getNormalizedValue(val));//David: usar el metodo
-//    }
-    //David: comentado, no se usa
-//   //-----------------------------------------------------------------------
-//    public void setHardValue(String val){
-//        value = val;
-//    }
-    //------------------------------------------------------------------------
     public void setValue(Object val) throws LanguageException {
         if (this.isConst) {
             throw new LanguageException("ESTE SÍMBOLO " + this.name + " É UMA CONSTANTE, NÃO PODE RECEBER VALORES",
                     " ALTERE O SIMBOLO PARA VARIAVEL");
         }
-        value = val; //David: aqui debe ficar mesmo asi
-    }
-
-    public void setValue(String val) throws LanguageException {
-        if (this.isConst) {
-            throw new LanguageException("ESTE SÍMBOLO " + this.name + " É UMA CONSTANTE, NÃO PODE RECEBER VALORES",
-                    " ALTERE O SIMBOLO PARA VARIAVEL");
+        if (val instanceof String && type != TEXTO && type != CARACTER && type != LOGICO) {
+            value = getNormalizedValue((String) val).getValue(); //David: aqui debe ficar mesmo asi
+        } else if (val instanceof String) {
+            value = val;
+        } else if (val instanceof Simbolo) {
+            if (((Simbolo) val).getValue() instanceof String) {
+                value = (String) ((Simbolo) val).getValue();
+            } else if (((Simbolo) val).getValue() instanceof Integer) {
+                value = new Integer((Integer) ((Simbolo) val).getValue());
+            } else if (((Simbolo) val).getValue() instanceof Double) {
+                value = new Double((Double) ((Simbolo) val).getValue());
+            } else if (((Simbolo) val).getValue() instanceof Boolean) {
+                value = (Boolean) ((Simbolo) val).getValue();
+            } else {
+                value = ((Simbolo) val).getValue();
+            }
+        } else {
+            value = val;
         }
-        value = getNormalizedValue(val).getValue(); //David: aqui debe ficar mesmo asi
     }
 
-    //David:
-    public void PilaValuePush() {
-    }
-    //
-
+//    public void setValue(String val) throws LanguageException {
+//        if (this.isConst) {
+//            throw new LanguageException("ESTE SÍMBOLO " + this.name + " É UMA CONSTANTE, NÃO PODE RECEBER VALORES",
+//                    " ALTERE O SIMBOLO PARA VARIAVEL");
+//        }
+//        value = getNormalizedValue(val).getValue(); //David: aqui debe ficar mesmo asi
+//    }
     protected Simbolo getNormalizedValue(String val) throws LanguageException {
         val = val.trim();
 
@@ -344,65 +286,12 @@ public class Simbolo {
         return value;
     }
 
-    //David:
-    public void PilaValuePop() {
+    public Object getDefaultValue() {//David: Não chamar desde construtor        
+        return Values.getDefault(typeLexema);
     }
 
-    /**
-     * devolve os valores por defeito de cada tipo
-     *
-     * @return valor por defeito
-     */
-    public Object getDefaultValue() {
-        return getDefaultValue(this.type);
-    }
-
-    /**
-     * devolve os valores por defeito de cada tipo e os numericos a 1 por causa
-     * das divisoes
-     *
-     * @return valor por defeito
-     */
-    public String getSafeDefaultValue() {
-        return getSafeDefaultValue(this.type);
-    }
-
-    public static String getStringType(int t) {
-        if (t == LOGICO) {
-            return "LOGICO";
-        }
-        if (t == TEXTO) {
-            return "TEXTO";
-        }
-        if (t == CARACTER) {
-            return "CARACTER";
-        }
-        if (t == REAL) {
-            return "REAL";
-        }
-        if (t == INTEIRO) {
-            return "INTEIRO";
-        }
-        return "DESCONHECIDO";
-    }
-
-    public String getStringType() {
-        if (type == LOGICO) {
-            return "LOGICO";
-        }
-        if (type == TEXTO) {
-            return "TEXTO";
-        }
-        if (type == CARACTER) {
-            return "CARACTER";
-        }
-        if (type == REAL) {
-            return "REAL";
-        }
-        if (type == INTEIRO) {
-            return "INTEIRO";
-        }
-        return "DESCONHECIDO";
+    public String getTypeLexema() {
+        return typeLexema;
     }
 
     /**
@@ -419,6 +308,10 @@ public class Simbolo {
      *
      * @return nome
      */
+    public void setName(String s) {
+        name = s;
+    }
+
     public String getName() {
         return name;
     }
@@ -455,7 +348,7 @@ public class Simbolo {
         }
         str.append("nome\t:" + getName() + "\n");
         str.append("valor\t:" + getValue() + "\n");
-        str.append("tipo\t:" + getStringType() + "\n");
+        str.append("tipo\t:" + getTypeLexema() + "\n");
         str.append("nivel\t:" + getLevel() + "\n");
         return str.toString();
     }
@@ -477,26 +370,68 @@ public class Simbolo {
      * @param value valor
      * @return compatibilidade
      */
-    public static boolean IsCompatible(int type1, Object value) {
-
-        if (type1 == Simbolo.REAL && Values.IsNumber(value)) {
-            return true;
-        }
-        if (type1 == Simbolo.INTEIRO && Values.IsInteger(value)) {
-            return true;
-        }
-        if (type1 == Simbolo.LOGICO && Values.IsBoolean(value)) {
-            return true;
-        }
-        if (type1 == Simbolo.CARACTER && Values.IsCharacter(value)) {
-            return true;
-        }
-        if (type1 == Simbolo.TEXTO && Values.IsString(value)) {
-            return true;
+    public static boolean IsCompatible(Object target, Object value) {
+        if (target == null || value == null) {
+            return false;
         }
 
-        if (type1 == Simbolo.getType((String) value)) {
-            return true;//David: requiere troque, es solo invento
+        int typeNUM;
+        if (target instanceof String) {
+            typeNUM = Simbolo.getType((String) target);
+            if (typeNUM == Simbolo.DESCONHECIDO) {
+                return false;
+            }
+        } else if (target instanceof Simbolo) {
+            if (value instanceof Simbolo
+                    && (((Simbolo) target).type == Simbolo.REAL || ((Simbolo) target).type == Simbolo.INTEIRO)
+                    && (((Simbolo) value).type == Simbolo.REAL || ((Simbolo) value).type == Simbolo.INTEIRO)) {
+                return true;
+            }
+            if (value instanceof Simbolo
+                    && ((Simbolo) target).type != Simbolo.REGISTO
+                    && ((Simbolo) target).type == ((Simbolo) value).type) {
+                return true;
+            }
+            if (value instanceof Simbolo
+                    && ((Simbolo) target).type == Simbolo.REGISTO
+                    && ((Simbolo) target).type == ((Simbolo) value).type
+                    && ((Simbolo) target).typeLexema.toUpperCase().equals(((Simbolo) value).typeLexema.toUpperCase())) {
+                return true;
+            }
+
+            typeNUM = ((Simbolo) target).type;
+        } else {
+            return false;
+        }
+
+        if (typeNUM == Simbolo.REAL && Values.IsNumber(value)) {
+            return true;
+        }
+        if (typeNUM == Simbolo.INTEIRO && Values.IsInteger(value)) {
+            return true;
+        }
+        if (typeNUM == Simbolo.LOGICO && Values.IsBoolean(value)) {
+            return true;
+        }
+        if (typeNUM == Simbolo.CARACTER && Values.IsCharacter(value)) {
+            return true;
+        }
+        if (typeNUM == Simbolo.TEXTO && Values.IsString(value)) {
+            return true;
+        }
+
+        if (typeNUM == Simbolo.REGISTO
+                && value instanceof Simbolo
+                && ((Simbolo) value).type == Simbolo.REGISTO
+                && ((Simbolo) value).typeLexema.toUpperCase().equals(((String) target).toUpperCase())) {
+            return true;
+        }
+
+        //Esta entrada deberia desaparecer. Es para la inicializacion de variables, para tener un valor por defecto para cada registo (su mismo nombre)
+        if (typeNUM == Simbolo.REGISTO
+                && value instanceof String
+                && ((String) value).toUpperCase().equals(((String) target).toUpperCase())) {
+            return true;
         }
         return false;
     }

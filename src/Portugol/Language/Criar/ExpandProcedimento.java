@@ -41,11 +41,18 @@ public class ExpandProcedimento {
         // SE ocupa dois caracteres
         String nome_proced = begin.GetText().substring(0, endExp).trim();
         if (nome_proced.toUpperCase().startsWith("PROCEDIMENTO")) {
-            rutina.Nome = nome_proced.toUpperCase().replace("PROCEDIMENTO ", "").trim();
             rutina.type = Bloque.PROCEDIMENTO;
+            rutina.Nome = nome_proced.toUpperCase().replace("PROCEDIMENTO ", "").trim();
+            rutina.TipoRetorno = "";
         } else if (nome_proced.toUpperCase().startsWith("FUNCAO")) {
-            rutina.Nome = nome_proced.toUpperCase().replace("FUNCAO ", "").trim();
+            nome_proced = nome_proced.toUpperCase().replace("FUNCAO ", "").trim();
+            int beg = nome_proced.length()-1;
+            while (beg > 0 && nome_proced.charAt(beg) != ' ') {
+                beg--;
+            }
             rutina.type = Bloque.FUNCAO;
+            rutina.Nome = nome_proced.substring(beg, nome_proced.length()).trim();
+            rutina.TipoRetorno = nome_proced.substring(0, beg).trim();
         } else {
             throw new LanguageException(
                     "Ten que utilizar PROCEDIMENTO o FUNCAO",
@@ -58,7 +65,7 @@ public class ExpandProcedimento {
         if (str.contains("<-") || str.contains("{") || str.contains("}")) {
             throw new LanguageException(
                     begin.GetCharNum(), begin.GetText(),
-                    "O CompAlg não aceita valores por defeito nos parâmetros", 
+                    "O CompAlg não aceita valores por defeito nos parâmetros",
                     "Tire a assinação do valor por defeito");
         }
         String SEPARATORS = ",";//David: virgula e espacio
@@ -75,27 +82,34 @@ public class ExpandProcedimento {
         int end = beg;
 
         String tempStr = "";
+        String fullStr = "";
         int contarParamProcesado = 1;
         while (end < str.length()) {
             if (SEPARATORS.indexOf(str.charAt(end)) >= 0) {
                 if (str.trim().length() > 0 && tempStr.trim().isEmpty()) {
-                    throw new LanguageException(begin.GetCharNum(), begin.GetText(), "O parâmetro " + Integer.toString(contarParamProcesado) + " ficó vazio", "Tire uma vírgula o complete o código"); //David:Revisar ortografia
+                    throw new LanguageException(
+                            begin.GetCharNum(), begin.GetText(), 
+                            "O parâmetro " + Integer.toString(contarParamProcesado) + " ficó vazio", 
+                            "Tire uma vírgula o complete o código"); //David:Revisar ortografia
                 }
                 AddParameter(rutina, begin, tempStr);
                 contarParamProcesado++;
-                beg = end + 1;
                 end = end + 1;
                 tempStr = "";
             } else {
                 if (PERMITIDOS.indexOf(str.charAt(end)) >= 0) {
                     tempStr = tempStr + str.charAt(end);
+                    fullStr = tempStr + str.charAt(end);
                 }
                 end++;
             }
         }
 
-        if (str.trim().length() > 0 && tempStr.trim().isEmpty()) {
-            throw new LanguageException(begin.GetCharNum(), begin.GetText(), "O parâmetro " + Integer.toString(contarParamProcesado) + " ficó vazio", "Tire uma vírgula o complete o código"); //David:Revisar ortografia
+        if (fullStr.trim().length() > 0 && tempStr.trim().isEmpty()) {
+            throw new LanguageException(
+                    begin.GetCharNum(), begin.GetText(), 
+                    "O parâmetro " + Integer.toString(contarParamProcesado) + " ficó vazio", 
+                    "Tire uma vírgula o complete o código"); //David:Revisar ortografia
         }
         AddParameter(rutina, begin, tempStr);
     }

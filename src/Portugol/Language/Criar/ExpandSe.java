@@ -2,6 +2,7 @@ package Portugol.Language.Criar;
 
 import Portugol.Language.Analisador.Expressao;
 import Portugol.Language.Analisador.Keyword;
+import Portugol.Language.Analisador.ParteDeExpresion;
 import Portugol.Language.Analisador.Simbolo;
 import Portugol.Language.Analisador.Variavel;
 import Portugol.Language.Utilitario.LanguageException;
@@ -67,8 +68,8 @@ public class ExpandSe {
         }
         //David: solo cambie desde arriba, desde el otro comentario
         // se nao for uma variavel logica
-        Simbolo var = Variavel.getVariable(condicao, memory);
-        if( (var == null || var.getType() != Simbolo.LOGICO ) &&
+        ParteDeExpresion var = Variavel.getVariable(condicao, memory);
+        if( (var == null || ((Simbolo) var).getType() != Simbolo.LOGICO ) &&
                 // uma expressao logica
                 Expressao.TypeExpression(condicao,memory)!= Simbolo.LOGICO)
             throw new LanguageException(
@@ -110,10 +111,10 @@ public class ExpandSe {
                 endIF.SetType(Keyword.CONECTOR);
                 
                 if (firstOfSpaceTRUE_Assigned == false)
-                    begin.SetIfTrue(tmp); //no há comando para TRUE
+                    begin.SetIfTrue(endIF); //no há comando para TRUE
                 
                 if (firstOfSpaceFALSE_Assigned == false)
-                    begin.SetIfFalse(tmp); //no há comando para FALSE
+                    begin.SetIfFalse(endIF); //no há comando para FALSE
 
                 if (In_Space_TRUE == false) //if cambió para SENAO ajustar su conector
                 {

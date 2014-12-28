@@ -17,7 +17,6 @@ import java.util.Vector;
 import Portugol.Language.Calcular.Procedimento;
 import Portugol.Language.Calcular.Funcao;
 import Portugol.Language.Criar.ExpandEnquanto;
-import Portugol.Language.Criar.ExpandFluxogram;
 import Portugol.Language.Criar.ExpandSe;
 import Portugol.Language.Criar.NodeInstruction;
 import Portugol.Language.Utilitario.IteratorCodeParams;

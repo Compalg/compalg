@@ -19,8 +19,9 @@ public class SymbolArray extends Simbolo {
     // index corrent
     int currentIndex = -1;
     private int numElements = 1;
-
+    static public String ErroForaLimites = "FORA DOS LIMITES";
     // definition tem os indexes e os valores
+
     public SymbolArray(String modify, String type, String name, Vector<Integer> indLims, Vector<Simbolo> values, int level, Vector memory, String origTxt)
             throws LanguageException {
         TextoOrigen = origTxt;
@@ -33,7 +34,7 @@ public class SymbolArray extends Simbolo {
         this.type = getType(type);
         typeLexema = type;
         this.name = name.trim();
-        this.value = this.getDefaultValue(this.type);
+        this.value = Values.getDefault(typeLexema);
         this.level = level;
         IndiceOrigen = ""; //David: Se inicializa mas tarde, en el metodo de abaixo
         MakeArray(indLims);
@@ -53,45 +54,64 @@ public class SymbolArray extends Simbolo {
         PutValues(origen.dataValues);
     }
 
+    public void copyFrom(SymbolArray arreglo) throws LanguageException {
+        if (!this.TextoOrigen.equals(arreglo.TextoOrigen)) {
+            throw new LanguageException("Os vetores não são equivalentes", "Mude a declaração o el parâmetro de chamada");//David:Revisar
+        }
+        dataValues.clear();
+        for (int i = 0; i < arreglo.dataValues.size(); i++) {
+            if (arreglo.dataValues.get(i) instanceof SymbolArray) {
+                dataValues.add(new SymbolArray((SymbolArray) arreglo.dataValues.get(i)));
+            } else if (arreglo.dataValues.get(i) instanceof SymbolComposto) {
+                dataValues.add(new SymbolComposto((SymbolComposto) arreglo.dataValues.get(i)));
+            } else //if (arreglo.dataValues.get(i) instanceof Simbolo) 
+            {
+                dataValues.add(new Simbolo(arreglo.dataValues.get(i)));
+            }
+        }
+    }
+
     public void copyFrom(SimboloDeParametro origen) throws LanguageException {
         if (origen == null) {
             return;
         }
         if (origen.Value instanceof SymbolArray) {
             SymbolArray arreglo = (SymbolArray) origen.Value;
-            if (!this.TextoOrigen.equals(arreglo.TextoOrigen)) {
-                throw new LanguageException("Os vetores não são equivalentes", "Mude a declaração o el parâmetro de chamada");//David:Revisar
-            }
-            dataValues.clear();
-            for (int i = 0; i < arreglo.dataValues.size(); i++) {
-                if (arreglo.dataValues.get(i) instanceof SymbolArray) {
-                    dataValues.add(new SymbolArray((SymbolArray) arreglo.dataValues.get(i)));
-                } else if (arreglo.dataValues.get(i) instanceof SymbolComposto) {
-                    dataValues.add(new SymbolComposto((SymbolComposto) arreglo.dataValues.get(i)));
-                } else //if (arreglo.dataValues.get(i) instanceof Simbolo) 
-                {
-                    dataValues.add(new Simbolo(arreglo.dataValues.get(i)));
-                }
-            }
+            this.copyFrom(arreglo);
         } else {
             throw new LanguageException("Tipo de parâmetro não é equivalente ao esperado", "Mude o tipo de parâmetro na chamada");//David:Revisar
         }
     }
 
     //coloca o current index na posicao pretendida
-    public void SetIndex(String varName, Vector memory) {
+    public void SetIndex(String varName, Vector memory) throws LanguageException {
         IteratorArray iter = new IteratorArray(varName);
         String nome = iter.getNext();
         while (iter.hasMoreElements()) {
             nome += "[";
             String index = iter.getNext();
             Object value = Expressao.Evaluate(index, memory);
-            nome += Integer.parseInt((String) value) + "]";
+            if (value instanceof String) {
+                nome += Integer.parseInt((String) value) + "]";
+            } else if (value instanceof Simbolo) {
+                if (!((Simbolo) value).isNumber()) {
+                    throw new LanguageException("O SIMBOLO " + varName + " TEM DE SER UM NÚMERO",
+                            " ALTERE O SIMBOLO PARA NÚMERO");
+                }
+
+                nome += ((Integer) ((Simbolo) value).getValue()).toString() + "]";
+            } else {
+                nome += "0" + "]";
+            }
         }
         try {
             this.currentIndex = this.getFlatIndex(nome);
         } catch (Exception e) {
-            this.currentIndex = -1;
+            //this.currentIndex = -1;
+            throw new LanguageException(
+                    e.getMessage(),
+                    " ALTERE O SIMBOLO PARA NÚMERO");
+
         }
 
     }
@@ -139,7 +159,7 @@ public class SymbolArray extends Simbolo {
         int index = 0;
         for (int i = 0; i < values.size(); i++) {
             Object value = values.get(i);
-            if (type == Simbolo.REGISTO && value instanceof String && typeLexema.equals((String)value)) {
+            if (type == Simbolo.REGISTO && value instanceof String && typeLexema.equals((String) value)) {
                 break;//David: 
             }
             if (value instanceof SymbolComposto) {
@@ -153,14 +173,14 @@ public class SymbolArray extends Simbolo {
             }
             index++;
         }
-        Object defValue = getDefaultValue(type);
+        Object defValue = Values.getDefault(typeLexema);
         for (int i = index;
                 i < numElements;
                 i++) {
             if (type == REGISTO) {
                 dataValues.add(new SymbolComposto("", typeLexema + " ", " nao_nome", typeLexema + "", level, (typeLexema + " nao_nome <- " + typeLexema)));
             } else {
-                dataValues.add(new Simbolo("", typeLexema + " ", " nao_nome", defValue + "", level, (typeLexema + " nao_nome")));
+                dataValues.add(new Simbolo("", typeLexema + " ", " nao_nome", defValue, level, (typeLexema + " nao_nome")));
             }
         }
     }
@@ -219,13 +239,13 @@ public class SymbolArray extends Simbolo {
         while (iter.hasMoreElements()) {
             String exp = iter.getNext();
 
-            Object result = Calculador.CalulateValue(exp);
+            Object result = Calculador.CalulateValue(Expressao.ExpresionStringToVector(exp));
             int number = Integer.parseInt((String) result);
             if (number < 0) {
                 throw new Exception("ERRO NO INDECE " + exp);
             }
             if (number >= Integer.parseInt(indexLimits.get(numIndex).toString())) {
-                throw new Exception("ERRO NO INDECE :" + exp + " FORA DOS LIMITES ");
+                throw new Exception(ErroForaLimites + ": " + exp);
             }
             if (numIndex > indexLimits.size()) {
                 throw new Exception("ERRO NO INDECE :" + exp + " - NAO DEFENIDO");

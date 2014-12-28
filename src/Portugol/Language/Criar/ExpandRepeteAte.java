@@ -31,6 +31,15 @@ public class ExpandRepeteAte {
         repeatNode.SetLevel(level);
         
         NodeInstruction tmp = repeatNode.GetNext();
+        if (tmp.equals(endNode)) {
+            //no caso do ciclo vazio, não permitir, mas se permitere tem as condições para executar sem problemas
+            throw new LanguageException(
+                    endNode.GetCharNum(),
+                    repeatNode.GetText()+" - "+endNode.GetText(),
+                    "O ciclo REPITA-ATE está vazío",
+                    "Acrecente instruções dentro do ciclo.");
+        }
+        
         //procurar o fim do ciclo
         // while(tmp.GetType() != Keyword.ATE){
         while(!tmp.equals(endNode)){

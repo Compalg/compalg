@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="10">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="13">
         <file>
             <url>src/Portugol/Language/Analisador/Registo.java</url>
             <bookmark id="10">
@@ -12,9 +12,14 @@
         </file>
         <file>
             <url>src/Editor/GUI/EditorCAlg.java</url>
-            <bookmark id="9">
+            <bookmark id="12">
                 <name/>
-                <line>2204</line>
+                <line>1619</line>
+                <key/>
+            </bookmark>
+            <bookmark id="13">
+                <name/>
+                <line>2134</line>
                 <key/>
             </bookmark>
         </file>

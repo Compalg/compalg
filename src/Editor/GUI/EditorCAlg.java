@@ -54,47 +54,38 @@ import javax.swing.UIManager;
 /**
  * @author Augusto Bilabila(2011-2012)
  */
+public class EditorCAlg extends javax.swing.JFrame implements Runnable {
 
-public class EditorCAlg extends javax.swing.JFrame implements Runnable{
     public static String TITLE = "Compilador de Algoritmos";
     public static String DATE = "11-03-2014";
     public static String VERSION = "Versão:1.2 \t(c)Augusto Bilabila";
     //texto modificado
     private boolean textChanged = false;
-    
     private static JFrame frameBusca = null;
-	private static JFrame frameLine=null;
-	private static JTextField texto_busca;	
-	private static JRadioButton desdeInicio, desdeAgora;
-	private static JButton botao_buscaProximo;
-	private static boolean verificaDesdeInicio = false;
-	private static String previous = "";
-        
-        
-  // Variavel que sera acedida no envio de email
-public static String codigo = "";
-        
-  //  MetodoBusca busca = new MetodoBusca();
-    
+    private static JFrame frameLine = null;
+    private static JTextField texto_busca;
+    private static JRadioButton desdeInicio, desdeAgora;
+    private static JButton botao_buscaProximo;
+    private static boolean verificaDesdeInicio = false;
+    private static String previous = "";
+    // Variavel que sera acedida no envio de email
+    public static String codigo = "";
+    //  MetodoBusca busca = new MetodoBusca();
     public ConsoleIO console;
-    private ConsoleIO info; 
-    
+    private ConsoleIO info;
     // gestor de ficheiros
     public FileManager fileManager;
     private ExemploAlgoritmo fileManager2;
     // propriedades do editor
     private EditorProperties editorProperties;
-   
-    private AlgoSyntaxHighlight txtCode ;
+    private AlgoSyntaxHighlight txtCode;
     //ajuda da linguagem
     private WWWHelpText helpLang;
     // undo manager
     private MyUndoRedoManager urManager;
-    
     //public RedoAction redoAction;
-    
     //---------------------------- EXecucao do programa ---------
-    private Thread autoExecute=null;                            
+    private Thread autoExecute = null;
     private NodeInstruction instruction;
     private BloqueSubrutine prog;
     private Intermediario intermediario;
@@ -105,66 +96,60 @@ public static String codigo = "";
     private JMenu tipos = new JMenu("Tipo de dado");
     private JMenu ed = new JMenu("Estrutura de dado");
     private JMenu EC = new JMenu("Estrutura de controlo");
-    
     private JMenu ES = new JMenu("Estrutura de controlo");
-    private JMenu Edecisao= new JMenu("Decisão");
-    private JMenuItem se= new JMenuItem("Se") ;private JMenuItem escolha= new JMenuItem("Escolha") ;
-    private JMenu Erepeticao= new JMenu("Repetição (Ciclos)");
-    private JMenuItem para= new JMenuItem("Para") ;private JMenuItem enquanto= new JMenuItem("Enquanto") ;
-    private JMenuItem faca= new JMenuItem("Faça") ;private JMenuItem repita= new JMenuItem("Repita") ;
-    
+    private JMenu Edecisao = new JMenu("Decisão");
+    private JMenuItem se = new JMenuItem("Se");
+    private JMenuItem escolha = new JMenuItem("Escolha");
+    private JMenu Erepeticao = new JMenu("Repetição (Ciclos)");
+    private JMenuItem para = new JMenuItem("Para");
+    private JMenuItem enquanto = new JMenuItem("Enquanto");
+    private JMenuItem faca = new JMenuItem("Faça");
+    private JMenuItem repita = new JMenuItem("Repita");
     private JMenu MT = new JMenu("Métodos");
     private JMenuItem proc = new JMenuItem("Procedimento");
     private JMenuItem func = new JMenuItem("Função");
-        
     private JMenuItem atrib = new JMenuItem("Atribuição");
     private JMenuItem nlinha = new JMenuItem("Mudar de linha");
     private JMenuItem tabul = new JMenuItem("Tabulação");
-
-    private JMenuItem selecionar, copiar, colar , cortar, ajuda, propriedade= new JMenuItem("Propriedade");
-    private JMenuItem escreva = new JMenuItem("Escreva"); private JMenuItem leia= new JMenuItem("Leia");
-    private JMenuItem mostre = new JMenuItem("Mostre") ;
-    private JMenuItem inteiro= new JMenuItem("Inteiro"); private JMenuItem  real = new JMenuItem("Real");
-    private JMenuItem logico= new JMenuItem("Logico") ; private JMenuItem literal= new JMenuItem("Literal") ;
-    private JMenuItem caracter= new JMenuItem("Caracter") ;
-    
-    private JMenuItem registo = new JMenuItem("Registo") ;
-    private JMenu matriz= new JMenu("Matriz");
-    private JMenuItem matrizU= new JMenuItem("Uni-dimencional") ;
-    private JMenuItem matrizB= new JMenuItem("Bi-dimencional") ;
-    private JMenuItem matrizM= new JMenuItem("Multi-dimencional") ;
-    
-    private JMenuItem exemplo1= new JMenuItem("Exemplo de Algoritmos");
-    
-    
+    private JMenuItem selecionar, copiar, colar, cortar, ajuda, propriedade = new JMenuItem("Propriedade");
+    private JMenuItem escreva = new JMenuItem("Escreva");
+    private JMenuItem leia = new JMenuItem("Leia");
+    private JMenuItem mostre = new JMenuItem("Mostre");
+    private JMenuItem inteiro = new JMenuItem("Inteiro");
+    private JMenuItem real = new JMenuItem("Real");
+    private JMenuItem logico = new JMenuItem("Logico");
+    private JMenuItem literal = new JMenuItem("Literal");
+    private JMenuItem caracter = new JMenuItem("Caracter");
+    private JMenuItem registo = new JMenuItem("Registo");
+    private JMenu matriz = new JMenu("Matriz");
+    private JMenuItem matrizU = new JMenuItem("Uni-dimencional");
+    private JMenuItem matrizB = new JMenuItem("Bi-dimencional");
+    private JMenuItem matrizM = new JMenuItem("Multi-dimencional");
+    private JMenuItem exemplo1 = new JMenuItem("Exemplo de Algoritmos");
     construirProgramaJava progJava;
     construirProgramaC progC;
-    
-    Calendario calend ;
-    DicasdoDia dica; 
-            
+    Calendario calend;
+    DicasdoDia dica;
     private String descAlgo = "";
-    
     FormPropriedadeAlgol objeto_propriedade;
-    
+
     public EditorCAlg() {
         initComponents();
         initMyComponents();
         // ler o ficheiro por defeito
-        this.LerFicheiro( fileManager.getFileName()); 
-        
+        this.LerFicheiro(fileManager.getFileName());
+
     }
-    
+
     public EditorCAlg(String fileName) {
         initComponents();
         initMyComponents();
         // ler o ficheiro por defeito
-        this.LerFicheiro( fileName);
+        this.LerFicheiro(fileName);
 
     }
-    
-    
-    private void initMyComponents(){
+
+    private void initMyComponents() {
         //maximizar a janela
         this.setExtendedState(MAXIMIZED_BOTH);
         //---------------- consola ------------------------
@@ -174,423 +159,406 @@ public static String codigo = "";
         //--------------------------------------------------
         fileManager = new FileManager();
         fileManager2 = new ExemploAlgoritmo();
-        
+
         //----------- Propriedades do Editor --------------------
         SetEditorProperties();
         //------------------------  UNDO MANAGER  ---------??????????????????
         urManager = new MyUndoRedoManager();
-        TextPaneCode.getDocument().addUndoableEditListener( urManager );
-        
+        TextPaneCode.getDocument().addUndoableEditListener(urManager);
+
         obj_RA = new Botoes_nav(); // classe com os metodos de avançar e retroceder
         obj_RA.tempo.start();
         //-------------------------------------------------------------------------
         //----------------------------------------
         info.setForeground(Color.BLUE);
-        info.write( PortugolInfo.getInformation());
-        
+        info.write(PortugolInfo.getInformation());
+
         //---------------------------------------
         MenuEditorCheckSyntax.setSelected(true);
         String txt = TextPaneCode.getText();
-        if(MenuEditorCheckSyntax.isSelected() ){
+        if (MenuEditorCheckSyntax.isSelected()) {
             txtCode = new AlgoCodeStyle();
-        } else{
+        } else {
             txtCode = new AlgoCodeBlank();
         }
-        editorProperties.SetProperty("sintax",MenuEditorCheckSyntax.isSelected() + "");
+        editorProperties.SetProperty("sintax", MenuEditorCheckSyntax.isSelected() + "");
         TextPaneCode.setStyledDocument(txtCode); // colorir sintaxe
         TextPaneCode.setText(txt);
         txtCode.clearTextBackground();
-        
+
         MenuEditorCheckSyntax.setVisible(false);
         menuMudarConsola.setVisible(false);
         //---------------------------------------
-        
+
         data_hora();
-        
+
         TextPaneCode.setText(descAlgo);
-        
-        
-         TextPaneCode.addMouseListener(
-            new MouseAdapter(){
-                public void mouseReleased(MouseEvent e){
-                    if(e.isPopupTrigger())
-                        jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
+
+
+        TextPaneCode.addMouseListener(
+                new MouseAdapter() {
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
                 }
-            }   
-         );
-     
+            }
+        });
+
         // cria o JPopupMenu
         jPopupMenu1 = new JPopupMenu();
-       
+
         selecionar = new JMenuItem("Selecionar Tudo");
         selecionar.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    TextPaneCode.requestFocus();
-                    TextPaneCode.selectAll();
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                TextPaneCode.requestFocus();
+                TextPaneCode.selectAll();
+            }
+        });
+
         atrib.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                   insereSintaxe(" <- ");
-                }
-            }   
-        );
-       //----------------------------------------------------------------------- 
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe(" <- ");
+            }
+        });
+        //----------------------------------------------------------------------- 
         nlinha.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                   insereSintaxe(" \\n ");
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe(" \\n ");
+            }
+        });
+
         //----------------------------------------------------------------------- 
         tabul.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                   insereSintaxe("\\t");
-                }
-            }   
-        );
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("\\t");
+            }
+        });
         //---------------------------------------------------------------------
         copiar = new JMenuItem("Copiar");
         copiar.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    TextPaneCode.copy();
-                }
-            }   
-        );
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                TextPaneCode.copy();
+            }
+        });
         //---------------------------------------------------------------------
         colar = new JMenuItem("Colar");
         colar.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    TextPaneCode.paste();
-                }
-            }   
-        );
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                TextPaneCode.paste();
+            }
+        });
         //---------------------------------------------------------------------
         cortar = new JMenuItem("Cortar");
         cortar.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    TextPaneCode.cut();
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                TextPaneCode.cut();
+            }
+        });
+
         //---------------------------------------------------------------------
         cortar = new JMenuItem("Cortar");
         cortar.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    TextPaneCode.cut();
-                }
-            }   
-        );
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                TextPaneCode.cut();
+            }
+        });
 
         //---------------------------------------------------------------------
         escreva.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("escreva ( \" \" )");
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("escreva ( \" \" )");
+            }
+        });
+
         //---------------------------------------------------------------------
         leia.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("leia variavel");
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("leia variavel");
+            }
+        });
+
         //---------------------------------------------------------------------
         mostre.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("mostre (\" \")");
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("mostre (\" \")");
+            }
+        });
+
         jButton3.setVisible(false);
         //-----------------------TIPOS-----------------------------------------
         inteiro.addActionListener(
-            new ActionListener(){
-                @Override
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("inteiro varI1, varI2");
-                }
-            }   
-        );
+                new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("inteiro varI1, varI2");
+            }
+        });
         //---------------------------------------------------------------------
         real.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("real varR1, varR2");
-                }
-            }   
-        );
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("real varR1, varR2");
+            }
+        });
         //---------------------------------------------------------------------
         logico.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("logico varL1, varL2");
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("logico varL1, varL2");
+            }
+        });
+
         //---------------------------------------------------------------------
         literal.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("literal varL <- \"\"");
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("literal varL <- \"\"");
+            }
+        });
+
         caracter.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("caracter varC");
-                }
-            }   
-        );
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("caracter varC");
+            }
+        });
         //---------------------------------------------------------------------
         registo.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("registo nome_registo\n //variaveis\nfimregisto");
-                }
-            }   
-        );
-        
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("registo nome_registo\n //variaveis\nfimregisto");
+            }
+        });
+
         //---------------------------------------------------------------------
         matrizU.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("tipo_dado nome_vector[dimensao] ");
-                }
-            }   
-        );
-         //---------------------------------------------------------------------
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("tipo_dado nome_vector[dimensao] ");
+            }
+        });
+        //---------------------------------------------------------------------
         matrizB.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("tipo_dado nome_matriz[linhas][colunas] ");
-                }
-            }   
-        );
-        
-          //---------------------------------------------------------------------
-        matrizM.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("tipo_dado nome_matriz[dimensao1][dimensao2][dimensao3][dimensao4][dimensaoN] ");
-                }
-            }   
-        );
-        
-       //========================= E.C ============================================
-        se.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("\tse ( condição ) entao\n"
-                                + "\t//instrucoes caso a condição seja verdadeira\n"
-                                + "\tsenao\n"
-                                + "\t//instrucoes caso a condição seja falsa\n"
-                                + "\tfimse ");
-                }
-            }   
-        );
-        //-------------------------------------------------------------------------
-         escolha.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("\tescolha ( expressão )\n"
-                                + "\t caso expressão1:\n"
-                                + "\t //comando1\n"
-                                + "\t caso expressão2:\n"
-                                + "\t //comando2\n"
-                                + "\t caso expressão3:\n"
-                                + "\t //comando3\n"
-                                + "\t caso expressãoN:\n"
-                                + "\t //comandoN\n"
-                                + "\t defeito:\n"
-                                + "\t //comando executado quando a expressão avaliada não se verifica nos casos acima\n"
-                                + "\tfimescolha ");
-                }
-            }   
-        );
-        //-------------------------------------------------------------------------
-         para.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe("\tinteiro var \n"
-                                + "\tpara var de inic ate fim passo inc|dec\n"
-                                + "\t //comando\n"
-                                + "\tfimpara ");
-                }
-            }   
-        );
-        //-------------------------------------------------------------------------
-           enquanto.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe(""
-                                + "\tenquanto ( condição ) faça\n"
-                                + "\t //comando\n"
-                                + "\tfimenquanto ");
-                }
-            }   
-        );
-        //-------------------------------------------------------------------------
-            faca.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe(""
-                                + "\tfaça \n"
-                                + "\t //comando, executado enquanto a condição for verdadeira\n"
-                                + "\tenquanto ( condição )");
-                }
-            }   
-        );
-        //----------------------------------------------------------------------
-            repita.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe(""
-                                + "\trepita \n"
-                                + "\t //comando, executado sempre que a condição for falsa\n"
-                                + "\tate ( condição )");
-                }
-            }   
-        );
-            
-        //----------------------------------------------------------------------
-            proc.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe(""
-                                + "procedimento nome ( tipo args ) \n"
-                                + "     //comando\n"
-                                + "fimprocedimento");
-                }
-            }   
-        );
-        //----------------------------------------------------------------------
-            func.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    insereSintaxe(""
-                                + "funcao tipo nome ( tipo args ) \n"
-                                + "     //comando\n"
-                                + "fimfuncao");
-                }
-            }   
-        );
-       //----------------------------------------------------------------------      
-             exemplo1.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    menuExemploAlgoritmoActionPerformed(null);
-                }
-            }   
-        );
-             //----------------------------------------------------------------------      
-             propriedade.addActionListener(
-            new ActionListener(){
-                public void actionPerformed(ActionEvent ev){
-                    FormPropriedadeAlgol dialog = new FormPropriedadeAlgol(new javax.swing.JFrame(), true,fileManager.getFileName(), TextPaneCode.getHeight());
-                    dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("tipo_dado nome_matriz[linhas][colunas] ");
+            }
+        });
 
+        //---------------------------------------------------------------------
+        matrizM.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("tipo_dado nome_matriz[dimensao1][dimensao2][dimensao3][dimensao4][dimensaoN] ");
+            }
+        });
+
+        //========================= E.C ============================================
+        se.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("\tse ( condição ) entao\n"
+                        + "\t//instrucoes caso a condição seja verdadeira\n"
+                        + "\tsenao\n"
+                        + "\t//instrucoes caso a condição seja falsa\n"
+                        + "\tfimse ");
+            }
+        });
+        //-------------------------------------------------------------------------
+        escolha.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("\tescolha ( expressão )\n"
+                        + "\t caso expressão1:\n"
+                        + "\t //comando1\n"
+                        + "\t caso expressão2:\n"
+                        + "\t //comando2\n"
+                        + "\t caso expressão3:\n"
+                        + "\t //comando3\n"
+                        + "\t caso expressãoN:\n"
+                        + "\t //comandoN\n"
+                        + "\t defeito:\n"
+                        + "\t //comando executado quando a expressão avaliada não se verifica nos casos acima\n"
+                        + "\tfimescolha ");
+            }
+        });
+        //-------------------------------------------------------------------------
+        para.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe("\tinteiro var \n"
+                        + "\tpara var de inic ate fim passo inc|dec\n"
+                        + "\t //comando\n"
+                        + "\tfimpara ");
+            }
+        });
+        //-------------------------------------------------------------------------
+        enquanto.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe(""
+                        + "\tenquanto ( condição ) faça\n"
+                        + "\t //comando\n"
+                        + "\tfimenquanto ");
+            }
+        });
+        //-------------------------------------------------------------------------
+        faca.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe(""
+                        + "\tfaça \n"
+                        + "\t //comando, executado enquanto a condição for verdadeira\n"
+                        + "\tenquanto ( condição )");
+            }
+        });
+        //----------------------------------------------------------------------
+        repita.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe(""
+                        + "\trepita \n"
+                        + "\t //comando, executado sempre que a condição for falsa\n"
+                        + "\tate ( condição )");
+            }
+        });
+
+        //----------------------------------------------------------------------
+        proc.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe(""
+                        + "procedimento nome ( tipo args ) \n"
+                        + "     //comando\n"
+                        + "fimprocedimento");
+            }
+        });
+        //----------------------------------------------------------------------
+        func.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                insereSintaxe(""
+                        + "funcao tipo nome ( tipo args ) \n"
+                        + "     //comando\n"
+                        + "fimfuncao");
+            }
+        });
+        //----------------------------------------------------------------------      
+        exemplo1.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                menuExemploAlgoritmoActionPerformed(null);
+            }
+        });
+        //----------------------------------------------------------------------      
+        propriedade.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                FormPropriedadeAlgol dialog = new FormPropriedadeAlgol(new javax.swing.JFrame(), true, fileManager.getFileName(), TextPaneCode.getHeight());
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
                         //System.exit(0);
                     }
                 });
                 dialog.setVisible(true);
-                }
-            }   
-        );
+            }
+        });
         //----------------------------------------------------------------------
-            
+
         jPopupMenu1.add(selecionar);
         jPopupMenu1.addSeparator();
         jPopupMenu1.add(copiar);
         jPopupMenu1.add(colar);
         jPopupMenu1.add(cortar);
-        
+
         jPopupMenu1.addSeparator();
-        
-        Edecisao.add(se);  Edecisao.add(escolha);
-        Erepeticao.add(para);  Erepeticao.add(enquanto); Erepeticao.add(faca);
+
+        Edecisao.add(se);
+        Edecisao.add(escolha);
+        Erepeticao.add(para);
+        Erepeticao.add(enquanto);
+        Erepeticao.add(faca);
         Erepeticao.add(repita);
-        
-        EC.add(Edecisao);  EC.add(Erepeticao);
-        
-        MT.add(proc); MT.add(func);
-        
-        inserir.add(atrib); inserir.add(escreva);inserir.add(leia); 
-        inserir.add(mostre);inserir.add(nlinha);inserir.add(tabul);
-        tipos.add(inteiro); tipos.add(real);tipos.add(logico);
-        tipos.add(caracter);tipos.add(literal);
+
+        EC.add(Edecisao);
+        EC.add(Erepeticao);
+
+        MT.add(proc);
+        MT.add(func);
+
+        inserir.add(atrib);
+        inserir.add(escreva);
+        inserir.add(leia);
+        inserir.add(mostre);
+        inserir.add(nlinha);
+        inserir.add(tabul);
+        tipos.add(inteiro);
+        tipos.add(real);
+        tipos.add(logico);
+        tipos.add(caracter);
+        tipos.add(literal);
         inserir.add(tipos); // adiciona o menu com os tipos primitivos
-        
-        ed.add(matriz); ed.add(registo);
-        matriz.add(matrizU);  matriz.add(matrizB);  matriz.add(matrizM);
+
+        ed.add(matriz);
+        ed.add(registo);
+        matriz.add(matrizU);
+        matriz.add(matrizB);
+        matriz.add(matrizM);
         inserir.add(ed); // adiciona o menu de Estrutura de dados
-        
+
         inserir.add(EC); // adiciona o menu de Estrutura de controlo
-        
+
         inserir.add(MT);
-        
+
         jPopupMenu1.add(inserir);
         jPopupMenu1.addSeparator();
         jPopupMenu1.add(exemplo1);
         jPopupMenu1.addSeparator();
         jPopupMenu1.add(propriedade);
-        
+
         // fim menu
-        
+
         // coloca uma figura na barra de título da janela  
-        URL url = this.getClass().getResource("logoCompAlg48.png");  
-        Image imagemTitulo = Toolkit.getDefaultToolkit().getImage(url);  
+        URL url = this.getClass().getResource("logoCompAlg48.png");
+        Image imagemTitulo = Toolkit.getDefaultToolkit().getImage(url);
         this.setIconImage(imagemTitulo);
-        
+
         // Aparencia por defeito
-         aparencias(3);
+        aparencias(3);
     }
-    
-    public void insereSintaxe( String sintaxe ) {
 
-		int posicaoAtual = TextPaneCode.getCaret().getMark();
-		
-		StringBuffer novoTexto = new StringBuffer();
-		novoTexto.append( TextPaneCode.getText().substring( 0, posicaoAtual ) );
-		novoTexto.append( sintaxe );
-		novoTexto.append( TextPaneCode.getText().substring( posicaoAtual ) );
-		
-		TextPaneCode.setText( novoTexto.toString() );
-		
-	}
+    public void insereSintaxe(String sintaxe) {
 
-    
-    public void aparencias(int valor){
+        int posicaoAtual = TextPaneCode.getCaret().getMark();
+
+        StringBuffer novoTexto = new StringBuffer();
+        novoTexto.append(TextPaneCode.getText().substring(0, posicaoAtual));
+        novoTexto.append(sintaxe);
+        novoTexto.append(TextPaneCode.getText().substring(posicaoAtual));
+
+        TextPaneCode.setText(novoTexto.toString());
+
+    }
+
+    public void aparencias(int valor) {
         try {
-             look = UIManager.getInstalledLookAndFeels();
-            
+            look = UIManager.getInstalledLookAndFeels();
+
             UIManager.setLookAndFeel(look[valor].getClassName());
             SwingUtilities.updateComponentTreeUI(this);
-            
+
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(EditorCAlg.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
@@ -601,80 +569,61 @@ public static String codigo = "";
             Logger.getLogger(EditorCAlg.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void SetEditorProperties(){
+
+    public void SetEditorProperties() {
         editorProperties = new EditorProperties();
         //-----------------------------MENU FICHEIRO --------------------
-        MenuFicheiroAberto1.setText( editorProperties.GetProperty("file1"));
-        MenuFicheiroAberto2.setText( editorProperties.GetProperty("file2"));
-        MenuFicheiroAberto3.setText( editorProperties.GetProperty("file3"));        
+        MenuFicheiroAberto1.setText(editorProperties.GetProperty("file1"));
+        MenuFicheiroAberto2.setText(editorProperties.GetProperty("file2"));
+        MenuFicheiroAberto3.setText(editorProperties.GetProperty("file3"));
         //----------------------------FONTE ----------------------------------
         String fontName = editorProperties.GetProperty("fontName");
         int size = Integer.parseInt(editorProperties.GetProperty("fontSize"));
-        int style =0;
-        if ( editorProperties.GetProperty("fontItalic").equalsIgnoreCase("true") )
+        int style = 0;
+        if (editorProperties.GetProperty("fontItalic").equalsIgnoreCase("true")) {
             style += Font.ITALIC;
-        if ( editorProperties.GetProperty("fontBold").equalsIgnoreCase("true") )
+        }
+        if (editorProperties.GetProperty("fontBold").equalsIgnoreCase("true")) {
             style += Font.BOLD;
-        TextPaneCode.setFont( new Font( fontName,style, size ) );
-        
-       //------------------------------------COR ------------------------------- 
+        }
+        TextPaneCode.setFont(new Font(fontName, style, size));
+
+        //------------------------------------COR ------------------------------- 
         int R = Integer.parseInt(editorProperties.GetProperty("backColorR"));
         int G = Integer.parseInt(editorProperties.GetProperty("backColorG"));
         int B = Integer.parseInt(editorProperties.GetProperty("backColorB"));
-        txtCode.defaultBackGround = new Color(R,G,B);
-        TextPaneCode.setBackground( new Color(R,G,B));
-        
+        txtCode.defaultBackGround = new Color(R, G, B);
+        TextPaneCode.setBackground(new Color(R, G, B));
+
         //------------------------  SISTEMA DE COR DO EDITOR ---------
-        MenuEditorCheckSyntax.setState(editorProperties.GetProperty("sintax").equalsIgnoreCase("true") );
-        MenuEditorCheckSyntaxActionPerformed(null);                    
+        MenuEditorCheckSyntax.setState(editorProperties.GetProperty("sintax").equalsIgnoreCase("true"));
+        MenuEditorCheckSyntaxActionPerformed(null);
     }
-    
-    public void SelectErrorLine(int numChar){
+
+    public void SelectErrorLine(int numChar) {
         txtCode.selectErrorLine(numChar);
         TextPaneCode.setCaretPosition(numChar);
     }
-    public void SelectCodeLine(int numChar){
+
+    public void SelectCodeLine(int numChar) {
         txtCode.selectCodeLine(numChar);
         TextPaneCode.setCaretPosition(numChar);
     }
-    
-    
-    public void DeSelectLine(int numChar){
+
+    public void DeSelectLine(int numChar) {
         txtCode.deSelectCodeLine(numChar);
     }
 ///////////////////////////////////////////////////////////////////////////////
-    public void run(){
-        try{
-            instruction = prog.getStart();
-            
-            //David: Ejecutar el llamado a la instruccion falsa temporal
-            prog.ExecuteSubrutine(new Vector<String>() /*sim pasar parametros*/, console);
-         
-            calend = new Calendario();
-            info.write("\nO programa terminou com sucesso... ");
-            info.write("\n\t\t\t\t\t"+ calend.dataAtual() );
-        }catch(Exception e){
-            SelectErrorLine(instruction.GetCharNum());
-            LanguageException ex = new LanguageException(
-                    instruction.GetCharNum(),
-                    instruction.GetText(),
-                    e.getMessage(), "ERRO DE EXECUÇÃO");
-            Message.ExecutionError("ERRO DE EXECUÇÃO", ex);
-            DeSelectLine(instruction.GetCharNum());
-        }
-        autoExecute =null;
-    }
 ///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-    public void SelectTabUnderEditor(int index){
+
+    public void SelectTabUnderEditor(int index) {
         this.tpUnderCodeEditor.setSelectedIndex(index);
     }
-    
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1611,177 +1560,164 @@ public static String codigo = "";
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
     private void MenuEditorFonteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuEditorFonteActionPerformed
         FontChooser f = new FontChooser(this, TextPaneCode.getFont(), TextPaneCode.getBackground());
         f.setVisible(true);
-        if( f.fontSelected ){
+        if (f.fontSelected) {
             Font fnt = f.getNewFont();
             System.out.println("FONTE   :" + fnt.getFontName());
             System.out.println("TAMANHO :" + fnt.getSize());
             TextPaneCode.setFont(f.getNewFont());
-            TextPaneCode.setBackground( f.getNewColor());
+            TextPaneCode.setBackground(f.getNewColor());
             txtCode.defaultBackGround = f.getNewColor();
-            
-            editorProperties.SetProperty("fontName",fnt.getName());
-            editorProperties.SetProperty("fontSize",fnt.getSize() + "");            
-            editorProperties.SetProperty("fontBold",fnt.isBold() + "");
-            editorProperties.SetProperty("fontItalic",fnt.isItalic()+"");             
+
+            editorProperties.SetProperty("fontName", fnt.getName());
+            editorProperties.SetProperty("fontSize", fnt.getSize() + "");
+            editorProperties.SetProperty("fontBold", fnt.isBold() + "");
+            editorProperties.SetProperty("fontItalic", fnt.isItalic() + "");
             editorProperties.SetProperty("backColorR", "" + f.getNewColor().getRed());
             editorProperties.SetProperty("backColorG", "" + f.getNewColor().getGreen());
-            editorProperties.SetProperty("backColorB", "" + f.getNewColor().getBlue());            
+            editorProperties.SetProperty("backColorB", "" + f.getNewColor().getBlue());
             //recolorir
-            this.MenuEditorCheckSyntaxActionPerformed(evt);            
+            this.MenuEditorCheckSyntaxActionPerformed(evt);
         }
-        
+
     }//GEN-LAST:event_MenuEditorFonteActionPerformed
-    
+
     private void MenuEditorCheckSyntaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuEditorCheckSyntaxActionPerformed
-         
     }//GEN-LAST:event_MenuEditorCheckSyntaxActionPerformed
-    
+
     private void MenuAjudaAcercaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuAjudaAcercaActionPerformed
-       tpUnderCodeEditor.setSelectedIndex(1);
+        tpUnderCodeEditor.setSelectedIndex(1);
         info.Clear();
-        info.write( PortugolInfo.getInformation());
+        info.write(PortugolInfo.getInformation());
         AboutThis about = new AboutThis();
         about.setAlwaysOnTop(true);
         about.setVisible(true);
         about.requestFocus();
     }//GEN-LAST:event_MenuAjudaAcercaActionPerformed
-                        
+
     private void MenuProgramaPararActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuProgramaPararActionPerformed
-  
+
         autoExecute = null;
-        if(instruction != null)
+        if (instruction != null) {
             DeSelectLine(instruction.GetCharNum());
+        }
         this.tpUnderCodeEditor.setSelectedIndex(1);
-        info.write("\n"+System.getProperty("user.name")+", VOCÊ PAROU O ALGORITMO...");
+        info.write("\n" + System.getProperty("user.name") + ", VOCÊ PAROU O ALGORITMO...");
         console.setText("Nenhum algoritmo está sendo executado");
     }//GEN-LAST:event_MenuProgramaPararActionPerformed
-    
+
     private void ButtonProgramaPararActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonProgramaPararActionPerformed
         MenuProgramaPararActionPerformed(evt);
     }//GEN-LAST:event_ButtonProgramaPararActionPerformed
-    
+
     private void ButtonProgramaCorrerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonProgramaCorrerActionPerformed
         MenuAlgoritmoCorrerActionPerformed(evt);
     }//GEN-LAST:event_ButtonProgramaCorrerActionPerformed
-    
+
     private void MenuAlgoritmoCorrerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuAlgoritmoCorrerActionPerformed
-        
+
         MenuEditarReformatarActionPerformed(null);
-        
+
         NodeInstruction instruction = null;
+
         //se estiver a ser executado nao faz nada
-        if ( autoExecute != null)
-            return ;
-        
-        try{
-            //verificar o programa e construir o fluxograma
-            MenuAlgoritmoVerificarActionPerformed(null);
-           //prog = new Intermediario(TextPaneCode.getText());
-            instruction= prog.getStart();
-            
-        }catch (Exception e){
-            if( instruction != null){
-                SelectErrorLine(instruction.GetCharNum());
-                Message.Error("Erro de Execução\n" +
-                        "na linha " + instruction.GetText() +
-                        "\n ERRO : " + e.getMessage() );
-                DeSelectLine(instruction.GetCharNum());
-            }
+        if (autoExecute != null) {
             return;
         }
-        info.write("\nGuardar o Algoritmo :" +  fileManager.getFileName());
-        // this.MenuFicheiroGuardarActionPerformed(null);
-        
-        console.Clear();
-        //mostrar a consola
-        tpUnderCodeEditor.setSelectedIndex(0);
-        
+
+        //verificar o programa e construir o fluxograma
+        MenuAlgoritmoVerificarActionPerformed(null);
+
+        if (prog == null) {
+            return;
+        }
+        instruction = prog.getStartNode();
         //------------------- fazer uma thread -------------------------
-        try{
+        if (instruction == null) {
+            return;
+        }
+
+        try {
             calend = new Calendario();
-            info.write("\nO Algoritmo está sendo executado. . . ");
-            info.write("\n\t\t\t\t\t"+ calend.dataAtual() );
             this.autoExecute = new Thread(this);
             this.autoExecute.start();
-            
-        }catch(Exception e){
-            Message.Error("ERRO DE EXECUÇÃO:\n" + instruction.GetText()+
-                    "\n" +e.getMessage());
+        } catch (Exception e) {
+            Message.Error("ERRO DE EXECUÇÃO:\n" + instruction.GetText()
+                    + "\n" + e.getMessage());
             this.tpUnderCodeEditor.setSelectedIndex(1);
             info.write("\n\nO algoritmo foi abortado");
         }
     }//GEN-LAST:event_MenuAlgoritmoCorrerActionPerformed
-    
+
     private void ButtonProgramaVerificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonProgramaVerificarActionPerformed
         MenuAlgoritmoVerificarActionPerformed(null);
     }//GEN-LAST:event_ButtonProgramaVerificarActionPerformed
-    
+
     private void MenuAlgoritmoVerificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuAlgoritmoVerificarActionPerformed
         MenuEditarReformatarActionPerformed(null);
         veriricarAlgoritmo();
     }//GEN-LAST:event_MenuAlgoritmoVerificarActionPerformed
-        
+
     private void MenuAlgoritmoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuAlgoritmoActionPerformed
 // TODO add your handling code here:
     }//GEN-LAST:event_MenuAlgoritmoActionPerformed
-    
+
     private void ButtonEditarReformatarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonEditarReformatarActionPerformed
         MenuEditarReformatarActionPerformed(null);
     }//GEN-LAST:event_ButtonEditarReformatarActionPerformed
-        
+
     private void ButtonEditarCortarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonEditarCortarActionPerformed
         this.MenuEditarCortarActionPerformed(null);
     }//GEN-LAST:event_ButtonEditarCortarActionPerformed
-    
+
     private void ButtonEditarColarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonEditarColarActionPerformed
         this.MenuEditarColarActionPerformed(null);
     }//GEN-LAST:event_ButtonEditarColarActionPerformed
-    
+
     private void ButtonEditarCopiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonEditarCopiarActionPerformed
         this.MenuEditarCopiarActionPerformed(null);
     }//GEN-LAST:event_ButtonEditarCopiarActionPerformed
-    
+
     private void ButtonEditarAvancarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonEditarAvancarActionPerformed
         obj_RA.eventoAvancar();
     }//GEN-LAST:event_ButtonEditarAvancarActionPerformed
-    
+
     private void ButtonEditarRecuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonEditarRecuarActionPerformed
         obj_RA.eventoRetroceder();
     }//GEN-LAST:event_ButtonEditarRecuarActionPerformed
-                        
+
     private void TextPaneCodeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TextPaneCodeKeyPressed
         try {
-            if( evt.VK_F1 == evt.getKeyCode() ){
+            if (evt.VK_F1 == evt.getKeyCode()) {
                 tpUnderCodeEditor.setSelectedIndex(2);
                 int caretPosition = TextPaneCode.getCaretPosition();
-                int startIndex = javax.swing.text.Utilities.getWordStart(TextPaneCode, caretPosition );
-                int endIndex   = javax.swing.text.Utilities.getWordEnd(TextPaneCode, caretPosition );
-                String keyword = TextPaneCode.getDocument().getText( startIndex, endIndex-startIndex ).trim();
-                helpLang.setPage( HelpFileName.getHelpFile(keyword) );
+                int startIndex = javax.swing.text.Utilities.getWordStart(TextPaneCode, caretPosition);
+                int endIndex = javax.swing.text.Utilities.getWordEnd(TextPaneCode, caretPosition);
+                String keyword = TextPaneCode.getDocument().getText(startIndex, endIndex - startIndex).trim();
+                helpLang.setPage(HelpFileName.getHelpFile(keyword));
             }
-           
-            if( evt.VK_TAB == evt.getKeyCode() ){
+
+            if (evt.VK_TAB == evt.getKeyCode()) {
                 // introduzir a TAB
                 int caretPosition = TextPaneCode.getCaretPosition();
                 txtCode.insertString(caretPosition, BeautifyCode.TAB_SPACES, new SimpleAttributeSet());
                 // consumir o enter
                 evt.consume();
-             
-            } else if( evt.VK_ENTER == evt.getKeyCode() ){
+
+            } else if (evt.VK_ENTER == evt.getKeyCode()) {
                 // ir buscar o paragrafo actual
                 int caretPosition = TextPaneCode.getCaretPosition();
-                Element element = txtCode.getParagraphElement( caretPosition );
+                Element element = txtCode.getParagraphElement(caretPosition);
                 int start = element.getStartOffset();
                 int end = element.getEndOffset();
-                String old = txtCode.getText(start,end - start  );
-               
-                int spaces=0;
-                String tab="\n";
-                while( old.charAt(spaces) == ' '){
+                String old = txtCode.getText(start, end - start);
+
+                int spaces = 0;
+                String tab = "\n";
+                while (old.charAt(spaces) == ' ') {
                     spaces++;
                     tab += " ";
                 }
@@ -1790,64 +1726,66 @@ public static String codigo = "";
                 // consumir o enter
                 evt.consume();
             }
-        }catch(Exception e){}
+        } catch (Exception e) {
+        }
     }//GEN-LAST:event_TextPaneCodeKeyPressed
-    
+
     private void ButtonFicheiroGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonFicheiroGuardarActionPerformed
         this.MenuFicheiroGuardarActionPerformed(null);
     }//GEN-LAST:event_ButtonFicheiroGuardarActionPerformed
-    
+
     private void ButtonFicheiroAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonFicheiroAbrirActionPerformed
         this.MenuFicheiroAbrir1ActionPerformed(null);
-        
-       // ajudaWWW.add(new WWWHelpText)
-        
+
+        // ajudaWWW.add(new WWWHelpText)
+
     }//GEN-LAST:event_ButtonFicheiroAbrirActionPerformed
-    
+
     private void ButtonFicheiroNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonFicheiroNovoActionPerformed
         this.MenuFicheiroNovo1ActionPerformed(null);
     }//GEN-LAST:event_ButtonFicheiroNovoActionPerformed
-    
+
     private void MenuFicheiroGuardarComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuFicheiroGuardarComoActionPerformed
-        GuardarFicheiroComo( fileManager.getFileName());
+        GuardarFicheiroComo(fileManager.getFileName());
     }//GEN-LAST:event_MenuFicheiroGuardarComoActionPerformed
-    
+
     private void MenuFicheiroGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuFicheiroGuardarActionPerformed
-        
-        if( ! fileManager.isFileOpened() )
-            GuardarFicheiroComo( fileManager.getFileName());
-        else
-            GuardarFicheiro( fileManager.getFileName());
+        info.write("\nGuardar o Algoritmo :" + fileManager.getFileName());
+        if (!fileManager.isFileOpened()) {
+            GuardarFicheiroComo(fileManager.getFileName());
+        } else {
+            GuardarFicheiro(fileManager.getFileName());
+        }
     }//GEN-LAST:event_MenuFicheiroGuardarActionPerformed
-    
+
     private void MenuFicheiroAberto3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuFicheiroAberto3ActionPerformed
         LerFicheiro(MenuFicheiroAberto3.getText());
     }//GEN-LAST:event_MenuFicheiroAberto3ActionPerformed
-    
+
     private void MenuFicheiroAberto2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuFicheiroAberto2ActionPerformed
         LerFicheiro(MenuFicheiroAberto2.getText());
     }//GEN-LAST:event_MenuFicheiroAberto2ActionPerformed
-    
+
     private void MenuFicheiroAberto1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuFicheiroAberto1ActionPerformed
         LerFicheiro(MenuFicheiroAberto1.getText());
     }//GEN-LAST:event_MenuFicheiroAberto1ActionPerformed
-    
+
     private void TextPaneCodeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TextPaneCodeKeyTyped
-        if( ! this.getTextChanged()){
+        if (!this.getTextChanged()) {
             setTextChanged(true);
         }
     }//GEN-LAST:event_TextPaneCodeKeyTyped
-    
+
     private void MenuFicheiroNovo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuFicheiroNovo1ActionPerformed
         NovoFicheiro();
     }//GEN-LAST:event_MenuFicheiroNovo1ActionPerformed
-    
+
     private void MenuFicheiroSair1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuFicheiroSair1ActionPerformed
         confirmarSaidaNoAlgoritmo();
     }//GEN-LAST:event_MenuFicheiroSair1ActionPerformed
-    
+
     private void MenuFicheiroAbrir1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuFicheiroAbrir1ActionPerformed
-        if( fileManager.openFileWindow(this) != null ){
+        if (fileManager.openFileWindow(this) != null) {
             LerFicheiro(fileManager.getFileName());
         }
     }//GEN-LAST:event_MenuFicheiroAbrir1ActionPerformed
@@ -1877,7 +1815,7 @@ public static String codigo = "";
         urManager.undo();     }//GEN-LAST:event_MenuEditarUndoActionPerformed
 
     private void MenuEditarReformatarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuEditarReformatarActionPerformed
-   
+
         int initPosCaret = TextPaneCode.getCaretPosition();         String newCode = BeautifyCode.IndentCode(TextPaneCode.getText());         TextPaneCode.setText(newCode);         txtCode.clearTextBackground();         TextPaneCode.setCaretPosition(initPosCaret);     }//GEN-LAST:event_MenuEditarReformatarActionPerformed
 
     private void menuItemNimbusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemNimbusActionPerformed
@@ -1891,7 +1829,7 @@ public static String codigo = "";
     }//GEN-LAST:event_menuItemWindowsActionPerformed
 
     private void menuItemMetalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemMetalActionPerformed
-       // Muda a aparencia para Windows
+        // Muda a aparencia para Windows
         aparencias(0);
     }//GEN-LAST:event_menuItemMetalActionPerformed
 
@@ -1900,7 +1838,7 @@ public static String codigo = "";
     }//GEN-LAST:event_jButtonSairToobarActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-      irParaLinha();
+        irParaLinha();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
@@ -1908,75 +1846,71 @@ public static String codigo = "";
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-         veriricarAlgoritmo();
-        
-        progC.construirC(); // constroi o programa C
- 
-        ConversorParaLC dialog = new ConversorParaLC(new javax.swing.JFrame(), true, progC.getProgramaC());
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+        veriricarAlgoritmo();
 
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        //System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-             
+        progC.construirC(); // constroi o programa C
+
+        ConversorParaLC dialog = new ConversorParaLC(new javax.swing.JFrame(), true, progC.getProgramaC());
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                //System.exit(0);
+            }
+        });
+        dialog.setVisible(true);
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
         FormAjuda dialog = new FormAjuda(new javax.swing.JFrame(), true);
-        
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
 
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        //System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                //System.exit(0);
+            }
+        });
+        dialog.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void MenuSelecionarTudoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuSelecionarTudoActionPerformed
         // TODO add your handling code here:
-         TextPaneCode.requestFocus();
-         TextPaneCode.selectAll();
+        TextPaneCode.requestFocus();
+        TextPaneCode.selectAll();
     }//GEN-LAST:event_MenuSelecionarTudoActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         veriricarAlgoritmo();
-        
-        progJava.construirJava(); // constroi o programa JAVA
- 
-        ConversorParaLJava dialog = new ConversorParaLJava(new javax.swing.JFrame(), true, progJava.getProgramaJava());
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
 
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        //System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-               
+        progJava.construirJava(); // constroi o programa JAVA
+
+        ConversorParaLJava dialog = new ConversorParaLJava(new javax.swing.JFrame(), true, progJava.getProgramaJava());
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                //System.exit(0);
+            }
+        });
+        dialog.setVisible(true);
+
         //JOptionPane.showMessageDialog(null, progJava.getProgramaJava());
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void btEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btEmailActionPerformed
         codigo = TextPaneCode.getText();
-       java.awt.EventQueue.invokeLater(new Runnable() {
-
+        java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-               // new Envio_Email().setVisible(true);
+                // new Envio_Email().setVisible(true);
             }
         });
-                
+
     }//GEN-LAST:event_btEmailActionPerformed
 
     private void menuExemploAlgoritmoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExemploAlgoritmoActionPerformed
         // TODO add your handling code here:
-         if( fileManager2.openFileWindow(this) != null ){
+        if (fileManager2.openFileWindow(this) != null) {
             LerExemploAlgol(fileManager2.getFileName());
         }
     }//GEN-LAST:event_menuExemploAlgoritmoActionPerformed
@@ -1995,7 +1929,7 @@ public static String codigo = "";
         // TODO add your handling code here:
         jMenuItem3ActionPerformed(null); // executa o form de ajuda
     }//GEN-LAST:event_jButton3ActionPerformed
-    
+
     /**
      * @param args the command line arguments
      */
@@ -2006,7 +1940,6 @@ public static String codigo = "";
             }
         });
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ButtonEditarAvancar;
     private javax.swing.JButton ButtonEditarColar;
@@ -2103,479 +2036,513 @@ public static String codigo = "";
     private javax.swing.JScrollPane spOutput;
     private javax.swing.JTabbedPane tpUnderCodeEditor;
     // End of variables declaration//GEN-END:variables
-    
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-    private void setTextChanged( boolean flag){
+    private void setTextChanged(boolean flag) {
         textChanged = flag;
-        if( flag)
-            this.setTitle( this.getTitle() + "*");
+        if (flag) {
+            this.setTitle(this.getTitle() + "*");
+        }
     }
-    
-    private boolean getTextChanged(){
+
+    private boolean getTextChanged() {
         return textChanged;
     }
-    private void ActualizarMenuFicheiro(String newFile){
+
+    private void ActualizarMenuFicheiro(String newFile) {
         this.editorProperties.SetLoadFileName(newFile);
-        MenuFicheiroAberto1.setText( editorProperties.GetProperty("file1"));
-        MenuFicheiroAberto2.setText( editorProperties.GetProperty("file2"));
-        MenuFicheiroAberto3.setText( editorProperties.GetProperty("file3"));
+        MenuFicheiroAberto1.setText(editorProperties.GetProperty("file1"));
+        MenuFicheiroAberto2.setText(editorProperties.GetProperty("file2"));
+        MenuFicheiroAberto3.setText(editorProperties.GetProperty("file3"));
         editorProperties.Save();
     }
-    
-    private void NovoFicheiro(){
-        
-        if( getTextChanged() ) //  verifica se o texto foi alterado
+
+    private void NovoFicheiro() {
+
+        if (getTextChanged()) //  verifica se o texto foi alterado
         {
             int action = Message.Confirm("DESEJA SALVAR O ALGORITMO ACTUAL\n" + fileManager.getFileName());
-            
-            if( action == JOptionPane.CANCEL_OPTION ){
+
+            if (action == JOptionPane.CANCEL_OPTION) {
                 return;
             }
-                
-            if( action == JOptionPane.YES_OPTION ){
+
+            if (action == JOptionPane.YES_OPTION) {
                 this.MenuFicheiroGuardarActionPerformed(null);
             }
-            
+
         }
         fileManager.clearFileName();
-        textChanged=false;
-        
+        textChanged = false;
+
         data_hora();
-       
+
         TextPaneCode.setText(descAlgo);
-        
-        this.setTitle( this.TITLE + " - " + fileManager.getFileName());
+
+        this.setTitle(this.TITLE + " - " + fileManager.getFileName());
     }
     //---------------------------------------------------------------------------
+
     public void LerFicheiro(String fileName) {
-        if(fileManager.FileExists(fileName)){
-            TextPaneCode.setText( fileManager.ReadFile(fileName));
+        if (fileManager.FileExists(fileName)) {
+            TextPaneCode.setText(fileManager.ReadFile(fileName));
             //colocar o cursor no inicio do texto
             TextPaneCode.setCaretPosition(1);
             // actualizar o menu
             ActualizarMenuFicheiro(fileName);
             textChanged = false;
-            this.setTitle( this.TITLE + " - " + fileManager.getFileName());
+            this.setTitle(this.TITLE + " - " + fileManager.getFileName());
         }
     }
-    
+
     //---------------------------------------------------------------------------
     public void LerExemploAlgol(String fileName) {
-        if(fileManager.FileExists(fileName)){
-            TextPaneCode.setText( fileManager.ReadFile(fileName));
+        if (fileManager.FileExists(fileName)) {
+            TextPaneCode.setText(fileManager.ReadFile(fileName));
             //colocar o cursor no inicio do texto
             TextPaneCode.setCaretPosition(1);
             // actualizar o menu
             ActualizarMenuFicheiro(fileName);
             textChanged = false;
-            this.setTitle( this.TITLE + " - " + fileManager.getFileName());
+            this.setTitle(this.TITLE + " - " + fileManager.getFileName());
             objeto_propriedade.buscaNome_linha(fileManager.getFileName(), TextPaneCode.getSelectionEnd());
         }
     }
     //---------------------------------------------------------------------------
+
     public void GuardarFicheiro(String fileName) {
         //se conseguir salvar
-        if( fileManager.saveFileUpdate(TextPaneCode.getText()) ){
+        if (fileManager.saveFileUpdate(TextPaneCode.getText())) {
             textChanged = false;
-            this.setTitle( this.TITLE + " - " + fileManager.getFileName());
+            this.setTitle(this.TITLE + " - " + fileManager.getFileName());
             objeto_propriedade.buscaNome_linha(fileManager.getFileName(), TextPaneCode.getSelectionEnd());
         }
     }
     //---------------------------------------------------------------------------
+
     public void GuardarFicheiroComo(String fileName) {
         //se conseguir salvar
-        if(fileManager.saveFile(this,fileManager.getFileName(), TextPaneCode.getText())){
+        if (fileManager.saveFile(this, fileManager.getFileName(), TextPaneCode.getText())) {
             textChanged = false;
-            this.setTitle( this.TITLE + " - " + fileManager.getFileName());
+            this.setTitle(this.TITLE + " - " + fileManager.getFileName());
             ActualizarMenuFicheiro(fileName);
             objeto_propriedade.buscaNome_linha(fileManager.getFileName(), TextPaneCode.getSelectionEnd());
         }
     }
-   
-    public void veriricarAlgoritmo(){
-        try{
+
+///////////////////////////////////////////////////////////////////////////////
+    public void veriricarAlgoritmo() {
+        try {
             calend = new Calendario();
             this.tpUnderCodeEditor.setSelectedIndex(1);
             info.Clear();
-            info.write("\n\t\t\t\t\t"+ calend.dataAtual() );
-            info.write("\nAlgoritmo :" +  fileManager.getFileName());
-            info.write("\nA COMPILAR O ALGORITMO . . .");
-          
+            info.write("\n" + calend.dataAtual());
+            info.write("\nAlgoritmo: " + fileManager.getFileName());
+            info.write("\n\nA compilar o algoritmo...");
+
             intermediario = new Intermediario(TextPaneCode.getText());
             prog = intermediario.getInicio();
-            info.write("\nO ALGORITMO NÃO TEM ERROS\n");
-            progJava = new construirProgramaJava(TextPaneCode.getText()); 
+            info.write("\nO algoritmo não tem erros da compilação...\n");
+            progJava = new construirProgramaJava(TextPaneCode.getText());
             progC = new construirProgramaC(TextPaneCode.getText());
-        }catch (LanguageException e){
+        } catch (LanguageException e) {
             SelectErrorLine(e.line);
             Message.CompileError(e);
+            info.write("\n\n---------------------\nERRO DE COMPILAÇÃO: \n"
+                    //+ "  LINHA:\n" + e.line + "\n"
+                    + "  INSTRUÇÃO:\n\t" + e.codeLine + "\n"
+                    + "  ERRO:\n\t" + e.error + "\n"
+                    + "  SOLUÇÃO:\n\t" + e.solution + "\n");
+            prog = null;
         }
-    }  
-    
-    public void confirmarSaidaNoAlgoritmo(){
-        if( getTextChanged() ) //  verifica se o texto foi alterado
+    }
+
+///////////////////////////////////////////////////////////////////////////////
+    public void run() {
+        try {
+            //this.MenuFicheiroGuardarActionPerformed(null);
+            console.Clear();
+            //mostrar a consola
+            tpUnderCodeEditor.setSelectedIndex(0);
+
+            Intermediario.console = console; //David: Isto é preciso, não tirar
+            //prog = intermediario.getInicio();
+            instruction = prog.getStartNode();
+
+            //David: Ejecutar el llamado a la instruccion falsa temporal
+            info.write("\nO Algoritmo está sendo executado. . . ");
+            prog.ExecuteSubrutine(new Vector<String>());
+
+            Intermediario.console = null; //David: Isto é preciso, não tirar
+
+            calend = new Calendario();
+            info.write("\nO programa terminou com sucesso... ");
+            info.write("\n" + calend.dataAtual());
+        } catch (LanguageException e) {
+            SelectErrorLine(e.line == 0 ? instruction.GetCharNum() : e.line);
+            Message.ExecutionError("ERRO DE EXECUÇÃO", e);
+            info.write("\n\n---------------------\nERRO DE EXECUÇÃO: \n"
+                    //+ "  LINHA:\n\t" + (e.line == 0 ? instruction.GetCharNum() : e.line) + "\n" //DAVID: o valor da linha não é real
+                    + "  INSTRUÇÃO:\n\t" + e.codeLine + "\n"
+                    + "  ERRO:\n\t" + e.error + "\n"
+                    + "  SOLUÇÃO:\n\t" + e.solution + "\n");
+            prog = null;
+        }
+        autoExecute = null;
+    }
+
+    public void confirmarSaidaNoAlgoritmo() {
+        if (getTextChanged()) //  verifica se o texto foi alterado
         {
             int action = Message.Confirm("DESEJA SALVAR O ALGORITMO ACTUAL\n" + fileManager.getFileName());
-            
-            if( action == JOptionPane.CANCEL_OPTION ){
+
+            if (action == JOptionPane.CANCEL_OPTION) {
                 return;
             }
-                
-            if( action == JOptionPane.YES_OPTION ){
+
+            if (action == JOptionPane.YES_OPTION) {
                 this.MenuFicheiroGuardarActionPerformed(null);
-                  //guardar as propriedades
-                  editorProperties.Save();
-                  //libertar os recursos
-                  this.dispose();
-                  System.exit(0);
-            }
-                
-            
-            if( action == JOptionPane.NO_OPTION ){
                 //guardar as propriedades
-                  editorProperties.Save();
-                  //libertar os recursos
-                  this.dispose();
-                  System.exit(0);
+                editorProperties.Save();
+                //libertar os recursos
+                this.dispose();
+                System.exit(0);
             }
-            
-        }else {
+
+
+            if (action == JOptionPane.NO_OPTION) {
+                //guardar as propriedades
+                editorProperties.Save();
+                //libertar os recursos
+                this.dispose();
+                System.exit(0);
+            }
+
+        } else {
             //guardar as propriedades
             editorProperties.Save();
             this.dispose();
             System.exit(0);
         }
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
-        //--------------- Retornar componentes ------------------------------------
-    public JTextPane getEditorTexto(){
+    //--------------- Retornar componentes ------------------------------------
+    public JTextPane getEditorTexto() {
         return TextPaneCode;
-    } 
-         //--------------- Retornar componentes ------------------------------------
-    public void getEditorTextoFocus(){
-        TextPaneCode.requestFocus();
-    } 
-    //------------------------------------------------------------------------
-     public JScrollPane getScrolEditorTexto(){
-        return scrollCodeEditor;
-    } 
-    // Linhas
-     //------------------------Mudar a component ------------------------------
-     public void setScrolEditorTexto( JScrollPane scroll){
-       jSplitPane2.setTopComponent(scroll);
-    } 
-    
-      //------------------------Mudar a component ------------------------------
-     public void setEditorTexto( JTextPane texto){
-       TextPaneCode = texto;
-    } 
-     /** Retorna o numero total de linhas do TextPane */
-	public int getTotalLinhas(){
-		int numeroLinhas = 0;
-		for(int i = 0; i < TextPaneCode.getText().length(); i++){
-			if(TextPaneCode.getText().charAt(i) == '\n')
-				numeroLinhas++;
-		}
-		return numeroLinhas+1;
-	}
-        
-    //==========================================================================
-
-    private void irParaLinha() {
-        if( (frameLine == null) || (!frameLine.isShowing()) )
-	{
-	
-//		bool que verifica se a pessoa quer fazer a busca desde o inicio				
-		frameLine = new JFrame("Ir para a linha...");		
-		Container Lexcontainer = new Container();           				
-		
-		texto_busca = new JTextField(15);
-		botao_buscaProximo = new JButton("Ir");		
-					
-		Lexcontainer = frameLine.getContentPane();
-		Lexcontainer.setLayout( new FlowLayout() );                   	   
-										
-		Lexcontainer.add(texto_busca);
-		Lexcontainer.add(botao_buscaProximo);		
-		botao_buscaProximo.addActionListener(				
-				new ActionListener(){
-					public void actionPerformed(ActionEvent actionEvent){
-						int contadorDeLinhas = 0;						 							 	
-					 	int caretPos = 0;
-					 	
-						if(verificaDesdeInicio == true){
-							TextPaneCode.setCaretPosition(0);
-							verificaDesdeInicio = false;
-							desdeInicio.setSelected(false);
-							desdeAgora.setSelected(true);
-						}
-//						int k = 0;
-						if( texto_busca.getText().length() == 0 ){
-							JOptionPane.showMessageDialog(frameLine,
-									"O CAMPO NÃO PODE ESTAR VAZIO!",
-									VERSION,JOptionPane.ERROR_MESSAGE);
-							}
-					
-						 else{							
-						 try{
-                                                     
-						 	int pos = Integer.parseInt(texto_busca.getText().toString());							
-						 	int Total = getTotalLinhas();						 	
-						 	
-						 	if(( pos <= Total )&&( pos > 0 )){
-						 		for(int i=0; i<TextPaneCode.getText().length(); i++){
-						 			if(TextPaneCode.getText().charAt(i) == '\n'){
-						 				contadorDeLinhas++;
-						 				if(contadorDeLinhas == pos){
-						 					break;
-						 				}
-						 			}
-						 			else{
-						 				caretPos++;
-						 			}
-						 		}
-						 		if(pos == 1)
-						 			TextPaneCode.setCaretPosition(0);
-						 		else if (pos == Total)
-						 			TextPaneCode.setCaretPosition(caretPos);
-						 		else
-						 			TextPaneCode.setCaretPosition(caretPos+contadorDeLinhas-1);
-						 		
-						 		frameLine.setVisible(false);  
-						 		TextPaneCode.requestFocus();
-						 	}						 	
-						 	else{
-						 		JOptionPane.showMessageDialog(frameLine,
-										"A linha da busca nao existe!",
-										VERSION,JOptionPane.ERROR_MESSAGE);
-						 	}
-						 }
-						 catch(NumberFormatException numero){
-									JOptionPane.showMessageDialog(frameLine,
-											"Formato de numero invalido!",
-											VERSION,JOptionPane.ERROR_MESSAGE);			
-						 }
-						 }//fim else
-					}
-				}				
-		);
-				
-		frameLine.setSize( 270, 70 );
-		Lexcontainer.setVisible( true );				
-		frameLine.setResizable(false);        		
-		frameLine.setLocationRelativeTo(frameLine);
-		frameLine.setAlwaysOnTop(true);
-		frameLine.setVisible(true);  
-		//setando o botao como submit do formulario de busca
-		texto_busca.getRootPane().setDefaultButton(botao_buscaProximo);
-	}
-	else
-	{
-		frameLine.requestFocus();
-	}
-       
     }
-    
-    //--------------------------------------------------------------------------
-    
-    /** Classe que realiza busca de palavras */     
-	public void buscaPalavra(){
-	if( (frameBusca == null) || (!frameBusca.isShowing()) )
-	{
-		//bool que verifica se a pessoa quer fazer a busca desde o inicio				
-		frameBusca = new JFrame("Procurar...");  		
-		Container Lexcontainer = new Container();           
-   				
-		texto_busca = new JTextField(20);
-		final JLabel labelPesquisa = new JLabel("");
-		labelPesquisa.setForeground(Color.red);
-		botao_buscaProximo = new JButton("    Buscar    ");
-		desdeAgora = new JRadioButton("A partir deste ponto                            ");
-		desdeInicio = new JRadioButton("Desde o inicio                                 ");				
-		desdeAgora.setToolTipText("Realiza a busca a partir da posicao actual do cursor");
-		desdeInicio.setToolTipText("Realiza a busca desde o inicio do codigo");
-		desdeInicio.setSelected(true);
-		verificaDesdeInicio = true;
-		Lexcontainer = frameBusca.getContentPane();
-		                	   
-		
-		JPanel painel_head = new JPanel();
-		painel_head.setLayout(new FlowLayout());
-                painel_head.setBackground(Color.DARK_GRAY);
-                JLabel lb = new JLabel("Encontrar");
-                lb.setForeground(Color.white);
-		painel_head.add(lb);
-		painel_head.add(texto_busca); //153,180,209
-                
-		
-		JPanel painel_body = new JPanel();
-		painel_body.setLayout(new BorderLayout());
-		painel_body.add(desdeAgora, BorderLayout.NORTH);
-		painel_body.add(desdeInicio, BorderLayout.SOUTH);
-                
-			
-		JPanel painel_butao = new JPanel();
-		painel_butao.setLayout(new BorderLayout());
-		painel_butao.add(botao_buscaProximo, BorderLayout.CENTER);
-		
-		JPanel painel_feedback = new JPanel();
-		painel_feedback.setLayout(new FlowLayout());
-		painel_feedback.add(labelPesquisa);
+    //--------------- Retornar componentes ------------------------------------
 
-		Lexcontainer.setLayout( new FlowLayout() );
-                Lexcontainer.setBackground(Color.white);
-		Lexcontainer.add(painel_head );
-		Lexcontainer.add(painel_body);		
-		Lexcontainer.add(painel_feedback);
-		Lexcontainer.add(painel_butao);
-		Box.createGlue();
-		
-		botao_buscaProximo.addActionListener(				
-				new ActionListener(){									
-					
-					public void actionPerformed(ActionEvent actionEvent){
-						labelPesquisa.setText("");
-						if(verificaDesdeInicio == true){
-							TextPaneCode.setCaretPosition(0);
-							verificaDesdeInicio = false;
-							desdeInicio.setSelected(false);
-							desdeAgora.setSelected(true);
-						}
-						
-						int k = 0;
-						if( texto_busca.getText().length() == 0 ){
-							JOptionPane.showMessageDialog(frameBusca,
-									"O campo de busca está vazio!",
-									VERSION,JOptionPane.WARNING_MESSAGE);
-							}					
-						else{
-						 	int posAtual = TextPaneCode.getCaretPosition(), posInicial = 0;
-						 	String palavra = texto_busca.getText().toString();
-						 	
-						 	for(int i = posAtual; i < TextPaneCode.getText().length(); i++){								 	
-						 		if(palavra.charAt(0) == TextPaneCode.getText().charAt(i)){
-						 			posInicial = i;
-						 			k = i;
-						 			for(int j=0; j<palavra.length(); j++){								 				
-						 				if(palavra.charAt(j) == TextPaneCode.getText().charAt(k)){
-						 					k++;								 													 						
-						 				}
-						 				else{
-						 					k = -1;		
-						 					labelPesquisa.setText("String nao encontrada");
-						 					break;
-						 				}								 				
-						 			}
-						 			if( k != -1){						 				
-						 				if(previous.equals(TextPaneCode.getSelectedText()))
-						 					labelPesquisa.setText("String nao encontrada");
-						 				else
-						 					labelPesquisa.setText("");
-						 				
-							 				TextPaneCode.select( posInicial, k);
-							 				previous = TextPaneCode.getSelectedText(); 							 											 										 				
-							 				break;						 				
-						 			}						 			
-						 		}
-						 		else{
-						 			labelPesquisa.setText("String nao encontrada");
-						 		}
-						 	}						 	
-						 }//fim else
-					}					
-				}
-		);
-		desdeAgora.addActionListener(
-				new ActionListener(){
-					public void actionPerformed(ActionEvent actionEvent){  					                   
-						verificaDesdeInicio = false;
-						desdeInicio.setSelected(false);
-						desdeAgora.setSelected(true);
-					}
-				}
-		);
-		desdeInicio.addActionListener(
-				new ActionListener(){
-					public void actionPerformed(ActionEvent actionEvent){  					                   
-						verificaDesdeInicio = true;
-						desdeInicio.setSelected(true);
-						desdeAgora.setSelected(false);
-					}
-				}
-		);				
-						
-		frameBusca.setSize( 350, 160 );
-		Lexcontainer.setVisible( true );				
-		frameBusca.setResizable(false);        
-		frameBusca.setLocationRelativeTo(frameBusca);
-		frameBusca.setAlwaysOnTop(true);
-		frameBusca.setVisible(true);  
-		texto_busca.getRootPane().setDefaultButton(botao_buscaProximo);
-	}
-	else
-	{
-		frameBusca.requestFocus();
-	}
-	}
-	
-   
-        
-        public void procuraPalavra(){       
+    public void getEditorTextoFocus() {
+        TextPaneCode.requestFocus();
+    }
+    //------------------------------------------------------------------------
 
-            /* Alterada no dia 11 de Março de 2014
-            
-		int k = 0;
-		if( txtbuscador.getText().length() == 0 ){
-                    JOptionPane.showMessageDialog(null,"O campo de busca está vazio!",
-							VERSION,JOptionPane.WARNING_MESSAGE);
-		}					
-		else{
+    public JScrollPane getScrolEditorTexto() {
+        return scrollCodeEditor;
+    }
+    // Linhas
+    //------------------------Mudar a component ------------------------------
+
+    public void setScrolEditorTexto(JScrollPane scroll) {
+        jSplitPane2.setTopComponent(scroll);
+    }
+
+    //------------------------Mudar a component ------------------------------
+    public void setEditorTexto(JTextPane texto) {
+        TextPaneCode = texto;
+    }
+
+    /**
+     * Retorna o numero total de linhas do TextPane
+     */
+    public int getTotalLinhas() {
+        int numeroLinhas = 0;
+        for (int i = 0; i < TextPaneCode.getText().length(); i++) {
+            if (TextPaneCode.getText().charAt(i) == '\n') {
+                numeroLinhas++;
+            }
+        }
+        return numeroLinhas + 1;
+    }
+
+    //==========================================================================
+    private void irParaLinha() {
+        if ((frameLine == null) || (!frameLine.isShowing())) {
+
+//		bool que verifica se a pessoa quer fazer a busca desde o inicio				
+            frameLine = new JFrame("Ir para a linha...");
+            Container Lexcontainer = new Container();
+
+            texto_busca = new JTextField(15);
+            botao_buscaProximo = new JButton("Ir");
+
+            Lexcontainer = frameLine.getContentPane();
+            Lexcontainer.setLayout(new FlowLayout());
+
+            Lexcontainer.add(texto_busca);
+            Lexcontainer.add(botao_buscaProximo);
+            botao_buscaProximo.addActionListener(
+                    new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    int contadorDeLinhas = 0;
+                    int caretPos = 0;
+
+                    if (verificaDesdeInicio == true) {
                         TextPaneCode.setCaretPosition(0);
-                        TextPaneCode.requestFocus();
-			int posAtual = TextPaneCode.getCaretPosition(), posInicial = 0;
-		 	String palavra = txtbuscador.getText().toString();
-                                
-				for(int i = posAtual; i < TextPaneCode.getText().length(); i++){								 	
-					if(palavra.charAt(0) == TextPaneCode.getText().charAt(i)){
-                                           		posInicial = i;
-				 			k = i;
-					for(int j=0; j<palavra.length(); j++){								 				
-				        	if(palavra.charAt(j) == TextPaneCode.getText().charAt(k)){
-						   k++;								 													 						
-						}
-						 else{
-						 	k = -1;		
-						 	break;
-						 }								 				
-					}
-					if( k != -1){						 			
-					
-					         	TextPaneCode.select( posInicial, k);
-						        previous = TextPaneCode.getSelectedText(); 							 											 										 				
-							break;						 				
-					}
-                                          
-					}
-					 		
-						 	}						 	
-						 }//fim else
-                                          if( k == -1){
-                                              JOptionPane.showMessageDialog(null,"A palavra não foi encontrada!",
-                                                                        VERSION,JOptionPane.WARNING_MESSAGE);
-                                            
-                                          }   
-     */                                     
-					}					
-	
- private void data_hora(){
-      
-     calend = new Calendario();
+                        verificaDesdeInicio = false;
+                        desdeInicio.setSelected(false);
+                        desdeAgora.setSelected(true);
+                    }
+//						int k = 0;
+                    if (texto_busca.getText().length() == 0) {
+                        JOptionPane.showMessageDialog(frameLine,
+                                "O CAMPO NÃO PODE ESTAR VAZIO!",
+                                VERSION, JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        try {
 
-     //David:inicio
-     descAlgo = ""
+                            int pos = Integer.parseInt(texto_busca.getText().toString());
+                            int Total = getTotalLinhas();
+
+                            if ((pos <= Total) && (pos > 0)) {
+                                for (int i = 0; i < TextPaneCode.getText().length(); i++) {
+                                    if (TextPaneCode.getText().charAt(i) == '\n') {
+                                        contadorDeLinhas++;
+                                        if (contadorDeLinhas == pos) {
+                                            break;
+                                        }
+                                    } else {
+                                        caretPos++;
+                                    }
+                                }
+                                if (pos == 1) {
+                                    TextPaneCode.setCaretPosition(0);
+                                } else if (pos == Total) {
+                                    TextPaneCode.setCaretPosition(caretPos);
+                                } else {
+                                    TextPaneCode.setCaretPosition(caretPos + contadorDeLinhas - 1);
+                                }
+
+                                frameLine.setVisible(false);
+                                TextPaneCode.requestFocus();
+                            } else {
+                                JOptionPane.showMessageDialog(frameLine,
+                                        "A linha da busca nao existe!",
+                                        VERSION, JOptionPane.ERROR_MESSAGE);
+                            }
+                        } catch (NumberFormatException numero) {
+                            JOptionPane.showMessageDialog(frameLine,
+                                    "Formato de numero invalido!",
+                                    VERSION, JOptionPane.ERROR_MESSAGE);
+                        }
+                    }//fim else
+                }
+            });
+
+            frameLine.setSize(270, 70);
+            Lexcontainer.setVisible(true);
+            frameLine.setResizable(false);
+            frameLine.setLocationRelativeTo(frameLine);
+            frameLine.setAlwaysOnTop(true);
+            frameLine.setVisible(true);
+            //setando o botao como submit do formulario de busca
+            texto_busca.getRootPane().setDefaultButton(botao_buscaProximo);
+        } else {
+            frameLine.requestFocus();
+        }
+
+    }
+
+    //--------------------------------------------------------------------------
+    /**
+     * Classe que realiza busca de palavras
+     */
+    public void buscaPalavra() {
+        if ((frameBusca == null) || (!frameBusca.isShowing())) {
+            //bool que verifica se a pessoa quer fazer a busca desde o inicio				
+            frameBusca = new JFrame("Procurar...");
+            Container Lexcontainer = new Container();
+
+            texto_busca = new JTextField(20);
+            final JLabel labelPesquisa = new JLabel("");
+            labelPesquisa.setForeground(Color.red);
+            botao_buscaProximo = new JButton("    Buscar    ");
+            desdeAgora = new JRadioButton("A partir deste ponto                            ");
+            desdeInicio = new JRadioButton("Desde o inicio                                 ");
+            desdeAgora.setToolTipText("Realiza a busca a partir da posicao actual do cursor");
+            desdeInicio.setToolTipText("Realiza a busca desde o inicio do codigo");
+            desdeInicio.setSelected(true);
+            verificaDesdeInicio = true;
+            Lexcontainer = frameBusca.getContentPane();
+
+
+            JPanel painel_head = new JPanel();
+            painel_head.setLayout(new FlowLayout());
+            painel_head.setBackground(Color.DARK_GRAY);
+            JLabel lb = new JLabel("Encontrar");
+            lb.setForeground(Color.white);
+            painel_head.add(lb);
+            painel_head.add(texto_busca); //153,180,209
+
+
+            JPanel painel_body = new JPanel();
+            painel_body.setLayout(new BorderLayout());
+            painel_body.add(desdeAgora, BorderLayout.NORTH);
+            painel_body.add(desdeInicio, BorderLayout.SOUTH);
+
+
+            JPanel painel_butao = new JPanel();
+            painel_butao.setLayout(new BorderLayout());
+            painel_butao.add(botao_buscaProximo, BorderLayout.CENTER);
+
+            JPanel painel_feedback = new JPanel();
+            painel_feedback.setLayout(new FlowLayout());
+            painel_feedback.add(labelPesquisa);
+
+            Lexcontainer.setLayout(new FlowLayout());
+            Lexcontainer.setBackground(Color.white);
+            Lexcontainer.add(painel_head);
+            Lexcontainer.add(painel_body);
+            Lexcontainer.add(painel_feedback);
+            Lexcontainer.add(painel_butao);
+            Box.createGlue();
+
+            botao_buscaProximo.addActionListener(
+                    new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    labelPesquisa.setText("");
+                    if (verificaDesdeInicio == true) {
+                        TextPaneCode.setCaretPosition(0);
+                        verificaDesdeInicio = false;
+                        desdeInicio.setSelected(false);
+                        desdeAgora.setSelected(true);
+                    }
+
+                    int k = 0;
+                    if (texto_busca.getText().length() == 0) {
+                        JOptionPane.showMessageDialog(frameBusca,
+                                "O campo de busca está vazio!",
+                                VERSION, JOptionPane.WARNING_MESSAGE);
+                    } else {
+                        int posAtual = TextPaneCode.getCaretPosition(), posInicial = 0;
+                        String palavra = texto_busca.getText().toString();
+
+                        for (int i = posAtual; i < TextPaneCode.getText().length(); i++) {
+                            if (palavra.charAt(0) == TextPaneCode.getText().charAt(i)) {
+                                posInicial = i;
+                                k = i;
+                                for (int j = 0; j < palavra.length(); j++) {
+                                    if (palavra.charAt(j) == TextPaneCode.getText().charAt(k)) {
+                                        k++;
+                                    } else {
+                                        k = -1;
+                                        labelPesquisa.setText("String nao encontrada");
+                                        break;
+                                    }
+                                }
+                                if (k != -1) {
+                                    if (previous.equals(TextPaneCode.getSelectedText())) {
+                                        labelPesquisa.setText("String nao encontrada");
+                                    } else {
+                                        labelPesquisa.setText("");
+                                    }
+
+                                    TextPaneCode.select(posInicial, k);
+                                    previous = TextPaneCode.getSelectedText();
+                                    break;
+                                }
+                            } else {
+                                labelPesquisa.setText("String nao encontrada");
+                            }
+                        }
+                    }//fim else
+                }
+            });
+            desdeAgora.addActionListener(
+                    new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    verificaDesdeInicio = false;
+                    desdeInicio.setSelected(false);
+                    desdeAgora.setSelected(true);
+                }
+            });
+            desdeInicio.addActionListener(
+                    new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    verificaDesdeInicio = true;
+                    desdeInicio.setSelected(true);
+                    desdeAgora.setSelected(false);
+                }
+            });
+
+            frameBusca.setSize(350, 160);
+            Lexcontainer.setVisible(true);
+            frameBusca.setResizable(false);
+            frameBusca.setLocationRelativeTo(frameBusca);
+            frameBusca.setAlwaysOnTop(true);
+            frameBusca.setVisible(true);
+            texto_busca.getRootPane().setDefaultButton(botao_buscaProximo);
+        } else {
+            frameBusca.requestFocus();
+        }
+    }
+
+    public void procuraPalavra() {
+
+        /* Alterada no dia 11 de Março de 2014
+            
+         int k = 0;
+         if( txtbuscador.getText().length() == 0 ){
+         JOptionPane.showMessageDialog(null,"O campo de busca está vazio!",
+         VERSION,JOptionPane.WARNING_MESSAGE);
+         }					
+         else{
+         TextPaneCode.setCaretPosition(0);
+         TextPaneCode.requestFocus();
+         int posAtual = TextPaneCode.getCaretPosition(), posInicial = 0;
+         String palavra = txtbuscador.getText().toString();
+                                
+         for(int i = posAtual; i < TextPaneCode.getText().length(); i++){								 	
+         if(palavra.charAt(0) == TextPaneCode.getText().charAt(i)){
+         posInicial = i;
+         k = i;
+         for(int j=0; j<palavra.length(); j++){								 				
+         if(palavra.charAt(j) == TextPaneCode.getText().charAt(k)){
+         k++;								 													 						
+         }
+         else{
+         k = -1;		
+         break;
+         }								 				
+         }
+         if( k != -1){						 			
+					
+         TextPaneCode.select( posInicial, k);
+         previous = TextPaneCode.getSelectedText(); 							 											 										 				
+         break;						 				
+         }
+                                          
+         }
+					 		
+         }						 	
+         }//fim else
+         if( k == -1){
+         JOptionPane.showMessageDialog(null,"A palavra não foi encontrada!",
+         VERSION,JOptionPane.WARNING_MESSAGE);
+                                            
+         }   
+         */
+    }
+
+    private void data_hora() {
+
+        calend = new Calendario();
+
+        //David:inicio
+        descAlgo = ""
                 //+  "/*ALGORITMO: \"Nome do algoritmo\""
                 //+ "\n--AUTOR: "+System.getProperty("user.name")+""
                 //+ "\n--DATA E HORA:"+calend.dataAtual()
@@ -2599,94 +2566,95 @@ public static String codigo = "";
                 + "  escreva b.idade\n"
                 + "fimalgoritmo \n";
 
- }
- 
-//----------------------AVANCAR E RETROCEDER ---------------------------------
- Botoes_nav obj_RA;
- 
- public class Botoes_nav{
-    
-    Botoes_nav()
-    {
-        // evento de gravação
-         conteudo[0]=TextPaneCode.getText();
-         
-           ActionListener gravar = new ActionListener(){public void actionPerformed (ActionEvent e)
-           {
-               
-               if (!TextPaneCode.getText().equals(conteudo[cont]))
-               {     
-                             if (cont==limite)  
-                             {cont=0; girou=true;}     // se estamos no limite de armazenamento retorna apangando os ultimos valores graudados
-                                                           
-                        cont++;     // dou uma nova posicão de armazenamento
-                        inicio=cont;
-                        fim=cont;
-                        ButtonEditarRecuar.setEnabled(true);
-                        ButtonEditarAvancar.setEnabled(false);
-                        conteudo[cont]=TextPaneCode.getText();   // quardo novo conteudo
-                       
-               }
-           }};
-       
-                tempo=new Timer(750,gravar); 
     }
-    
-                public void eventoRetroceder()
-                {
-                      tempo.stop();
-                      if ((cont==1)&&(girou==true))  
-                       cont=limite+1;  // +1 ajuste porque logo abaixo sera descrementado
-                      
-                      cont--;
-                      TextPaneCode.setText(conteudo[cont]);  
-                     // System.out.println(cont+" retroceder "+ inicio);
-                      desabilitarInicio(inicio); // controlo no retrov
-                      tempo.start();
-                 }
-                    
-                public void desabilitarInicio(int param)
-                {
-                    if (girou==false)
-                    {param=0;inicio=0;}
-                    if (param==limite) //(cont==param+1)||
-                     {param=1;inicio=1;}
-                    if ((cont==param)||(girou==true)&&(cont==param+1)) // +1 para no ultimo alteração possivel e a apenas = caso param é o limite
-                      {
-                        ButtonEditarRecuar.setEnabled(false);
-                        //girou=false;
-                      }
-                    else 
+//----------------------AVANCAR E RETROCEDER ---------------------------------
+    Botoes_nav obj_RA;
+
+    public class Botoes_nav {
+
+        Botoes_nav() {
+            // evento de gravação
+            conteudo[0] = TextPaneCode.getText();
+
+            ActionListener gravar = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    if (!TextPaneCode.getText().equals(conteudo[cont])) {
+                        if (cont == limite) {
+                            cont = 0;
+                            girou = true;
+                        }     // se estamos no limite de armazenamento retorna apangando os ultimos valores graudados
+
+                        cont++;     // dou uma nova posicão de armazenamento
+                        inicio = cont;
+                        fim = cont;
                         ButtonEditarRecuar.setEnabled(true);
-               
-                     ButtonEditarAvancar.setEnabled(true);
-                }
-                
-                public void eventoAvancar()
-                {
-                        tempo.stop();
-                        if ((cont==limite)&&(girou==true))
-                            cont=0;
-                        
-                        cont++;
-                        TextPaneCode.setText(conteudo[cont]);
-                      //  System.out.println(cont+ " avanco "+ fim);
-                        desabilitarFim(fim);
-                        ButtonEditarRecuar.setEnabled(true);
-                        tempo.start();  
-                }
-                
-                private void desabilitarFim(int param)
-                {
-                    if (cont==param)
                         ButtonEditarAvancar.setEnabled(false);
+                        conteudo[cont] = TextPaneCode.getText();   // quardo novo conteudo
+
+                    }
                 }
-                
-                 private int cont=0,inicio=0,fim=0,critical=-1;  
-                 private final int limite =1000; // quantidade de palavras que vai armazenar por vez
-                 private boolean girou=false;
-    private String[] conteudo= new String[limite+2];  //  mais dois porque começamos  o vecto com 0 e a primeira posicão ñ utilizamos porque consideramos o estado inicial           
-    private Timer tempo;
-} 
-        
+            };
+
+            tempo = new Timer(750, gravar);
+        }
+
+        public void eventoRetroceder() {
+            tempo.stop();
+            if ((cont == 1) && (girou == true)) {
+                cont = limite + 1;  // +1 ajuste porque logo abaixo sera descrementado
+            }
+            cont--;
+            TextPaneCode.setText(conteudo[cont]);
+            // System.out.println(cont+" retroceder "+ inicio);
+            desabilitarInicio(inicio); // controlo no retrov
+            tempo.start();
+        }
+
+        public void desabilitarInicio(int param) {
+            if (girou == false) {
+                param = 0;
+                inicio = 0;
+            }
+            if (param == limite) //(cont==param+1)||
+            {
+                param = 1;
+                inicio = 1;
+            }
+            if ((cont == param) || (girou == true) && (cont == param + 1)) // +1 para no ultimo alteração possivel e a apenas = caso param é o limite
+            {
+                ButtonEditarRecuar.setEnabled(false);
+                //girou=false;
+            } else {
+                ButtonEditarRecuar.setEnabled(true);
+            }
+
+            ButtonEditarAvancar.setEnabled(true);
+        }
+
+        public void eventoAvancar() {
+            tempo.stop();
+            if ((cont == limite) && (girou == true)) {
+                cont = 0;
+            }
+
+            cont++;
+            TextPaneCode.setText(conteudo[cont]);
+            //  System.out.println(cont+ " avanco "+ fim);
+            desabilitarFim(fim);
+            ButtonEditarRecuar.setEnabled(true);
+            tempo.start();
+        }
+
+        private void desabilitarFim(int param) {
+            if (cont == param) {
+                ButtonEditarAvancar.setEnabled(false);
+            }
+        }
+        private int cont = 0, inicio = 0, fim = 0, critical = -1;
+        private final int limite = 1000; // quantidade de palavras que vai armazenar por vez
+        private boolean girou = false;
+        private String[] conteudo = new String[limite + 2];  //  mais dois porque começamos  o vecto com 0 e a primeira posicão ñ utilizamos porque consideramos o estado inicial           
+        private Timer tempo;
+    }
 }

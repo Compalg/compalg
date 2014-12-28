@@ -2,6 +2,8 @@ package Portugol.Language.Criar;
 
 import Portugol.Language.Analisador.Expressao;
 import Portugol.Language.Analisador.Keyword;
+import Portugol.Language.Analisador.Operador;
+import Portugol.Language.Analisador.ParteDeExpresion;
 import Portugol.Language.Analisador.Simbolo;
 import Portugol.Language.Analisador.TipoRegisto;
 import Portugol.Language.Analisador.Variavel;
@@ -17,7 +19,7 @@ public class ExpandFluxogram {
 
     public static void ExpandSubrutine(BloqueSubrutine rutina) throws LanguageException {
 
-        NodeInstruction pt = rutina.getStart();
+        NodeInstruction pt = rutina.getStartNode();
         Vector memory = rutina.memory;
         Stack stack = new Stack();
 
@@ -37,6 +39,9 @@ public class ExpandFluxogram {
             } //verificar o calculo
             else if (pt.GetType() == Keyword.CALCULAR) {
                 VerifyCalculate(pt, memory);
+            } //fazer a leitura das  variaveis
+            else if (pt.GetType() == Keyword.RETORNE) {
+                VerifyRetorno(pt, memory);
             } //fazer a leitura das  variaveis
             else if (pt.GetType() == Keyword.LEIA) {
                 pt = ExpandLer.ExpandRead(pt, stack.size(), memory);
@@ -197,6 +202,13 @@ public class ExpandFluxogram {
                 ExpandProcedimento.ExpandSUBRUTINA(rutina, pt, stack.size(), memory);
             } else if (pt.GetType() == Keyword.CHAMADOPROCEDIMENTO) {
                 ExpandChamadoProcedimento.ExpandCHAMADO(rutina, pt, stack.size(), memory);
+            } else if (pt.GetType() == Keyword.CHAMADOPROCEDIMENTO) {
+                ExpandChamadoProcedimento.ExpandCHAMADO(rutina, pt, stack.size(), memory);
+            } else if (pt.GetType() == Keyword.DESCONHECIDO) {
+                    throw new LanguageException(
+                            pt.GetCharNum(), pt.GetText(),
+                            "INSTRUÇÃO DESCONHECIDA: "+pt.GetText(),
+                            "VERIFIQUE A INSTRUÇÃO");                
             }
 
 
@@ -217,7 +229,7 @@ public class ExpandFluxogram {
 
     //David: NOVO
     public static void ExpandRegisto(BloqueRegisto rutina) throws LanguageException {
-        NodeInstruction pt = rutina.getStart();
+        NodeInstruction pt = rutina.getStartNode();
 
         TipoRegisto tipoRegisto;
         tipoRegisto = new TipoRegisto();
@@ -232,7 +244,7 @@ public class ExpandFluxogram {
                 rutina.type = Bloque.REGISTO;
                 for (int i = 0; i < Intermediario.tiposRegistos.size(); i++) {
                     TipoRegisto tmp = (TipoRegisto) Intermediario.tiposRegistos.get(i);
-                    if (tmp.Name.equals(name) ) {
+                    if (tmp.Name.equals(name)) {
                         throw new LanguageException(
                                 "Já existe un registo com esse nome",
                                 "Mude o nome do registo"); //David: Revisar ortografia                        
@@ -287,12 +299,24 @@ public class ExpandFluxogram {
             String elem = tok.current();
             tok.next();
 
-            if (!Values.IsString(elem) && !Expressao.IsExpression(elem, memory)) {
-                throw new LanguageException(
-                        node.GetCharNum(),
-                        node.GetText(),
-                        "O ELEMENTO \"" + elem + "\" NÃO É UM TEXTO OU UMA EXPRESSÃO",
-                        " COLOQUE ASPAS NO ELEMENTO OU VERIFIQUE A EXPRESSÃO");
+            try {
+                if (!Values.IsString(elem) && !Expressao.IsExpression(elem, memory)) {
+                    throw new LanguageException(
+                            node.GetCharNum(),
+                            node.GetText(),
+                            "O ELEMENTO \"" + elem + "\" NÃO É UM TEXTO OU UMA EXPRESSÃO VÁLIDA",
+                            " COLOQUE ASPAS NO ELEMENTO OU VERIFIQUE A EXPRESSÃO");
+                }
+            } catch (Exception e) {
+                if (e instanceof LanguageException) {
+                    throw e;
+                } else {
+                    throw new LanguageException(
+                            node.GetCharNum(),
+                            node.GetText(),
+                            "O ELEMENTO \"" + elem + "\" NÃO É UMA EXPRESSÃO VÁLIDA",
+                            " VERIFIQUE A EXPRESSÃO");
+                }
             }
         }
         cont = 0;
@@ -307,28 +331,59 @@ public class ExpandFluxogram {
         int pos = str.indexOf(Keyword.ATRIBUI);
         String name = str.substring(0, pos).trim();
         String elem = str.substring(pos + Keyword.ATRIBUI.length()).trim();
-        Simbolo var = Variavel.getVariable(name, memory);
-        if (var == null) {
+        ParteDeExpresion var = Variavel.getVariable(name, memory);
+        if (var == null || !(var instanceof Simbolo)) {
             throw new LanguageException(
                     node.GetCharNum(), str,
-                    " O SIMBOLO \"" + name + "\" NÃO ESTÁ DEFINIDA NA MEMÓRIA",
+                    " O SIMBOLO \"" + name + "\" NÃO ESTÁ DEFINIDO NA MEMÓRIA",
                     " DEFINA O SÍMBOLO ANTES DE USAR");
         }
         elem = NormalizeMinus(elem, memory);
-        Object value = Expressao.EvaluateByDefaults(elem, memory);
-
+        Object value = null;
+        try {
+            value = Expressao.Evaluate(elem, memory, true);
+        } catch (Exception e) {
+            throw new LanguageException(
+                    node.GetCharNum(), node.GetText(),
+                    " O VALOR DA EXPRESSÃO :" + elem,
+                    e.getMessage());
+        }
         //
         // if ( !Values.IsNumber(value))
-        if (!Simbolo.IsCompatible(var.getType(), value)) {
+        if (!Simbolo.IsCompatible(var, value)) {
             throw new LanguageException(
                     node.GetCharNum(), str,
                     " O VALOR DA EXPRESSÃO :" + elem,
-                    " NÃO É COMPATÍVEL COM O TIPO DE DADO:" + var.getStringType());
+                    " NÃO É COMPATÍVEL COM O TIPO DE DADO:" + ((Simbolo)var).getTypeLexema());
         }
         node.SetText(name + " " + Keyword.ATRIBUI + " " + elem);
     }
 
-    public static String NormalizeMinus(String str, Vector memory) {
+    public static void VerifyRetorno(NodeInstruction node, Vector memory) throws LanguageException {
+        String str = node.GetText().substring(Keyword.GetTextKey(Keyword.RETORNE).length()).trim();
+
+        try {
+            if (!Expressao.IsExpression(str, memory)) {
+                throw new LanguageException(
+                        node.GetCharNum(),
+                        node.GetText(),
+                        "O ELEMENTO \"" + str + "\" NÃO É UMA EXPRESSÃO VÁLIDA",
+                        " VERIFIQUE A EXPRESSÃO DO RETORNO");
+            }
+        } catch (Exception e) {
+            if (e instanceof LanguageException) {
+                throw e;
+            } else {
+                throw new LanguageException(
+                        node.GetCharNum(),
+                        node.GetText(),
+                        "O ELEMENTO \"" + str + "\" NÃO É UMA EXPRESSÃO VÁLIDA",
+                        " VERIFIQUE A EXPRESSÃO DO RETORNO");
+            }
+        }
+    }
+
+    public static String NormalizeMinus(String str, Vector memory) throws LanguageException {
         StringBuffer newExpr = new StringBuffer();
         IteratorExpression tok = new IteratorExpression(str);
         Simbolo var;
@@ -347,8 +402,8 @@ public class ExpandFluxogram {
         return newExpr.toString().trim();
     }
 
-    public static String GetSafeElement(String elem, Vector memory) {
-        Simbolo var;
+    public static String GetSafeElement(String elem, Vector memory) throws LanguageException {
+        ParteDeExpresion var;
         //------------------------- sinal -  -------------
         if (elem.charAt(0) == '-') {
             //--operador - 
@@ -359,7 +414,7 @@ public class ExpandFluxogram {
             String resto = elem.substring(1);
             var = Variavel.getVariable(resto, memory);
             //valor negativo
-            if (var == null) {
+            if (var == null || var instanceof Operador) {
                 return elem + " ";
             } // se for uma variavel com sinal -
             else {

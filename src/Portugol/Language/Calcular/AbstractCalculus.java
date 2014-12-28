@@ -3,6 +3,7 @@ package Portugol.Language.Calcular;
 import java.util.Vector;
 
 public abstract class AbstractCalculus {
+
     /**
      * Prioridade dos operadores Logicos
      */
@@ -19,17 +20,22 @@ public abstract class AbstractCalculus {
      * Prioridade das Funcoes
      */
     public static int FUNCTION_PRIORITY = 400;
-    
+    /**
+     * Prioridade do operador PONTO (accesos de campos de registos y clases)
+     */
+    public static int PONTO_PRIORITY = 500;
+
     /**
      * veririfica se o parametro ou um elemento de calculo
+     *
      * @param str nome do elemento
      * @return veririfica se o parametro ou um elemento de calculo
      */
-    public abstract boolean IsValid( String str);
-   
-    public abstract int GetNumParameters(String oper)throws Exception;
-    
-    public abstract int GetPriority(String oper)throws Exception;
-  
-    public abstract String Calculate( String oper , Vector params)throws Exception;   
+    public abstract boolean IsValid(Object str);
+
+    public abstract int GetNumParameters(Object oper) throws Exception;
+
+    public abstract int GetPriority(Object oper) throws Exception;
+
+    public abstract String Calculate(Object oper, Vector params) throws Exception;
 }

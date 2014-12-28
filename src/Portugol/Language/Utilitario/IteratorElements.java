@@ -9,7 +9,7 @@ public class IteratorElements {
     IteratorIndex it;
     
     //itera uma string  atraves dos operadores e destes simbolos
-    private  static String OTHERSEPARATORS = "(),{}";
+    private  static String OTHERSEPARATORS = "(),{}";//David: "(),{}"
     
     public IteratorElements(String code) {
         it = new IteratorIndex(CodeLine.GetNormalized(code));
@@ -55,11 +55,11 @@ public class IteratorElements {
         //String str = "3--5 ";
         str = CodeLine.GetNormalized(str);
         System.out.println("STR:<" + str + ">");
-        IteratorElements it = new IteratorElements(str);
-        
-        while( it.hasMoreElements()){
-            System.out.println(it.current());
-            it.next();
-        }
+//        IteratorElements it = new IteratorElements(str);
+//        
+//        while( it.hasMoreElements()){
+//            System.out.println(it.current());
+//            it.next();
+//        }
     }
 }

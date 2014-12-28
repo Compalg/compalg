@@ -1,6 +1,7 @@
 package Portugol.Language.Criar;
 
 import Portugol.Language.Analisador.Expressao;
+import Portugol.Language.Analisador.ParteDeExpresion;
 import Portugol.Language.Analisador.Simbolo;
 import Portugol.Language.Analisador.SimboloDeParametro;
 import Portugol.Language.Analisador.TipoDeParametro;
@@ -32,8 +33,8 @@ public class ExpandDefinirArray {
                     "ALTERE O NOME DO SIMBOLO " + name);
         
         //verificar se a variavel ja esta definida
-        Simbolo tmpVar = Variavel.getVariable(name,memory);
-        if( tmpVar != null && tmpVar.getLevel() == node.GetLevel())
+        ParteDeExpresion tmpVar = Variavel.getVariable(name,memory);
+        if( tmpVar != null && ((Simbolo)tmpVar).getLevel() == node.GetLevel())
             throw new  LanguageException(
                     node.GetCharNum(), node.GetText() ,
                     "O SIMBOLO <" + name + "> JÁ FOI DECLARADO",
@@ -62,7 +63,7 @@ public class ExpandDefinirArray {
             // se nao for possivel avaliar provoca erro
             Object result;
             try {
-                result = Expressao.Evaluate(value,memory);
+                result = Expressao.Evaluate(value,memory, true);
             } catch( Exception e){
                 throw new  LanguageException(
                         node.GetCharNum(), node.GetText() ,
@@ -93,7 +94,7 @@ public class ExpandDefinirArray {
             // se n�o for possivel avaliar provoca erro
             Object result;
             try {
-                result = Expressao.EvaluateByDefaults(value,memory);
+                result = Expressao.Evaluate(value,memory, true);
             } catch( Exception e){
                 throw new  LanguageException(
                         node.GetCharNum(), node.GetText() ,
@@ -102,7 +103,7 @@ public class ExpandDefinirArray {
             }
             
             //verificar se o resultado da expressao e compativel com a variavel
-            if( !Simbolo.IsCompatible( Simbolo.getType(type), result) )
+            if( !Simbolo.IsCompatible( type, result) )
                 throw new  LanguageException(
                         "O VALOR <" + result + "> NÃO É PERMITIDO PARA VARIÁVEL " + type ,
                         " VERIFIQUE A EXPRESSÃO :" + value);

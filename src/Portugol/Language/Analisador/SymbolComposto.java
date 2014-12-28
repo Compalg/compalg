@@ -11,10 +11,10 @@ import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
 
 public class SymbolComposto extends Simbolo {
-
+    
     Vector<Simbolo> Campos;
     TipoRegisto tipoRegistoBase;
-
+    
     public SymbolComposto(String modify, String type, String name, /*String index,*/ Object valor, int level, String origTxt)
             throws LanguageException {
         TextoOrigen = origTxt;
@@ -23,19 +23,21 @@ public class SymbolComposto extends Simbolo {
         } else {
             this.isConst = false;
         }
-
+        
         this.type = getType(type);
         typeLexema = type;//parametro
 
         this.name = name.trim();
-
-        this.value = this.getDefaultValue(this.type);
-
+        
+        this.value = Values.getDefault(typeLexema);
+        
         this.level = level;
-
+        
         tipoRegistoBase = ObterTipoRegisto(type);
         CriaCampos();
-        CopiarValor();
+        if (valor != null && valor instanceof SymbolComposto) {
+            copyFrom((SymbolComposto) valor);
+        }
     }
 
     /**
@@ -49,11 +51,11 @@ public class SymbolComposto extends Simbolo {
         typeLexema = symbol.typeLexema;//parametro
 
         this.name = symbol.name.trim();
-
+        
         this.level = symbol.level;
-
+        
         tipoRegistoBase = symbol.tipoRegistoBase;
-
+        
         Campos = new Vector<Simbolo>();
         for (int i = 0; i < symbol.Campos.size(); i++) {
             if (symbol.Campos.get(i) instanceof SymbolArray) {
@@ -65,18 +67,8 @@ public class SymbolComposto extends Simbolo {
             }
         }
     }
-
-    public void copyFrom(SimboloDeParametro origen) throws LanguageException {
-        if (origen == null) {
-            return;
-        }
-        if (origen.PorValor) {
-            throw new LanguageException("Tipo de parâmetro não é equivalente ao esperado", "Mude o tipo de parâmetro na chamada");//David:Revisar
-        }
-        if (!typeEqual((Simbolo) origen.Value)) {
-            throw new LanguageException("Tipo de parâmetro não é equivalente ao esperado", "Mude o tipo de parâmetro na chamada");//David:Revisar
-        }
-        SymbolComposto registro = (SymbolComposto) origen.Value;
+    
+    public void copyFrom(SymbolComposto registro) throws LanguageException {
         Campos.clear();
         for (int i = 0; i < registro.Campos.size(); i++) {
             if (registro.Campos.get(i) instanceof SymbolArray) {
@@ -87,6 +79,20 @@ public class SymbolComposto extends Simbolo {
                 Campos.add(new Simbolo(registro.Campos.get(i)));
             }
         }
+    }
+    
+    public void copyFrom(SimboloDeParametro origen) throws LanguageException {
+        if (origen == null) {
+            return;
+        }
+//        if (origen.PorValor) {
+//            throw new LanguageException("Tipo de parâmetro não é equivalente ao esperado", "Mude o tipo de parâmetro na chamada");//David:Revisar
+//        }
+        if (!typeEqual((Simbolo) origen.Value)) {
+            throw new LanguageException("Tipo de parâmetro não é equivalente ao esperado", "Mude o tipo de parâmetro na chamada");//David:Revisar
+        }
+        SymbolComposto registro = (SymbolComposto) origen.Value;
+        copyFrom(registro);
     }
 
     //-----------------------------------------------------------------------
@@ -131,10 +137,10 @@ public class SymbolComposto extends Simbolo {
             ExpandDefinirSimbol.ExpandVariable(pt, 0, Campos);
         }
     }
-
+    
     private void CopiarValor() {
     }
-
+    
     public String toString() {
         return name + " = " + Campos.toString();
     }

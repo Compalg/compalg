@@ -1,13 +1,13 @@
 #sem comentarios
-#Sun Dec 28 16:11:43 WAT 2014
+#Sun Dec 28 16:39:38 WAT 2014
 fontName=TimesRoman
 backColorG=255
 fontBold=false
 backColorB=255
 sintax=true
 fontItalic=false
-file3=/home/bilabila/NetBeansProjects/CompAlg 1.2/Exemplos de Algoritmos/OlaMundo.alg
-file2=/home/bilabila/NetBeansProjects/CompAlg 1.2/Exemplos de Algoritmos/NotasAluno.alg
-file1=/home/bilabila/NetBeansProjects/CompAlg 1.2/Exemplos de Algoritmos/Idade1.alg
+file3=D\:\\CompAlg\\CompAlg 1.2\\32. Instru\u00E7ao REPITA-ATE  sem instru\u00E7ao dentro.alg
+file2=D\:\\CompAlg\\CompAlg 1.2\\33. Insta\u00E7\u00E3o ESCOLHA.alg
+file1=D\:\\David\\Compalg hist\\3-CompAlg 1.4-\\CompAlg 1.2\\32. Instru\u00E7ao REPITA-ATE  sem instru\u00E7ao dentro.alg
 backColorR=255
 fontSize=15

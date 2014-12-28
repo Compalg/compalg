@@ -2,7 +2,7 @@ package Editor.Utils;
 /**
  * @author Augusto Bilabila 15-04-2012
  */
-public class DicasdoDia {
+    public class DicasdoDia {
     
     private String [] Dicas = 
     {"  Algoritmo, é uma sequência de passos bem definidos e \nsem âmbiguidade, para solucionar um problema ",

@@ -216,6 +216,10 @@ public class Keyword {
         if (instrucao.startsWith("STRING ")) {
             return DEFINIR;
         }
+        if (DefineRegisto(instrucao)) {
+            return DEFINIR; //David: Funcao que determina si é uma declaracao de variavel de registo
+        }
+        
         if (instrucao.startsWith("CONSTANTE ")) {
             return DEFINIR;
         }
@@ -289,7 +293,7 @@ public class Keyword {
         if (instrucao.startsWith("LIMPATELA")) {
             return LIMPATELA;
         }
-
+        
         if (instrucao.indexOf(ATRIBUI) > -1
                 && (instrucao.indexOf(STR) == -1
                 || instrucao.indexOf(STR) > instrucao.indexOf(ATRIBUI))) {
@@ -302,9 +306,6 @@ public class Keyword {
             return CHAMADOPROCEDIMENTO;
         }
 
-        if (DefineRegisto(instrucao)) {
-            return DEFINIR; //David: Funcao que determina si é uma declaracao de variavel de registo
-        }
         return DESCONHECIDO;
     }
 
@@ -335,7 +336,11 @@ public class Keyword {
     }
 
     //David: Funcao que determina si é uma declaracao de variavel de registo
-    public static boolean DefineRegisto(String instrucao) {
+    public static boolean DefineRegisto(Object elem) {
+        if (!(elem instanceof String))
+            return false;
+        
+        String instrucao = (String) elem;
         String varName;
         int pos = instrucao.indexOf(" ");
         if (pos == -1) {

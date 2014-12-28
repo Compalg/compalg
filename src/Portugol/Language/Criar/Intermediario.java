@@ -2,6 +2,7 @@ package Portugol.Language.Criar;
 
 import Editor.Utils.FileManager;
 import Portugol.Language.Analisador.Keyword;
+import Portugol.Language.Consola.ConsoleIO;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import Portugol.Language.Utilitario.LanguageException;
@@ -16,6 +17,7 @@ public class Intermediario {
     static public Vector tiposRegistos = new Vector();
     private BloqueSubrutine Inicio;
 
+    public static ConsoleIO console;
     public BloqueSubrutine getInicio() {
         return Inicio;
     }
@@ -56,10 +58,9 @@ public class Intermediario {
         int positionY = 0;
 
         Bloque rutina = null;
-        //memory = new Vector();//silva: esto es de metodo principal
         String instruction;
 
-        System.out.print("programa \n" + programa);
+        //System.out.print("programa \n" + programa);
         // as intrucoes terminam com enter
         StringTokenizer st = new StringTokenizer(programa, "\n\r");
 
@@ -67,9 +68,7 @@ public class Intermediario {
         NodeInstruction previousNode = null;
         // novo no
         NodeInstruction newNode = null;
-        //rutina.start = null;
 
-        //int bill = 0;
         //fazer a lista seguida
         
         while (st.hasMoreTokens()) {
@@ -86,36 +85,14 @@ public class Intermediario {
                 continue;
             }
 
-            //normalizar os operadores e sinais
-            //David: tiré la siguiente instruccion porque se repite en el constructor de la otra siguiente
-            //instruction = CodeLine.GetNormalized(instruction);
-
             newNode = new NodeInstruction(instruction, charNum - 1, 0);
             newNode.SetPositionY(++positionY);
 
-
             if (newNode.GetType() == Keyword.DEFINIR) {
-                if (newNode.GetText().startsWith("string ")) {
-                    newNode.SetText(newNode.GetText().replace("string ", "literal "));
-                }
-
                 if (!newNode.GetText().contains(",")) {
                     if (newNode.GetText().startsWith("literal ") && !newNode.GetText().endsWith("\"")) {
                         newNode.SetText(newNode.GetText() + "<-\"\"");
                     }
-                }
-            }
-            //---------------------------------------------------------------------------------
-            if (newNode.GetType() == Keyword.CALCULAR) {
-                if (newNode.GetText().contains("mod")) {
-                    newNode.SetText(newNode.GetText().replace("mod ", "%"));
-                }
-            }
-            //--------------------------------------------------------------------------------
-            if (newNode.GetType() == Keyword.CALCULAR) {
-                if (newNode.GetText().contains("div")) {
-                    newNode.SetText(newNode.GetText().replace("div ", "/"));
-                    //rutina.VerOperator = "div";
                 }
             }
 
@@ -123,7 +100,6 @@ public class Intermediario {
                 case Keyword.INICIO:
                 case Keyword.PROCEDIMENTO:
                 case Keyword.FUNCAO:
-                //case Keyword.REGISTO:
                     if (rutina != null)
                         throw new LanguageException(
                                 "AINDA EM OTRO BLOCO DE CODIGO", "DEBE ENCERRAR O BLOCO"); //David: Correguir ortografia

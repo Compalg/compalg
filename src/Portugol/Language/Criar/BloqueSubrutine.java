@@ -3,18 +3,21 @@ package Portugol.Language.Criar;
 import Portugol.Language.Analisador.Expressao;
 import Portugol.Language.Consola.ConsoleIO;
 import Portugol.Language.Analisador.Keyword;
+import Portugol.Language.Analisador.Operador;
+import Portugol.Language.Analisador.ParteDeExpresion;
 import Portugol.Language.Analisador.Simbolo;
 import Portugol.Language.Analisador.SimboloDeParametro;
 import Portugol.Language.Analisador.SymbolArray;
+import Portugol.Language.Analisador.SymbolComposto;
 import Portugol.Language.Analisador.TipoDeParametro;
 import Portugol.Language.Analisador.Variavel;
+import Portugol.Language.Calcular.Aritmeticos;
 import java.util.Vector;
-import Portugol.Language.Criar.ExpandEnquanto;
-import Portugol.Language.Criar.ExpandSe;
-import Portugol.Language.Criar.NodeInstruction;
 import Portugol.Language.Utilitario.IteratorCodeParams;
 import Portugol.Language.Utilitario.LanguageException;
 import Portugol.Language.Utilitario.Values;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Augusto Bilabila original de Antonio manso
@@ -34,6 +37,7 @@ public class BloqueSubrutine extends Bloque {
      * vector dos valoes para os parametros
      */
     public Vector paramsValues;//David:
+    public String TipoRetorno;
 
     //public static String VerOperator = " " ;//im
     /**
@@ -59,8 +63,9 @@ public class BloqueSubrutine extends Bloque {
     /**
      * Executa uma linha de codigo - normalmente
      */
-    public String ExecuteSubrutine(Vector<String> paramVals, ConsoleIO console) throws LanguageException {
-        NodeInstruction temporal = getStart();
+    public Simbolo ExecuteSubrutine(Vector paramVals) throws LanguageException {
+        memory = new Vector();
+        NodeInstruction temporal = getStartNode();
         boolean esperarRetorno = temporal.GetType() == Keyword.FUNCAO;
         paramsValues = paramVals;
 
@@ -70,16 +75,35 @@ public class BloqueSubrutine extends Bloque {
                     "Verifique la cantidad de parametros en el llamado del sub-algoritmo");
         }
 
+        if (Intermediario.console == null) {
+            if (!esperarRetorno) {
+                return null;//David: No caso dos procedimentos
+            } else {
+                if (Simbolo.getType(TipoRetorno) == Simbolo.REGISTO) {
+                    return new SymbolComposto("", TipoRetorno, "RETORNO", TipoRetorno, 0, (TipoRetorno + " RETORNO <- " + TipoRetorno));
+                } else {
+                    return new Simbolo("", TipoRetorno, "RETORNO", null, 0, (TipoRetorno + " RETORNO"));
+                }
+            }
+        }
+
         while (temporal != null) //David: novo
         {
-            temporal = ExecuteLine(temporal, console);
+            temporal = ExecuteLine(temporal, Intermediario.console);
             //autoExecute.sleep(2);//David: 10 //David: Verificar si es necesario este sleep
         }
 
         if (!esperarRetorno) {
-            return "";//David: Futuro uso de funciones
+            return null;//David: Futuro uso de funciones
         } else {
-            throw new LanguageException("Todavia no se implrementa la funcionalidad de retorno de funciones", "no usar por ahora");
+            ParteDeExpresion var = Variavel.getVariable("RETORNE", memory);
+            if (var == null || var instanceof Operador) {
+                throw new LanguageException(
+                        "A função terminó sem retornar o valor",
+                        "Especifique o código de retorne na funcão");
+            } else {
+                return (Simbolo) var;
+            }
         }
         //David: usar la memoria igual que en el index de los arreglos
     }
@@ -104,50 +128,86 @@ public class BloqueSubrutine extends Bloque {
                 cleanMemory(node.GetLevel(), memory);
                 return null;
 
+            case Keyword.FUNCAO:
             case Keyword.PROCEDIMENTO:
                 cleanMemory(node.GetLevel(), memory);
                 return node.GetNext();
 
             case Keyword.CHAMADOPROCEDIMENTO:
-                if (this.Nome == node.subrutine.Nome) {
+                if (this.Nome.equals(node.subrutine.Nome)) {
                     throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
                             "Detectado llamado recursivo. CompAlg no permite este llamado",
                             "Verifique el nombre del sub-algoritmo al que llama" //David: Traducir.
                             );
                 }
-                Vector<String> paramVals = ObterParametrosValues(node.GetText());
-                node.subrutine.ExecuteSubrutine(paramVals, console);
+                try {
+                    Vector<String> paramVals = ObterParametrosValues(Expressao.ExpresionStringToVector(node.GetText()), memory);
+                    node.subrutine.ExecuteSubrutine(paramVals);
+                } catch (LanguageException e) {
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            e.error, e.solution);
+                }
+                //David: simbolo v nao vai ser utilizado, iste é um procedimento
                 return node.GetNext();
 
+            case Keyword.FIMFUNCAO:
             case Keyword.FIMPROCEDIMENTO:
                 cleanMemory(node.GetLevel(), memory);
                 return null;//David: Por alguna razon el metodo no se ejecuta como INICIO, se mantiene repitiendo
 
-            case Keyword.FUNCAO:
-                throw new LanguageException("hay que hacer algo aqui", "metodo Execute, clase Subrutine");
-            //cleanMemory( node.GetLevel(),memory);
-            //return node.GetNext();
-
-            case Keyword.FIMFUNCAO:
-                throw new LanguageException("hay que hacer algo aqui", "metodo Execute, clase Subrutine");
-            //cleanMemory( node.GetLevel(),memory);
-            //return start;
-
             case Keyword.DEFINIR:
-                Variavel.defineVAR(node, memory, this.parametros, paramsValues);
+                try {
+                    Variavel.defineVAR(node, memory, this.parametros, paramsValues);
+                } catch (LanguageException ex) {
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            ex.error, ex.solution);
+                }
                 return node.GetNext();
 
             case Keyword.CALCULAR:
-                executeCalculate(node.GetText());
+                try {
+                    executeCalculate(node.GetText());
+                } catch (Exception ex) {
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            ex.getMessage(),
+                            "Verifique a expressão" //David: Traducir.
+                            );
+                }
                 return node.GetNext();
 
             case Keyword.LEIA:
-                executeREAD(node.GetText(), console);
+                try {
+                    executeREAD(node.GetText(), console);
+                } catch (LanguageException ex) {
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            ex.error, ex.solution);
+                }
                 return node.GetNext();
 
             case Keyword.ESCREVA:
-                executeWRITE(node.GetText(), console);
+                try {
+                    executeWRITE(node.GetText(), console);
+                } catch (LanguageException ex) {
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            ex.error, ex.solution);
+                }
                 return node.GetNext();
+
+            case Keyword.RETORNE:
+                try {
+                    executeRETORNO(node.GetText());
+                } catch (LanguageException ex) {
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            ex.error, ex.solution);
+                }
+                return null;
 
             case Keyword.LIMPATELA:
                 console.Clear();
@@ -158,15 +218,24 @@ public class BloqueSubrutine extends Bloque {
             case Keyword.REPETE:
             case Keyword.ESCOLHA:
                 return node.GetNext();
-
-            // verifica o passo do for e modifica a condiçao se necessario
             case Keyword.PASSO:
-                Object value = Expressao.Evaluate(node.GetText(), memory);
-                //avalia o passo
-                double valor = Double.parseDouble((String) value);
+                double valor;
+                Object value;
+                try {
+                    value = Expressao.Evaluate(node.GetText(), memory);
+                } catch (LanguageException ex) {
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            ex.error, ex.solution);
+                }
+                valor = Double.parseDouble((String) value);
+
                 //passo nulo
                 if (valor == 0.0) {
-                    throw new LanguageException("ERRO - o PASSO do ciclo PARA é zero", "Corrija o PASSO");
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            "ERRO - o PASSO do ciclo PARA é zero",
+                            "Corrija o PASSO");
                 }
                 //passa para o no da condiçao
                 NodeInstruction forNode = node.GetNext();
@@ -184,7 +253,14 @@ public class BloqueSubrutine extends Bloque {
             case Keyword.ENQUANTO:
             case Keyword.SE:
             case Keyword.PARA:
-                Object compare = Expressao.Evaluate(node.GetText(), memory);
+                Object compare;
+                try {
+                    compare = Expressao.Evaluate(node.GetText(), memory);
+                } catch (LanguageException ex) {
+                    throw new LanguageException(
+                            node.GetCharNum(), node.GetText(),
+                            ex.error, ex.solution);
+                }
                 //variaveis defenidas dentro do bloco
                 cleanMemory(node.GetLevel() + 1, memory);
                 if (((String) compare).equalsIgnoreCase(Values.VERDADEIRO)) {
@@ -193,7 +269,10 @@ public class BloqueSubrutine extends Bloque {
                     return node.GetIfFalse();
                 }
         }
-        throw new LanguageException("ERRRO - NODO DESCONHECIDO ", node.toString());
+        throw new LanguageException(
+                node.GetCharNum(), node.GetText(),
+                "INSTRUÇÃO DESCONHECIDA",
+                node.GetText());
 
     }
 
@@ -202,12 +281,18 @@ public class BloqueSubrutine extends Bloque {
 //------------         C A L C U L A R                     ---------------------
 //------------                                              --------------------
 //------------------------------------------------------------------------------      
-    protected void executeCalculate(String str) throws LanguageException {
+    protected void executeCalculate(String str) throws LanguageException, Exception {
         int pos = str.indexOf(Keyword.ATRIBUI);
         String var = str.substring(0, pos).trim();
         String values = str.substring(pos + Keyword.ATRIBUI.length()).trim();
 
         Object newValue = Expressao.Evaluate(values, memory);
+        if (newValue != null && newValue instanceof String
+                && (newValue.equals(Expressao.ErroDeCalculo)
+                || newValue.equals(Aritmeticos.ErroDivPorZero)
+                || ((String) newValue).startsWith(SymbolArray.ErroForaLimites))) {
+            throw new Exception((String) newValue);
+        }
         Variavel.replaceVariableValue(var, newValue, memory);
     }
 
@@ -249,8 +334,6 @@ public class BloqueSubrutine extends Bloque {
     protected void executeWRITE(String str, ConsoleIO console) throws LanguageException {
         str = str.substring(Keyword.GetTextKey(Keyword.ESCREVA).length());
         IteratorCodeParams tok = new IteratorCodeParams(str.trim());
-        //WriteTokenizer tok = new  WriteTokenizer(str);
-        StringBuffer line = new StringBuffer();
         Object elemLine;
         //parametros
         while (tok.hasMoreElements()) {
@@ -262,9 +345,51 @@ public class BloqueSubrutine extends Bloque {
             } else {
                 elemLine = elem;
             }
-            line.append(Values.getStringValue(elemLine.toString()));
+            //line.append(Values.getStringValue(elemLine.toString()));
+
+            if (elemLine == null) {
+                //error
+            } else if (elemLine instanceof String) {
+                console.write(Values.getStringValue((String) elemLine));
+            } else if (elemLine instanceof Operador) {
+                //nada ou error
+            } else if (elemLine instanceof SymbolArray) {
+                if (elem.contains("[") && elem.contains("]")) {
+                    SymbolArray a = (SymbolArray) elemLine;
+                    a.SetIndex(elem, memory);
+                    console.write(Values.getStringValue(((SymbolArray) elemLine).getValue().toString()));
+                } else {
+                    //error
+                }
+            } else if (elemLine instanceof SymbolComposto) {
+                //error
+            } else {
+                console.write(Values.getStringValue(((Simbolo) elemLine).getValue().toString()));
+            }
         }
-        console.write(line.toString());
+        //console.write(line.toString());//David: Os dados tinam de sair pra consola enquanto são calculados
+    }
+
+    protected void executeRETORNO(String str) throws LanguageException {
+        String values = str.substring(Keyword.GetTextKey(Keyword.RETORNE).length()).trim();
+
+        Object newValue = Expressao.Evaluate(values, memory);
+
+        int type = Simbolo.getType(TipoRetorno);
+
+        Simbolo v;
+        if (type == Simbolo.REGISTO && newValue instanceof SymbolComposto) {
+            v = new SymbolComposto((SymbolComposto) newValue);
+            //((SymbolComposto)v).copyFrom((SymbolComposto) newValue);
+        } else if (newValue instanceof SymbolArray) {
+            v = new SymbolArray((SymbolArray) newValue);
+            //((SymbolArray)v).copyFrom((SymbolArray) newValue);
+        } else {
+            v = new Simbolo("const", TipoRetorno, "RETORNE", newValue, 0, ("const " + TipoRetorno + " RETORNE <- " + (String) newValue));
+        }
+
+        v.setName("RETORNE");
+        memory.add(v);
     }
 
 //-------------------------------------------------------------------------------------
@@ -285,14 +410,18 @@ public class BloqueSubrutine extends Bloque {
         //ler = 3 caracteres
         String varName = str.substring(3).trim();
 
-        Simbolo var = Variavel.getVariable(varName, memory);
+        ParteDeExpresion pde = Variavel.getVariable(varName, memory);
         // fazer o set ao index do array
-        if (var instanceof SymbolArray) {
-            ((SymbolArray) var).SetIndex(varName, memory);
+        if (str.contains("[") && varName.contains("]")) {
+            ((SymbolArray) pde).SetIndex(varName, memory);
+        } else {
+            throw new LanguageException(0, varName,
+                    "O vetor " + varName + " não pose ser uma variavel num operador LEIA ",
+                    "Mude a variavel");//David:Revisar
         }
 
-        String value = console.read(var);
-        var.setValue(value);
+        String value = console.read((Simbolo) pde);
+        ((Simbolo) pde).setValue(value);
     }
 
 //=============================================================================
@@ -361,35 +490,57 @@ public class BloqueSubrutine extends Bloque {
         return node.toString() + "\n";
     }
 
-    private Vector ObterParametrosValues(String text) {
-        int i = text.indexOf("(");
-        int f = text.length() - 1;
-        while (f > i && text.charAt(f) != ')') {
-            f--;
+    public Vector ObterParametrosValues(Vector params, Vector memory) throws LanguageException {
+        if (params.size() < 3) {
+            throw new LanguageException(
+                    "O chamado á sub-algoritmo não é correto",
+                    "Verifique a expressão da chamada"); //David: revisar ortografia
         }
-        text = text.substring(i + 1, f);
         Vector paramvals = new Vector();
+        Vector paramx = new Vector();
+        Object valor;
+        ParteDeExpresion var = null;
+        SimboloDeParametro SP;
+        for (int i = 2; i < params.size(); i++) { //David: tiré -1 par que incluyera el parentesis final
+            if (params.get(i) instanceof String) {
+                String param = ((String) params.get(i)).trim();
+                if (param.equals(",") || param.equals(")")) {
+                    if (paramx.size() == 1) {
+                        Object x = paramx.get(0);
+                        if (x instanceof String) {
+                            var = Variavel.getVariable((String) x, memory);
+                        } else if (x instanceof Simbolo) {
+                            var = (Simbolo) x;
+                        }
+                    }
 
-        IteratorCodeParams params = new IteratorCodeParams(text);
+                    if (paramx.isEmpty()) {
+                        continue;
+                    }
 
-        while (params.hasMoreElements()) {
-            String param = params.current();
-            Object valor;
-            Simbolo var = Variavel.getVariable(param, memory);
-            SimboloDeParametro SP = new SimboloDeParametro();
-            SP.Name = param;
-            if (var == null) {
-                valor = Expressao.Evaluate(param, memory);
-                SP.Value = valor;
-                SP.PorValor = true;
+                    SP = new SimboloDeParametro();
+                    if (var == null) {
+                        valor = Expressao.Evaluate(paramx, memory);
+                        SP.Value = valor;
+                        SP.PorValor = true;
+                    } else if (var instanceof Simbolo) {
+                        SP.Value = (Simbolo) var;
+                        SP.PorValor = false;
+                    } else {
+                        throw new LanguageException(0, param,
+                                "O parâmetro " + param + " não pode ser um operador ",
+                                "Mude a expressão");//David:Revisar                
+                    }
+                    paramvals.add(SP);
+                    paramx.clear();
+
+                } else {
+                    paramx.add(param);
+                }
             } else {
-                SP.Value = var;
-                SP.PorValor = false;
+                paramx.add(params.get(i));
             }
-            paramvals.add(SP);
-            params.getNext();
-        }
-
+        } //for
         return paramvals;
     }
 }

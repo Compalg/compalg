@@ -133,7 +133,7 @@ public class ExpandDefinirSimbol {
                 value = Values.getDefault(type);
             } else{
                 name = code.substring(0,pos_atr).trim();
-                value = code.substring(pos_atr + Keyword.ATRIBUI.length() );
+                value = code.substring(pos_atr + Keyword.ATRIBUI.length() ).trim();
             }
             
           

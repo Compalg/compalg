@@ -275,6 +275,7 @@ public class NodeInstruction {
                 type == Keyword.ESCOLHA ||
                 type == Keyword.REGISTO ||
                 type == Keyword.PROCEDIMENTO ||
+                type == Keyword.FUNCAO ||
                 type == Keyword.REPETE ;
     }
     
@@ -292,6 +293,7 @@ public class NodeInstruction {
                 type == Keyword.FIMESCOLHE ||
                 type == Keyword.FIMREGISTO ||
                 type == Keyword.FIMPROCEDIMENTO ||
+                type == Keyword.FIMFUNCAO ||
                 type == Keyword.ATE ;
         
     }
