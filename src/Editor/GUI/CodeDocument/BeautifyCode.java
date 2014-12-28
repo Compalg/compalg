@@ -81,6 +81,7 @@ public class BeautifyCode {
             if (node.GetType() == Keyword.FIMFUNCAO
                     || node.GetType() == Keyword.FIMPROCEDIMENTO
                     || node.GetType() == Keyword.FIMREGISTO
+                    || node.GetType() == Keyword.FIMCONSTRUTOR
                     || node.GetType() == Keyword.FIMCLASSE) {
                 newCode.append("\n");
             }

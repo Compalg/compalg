@@ -46,6 +46,10 @@ public abstract class Bloque {
      * tipo Classe
      */
     public final static int CLASSE = 3;
+    /**
+     * tipo Construtor
+     */
+    public final static int CONSTRUTOR = 4;
     
     public static String VERSION = "Versão:1.0 \t(c) Augusto Bilabila";
     public String Nome; //David: nome do Bloco

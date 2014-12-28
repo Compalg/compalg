@@ -48,7 +48,12 @@ public class ExpandDefinirVariavel {
             }
         } catch (Exception e) {
             if (e instanceof LanguageException) {
-                throw e;
+                if (((LanguageException)e).line > 0 && !((LanguageException)e).codeLine.isEmpty()) {
+                    throw e;
+                }
+                throw new LanguageException(
+                        node.GetCharNum(), node.GetText(),
+                        ((LanguageException)e).error, ((LanguageException)e).solution);
             } else {
                 throw new LanguageException(
                         node.GetCharNum(),

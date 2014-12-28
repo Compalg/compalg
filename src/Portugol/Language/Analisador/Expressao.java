@@ -217,7 +217,7 @@ public class Expressao {
      * @param memory
      * @return
      */
-    public static Object Evaluate(Vector expression, Vector memory) {
+    public static Object Evaluate(Vector expression, Vector memory) throws LanguageException {
         return Evaluate(expression, memory, false);
     }
 
@@ -229,10 +229,10 @@ public class Expressao {
         return Evaluate(ExpresionStringToVector(expression), memory, safe);
     }
 
-    public static Object Evaluate(Vector expression, Vector memory, boolean safe) {
+    public static Object Evaluate(Vector expression, Vector memory, boolean safe) throws LanguageException {
         try {
             Vector exp = ReplaceVariablesToValues(expression, memory, safe);
-            return Calculador.CalulateValue(exp);
+            return exp.size() > 0 ? Calculador.CalulateValue(exp) : "";
         } catch (Exception e) {
             if (safe && e.getMessage().equals(Aritmeticos.ErroDivPorZero)) {
                 return "1";
@@ -243,7 +243,14 @@ public class Expressao {
             } else if (e.getMessage().startsWith(BloqueSubrutine.ErroRecursividad)) {
                 return BloqueSubrutine.ErroRecursividad;
             } else {
-                return ErroDeCalculo;
+                if (e instanceof LanguageException) {
+                    throw (LanguageException) e;
+                }
+
+                throw new LanguageException(
+                        e.getMessage(),
+                        "Verifique a expressão");
+                //return ErroDeCalculo;
             }
         }
     }

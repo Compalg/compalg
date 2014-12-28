@@ -36,7 +36,12 @@ public class ExpandEscolhe {
             }
         } catch (Exception e) {
             if (e instanceof LanguageException) {
-                throw e;
+                if (((LanguageException)e).line > 0 && !((LanguageException)e).codeLine.isEmpty()) {
+                    throw e;
+                }
+                throw new LanguageException(
+                        switchNode.GetCharNum(), switchNode.GetText(),
+                        ((LanguageException)e).error, ((LanguageException)e).solution);
             } else {
                 throw new LanguageException(
                         switchNode.GetCharNum(),
@@ -236,7 +241,12 @@ public class ExpandEscolhe {
                 }
             } catch (Exception e) {
                 if (e instanceof LanguageException) {
+                if (((LanguageException)e).line > 0 && !((LanguageException)e).codeLine.isEmpty()) {
                     throw e;
+                }
+                throw new LanguageException(
+                        caseNode.GetCharNum(), caseNode.GetText(),
+                        ((LanguageException)e).error, ((LanguageException)e).solution);
                 } else {
                     throw new LanguageException(
                             caseNode.GetCharNum(), caseNode.GetText(),

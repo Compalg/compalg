@@ -49,6 +49,7 @@ public class NodeInstruction {
     protected   NodeInstruction     ifFalse;
   
     public boolean EsReferencia;
+    public boolean Expanded;
     /**
      * construtor
      * @param instruction linha de codigo
@@ -66,6 +67,7 @@ public class NodeInstruction {
         this.ifFalse =null;
         this.charNum = charNum;
         this.EsReferencia = false;
+        this.Expanded = false;
     }
         
     /**
@@ -267,6 +269,7 @@ public class NodeInstruction {
                 type == Keyword.REGISTO ||
                 type == Keyword.PROCEDIMENTO ||
                 type == Keyword.FUNCAO ||
+                type == Keyword.CONSTRUTOR ||
                 type == Keyword.REPETE ;
     }
     
@@ -285,6 +288,7 @@ public class NodeInstruction {
                 type == Keyword.FIMREGISTO ||
                 type == Keyword.FIMPROCEDIMENTO ||
                 type == Keyword.FIMFUNCAO ||
+                type == Keyword.FIMCONSTRUTOR ||
                 type == Keyword.ATE ;
         
     }

@@ -80,8 +80,9 @@ public class BloqueSubrutine extends Bloque {
 
         NodeInstruction temporal = getStartNode();
         boolean esperarRetorno = temporal.GetType() == Keyword.FUNCAO;
+        boolean EsConstructor = temporal.GetType() == Keyword.CONSTRUTOR;
         paramsValues = paramVals;
-        
+
         if (parametros.size() != paramsValues.size()) {
             throw new LanguageException(
                     "No se están pasando todos los parametros requeridos", //David: Traducir
@@ -90,26 +91,36 @@ public class BloqueSubrutine extends Bloque {
 
         if (Intermediario.console == null) {
             if (!esperarRetorno) {
-                return null;//David: No caso dos procedimentos
+                if (EsConstructor) {
+                    ObjetoDono = new SymbolObjeto("", TipoRetorno, "RETORNO", TipoRetorno, 0, (TipoRetorno + " RETORNO <- " + TipoRetorno));
+                    ObjetoDono.Inicializado = true;
+                    return ObjetoDono;
+                } else {
+                    return null;//David: No caso dos procedimentos
+                }
             } else {
                 if (Simbolo.getType(TipoRetorno) == Simbolo.REGISTO) {
                     return new SymbolComposto("", TipoRetorno, "RETORNO", TipoRetorno, 0, (TipoRetorno + " RETORNO <- " + TipoRetorno));
                 } else if (Simbolo.getType(TipoRetorno) == Simbolo.CLASSE) {
-                    return new SymbolObjeto("", TipoRetorno, "RETORNO", TipoRetorno, 0, (TipoRetorno + " RETORNO <- " + TipoRetorno));
+                    ObjetoDono = new SymbolObjeto("", TipoRetorno, "RETORNO", TipoRetorno, 0, (TipoRetorno + " RETORNO <- " + TipoRetorno));
+                    ObjetoDono.Inicializado = true;
+                    return ObjetoDono;
                 } else {
                     return new Simbolo("", TipoRetorno, "RETORNO", null, 0, (TipoRetorno + " RETORNO"));
                 }
             }
         }
 
-        if (classePae == null && ObjetoDono != null
-                || classePae != null && ObjetoDono == null) {
+        if (EsConstructor) {
+            ObjetoDono = new SymbolObjeto("", TipoRetorno, "RETORNO", TipoRetorno, 0, (TipoRetorno + " RETORNO <- " + TipoRetorno));
+            ObjetoDono.Inicializado = true;
+        } else if (classePae == null && ObjetoDono != null || classePae != null && ObjetoDono == null) {
             throw new LanguageException(
                     "Problema com paridade entre clase e instancia para um metodo",
                     "Erro interno do CompAlg" //David: Traducir.
                     );
         }
-        
+
         SymbolObjeto InstanciaAnterior = InstanciaActual;
         InstanciaActual = ObjetoDono;
         memory = new Vector();
@@ -123,7 +134,11 @@ public class BloqueSubrutine extends Bloque {
         InstanciaActual = InstanciaAnterior;
 
         if (!esperarRetorno) {
-            return null;//David: Futuro uso de funciones
+            if (EsConstructor) {
+                return ObjetoDono;
+            } else {
+                return null;//David: No caso dos procedimentos
+            }
         } else {
             ParteDeExpresion var = Variavel.getVariable("RETORNE", memory);
             if (var == null || var instanceof Operador) {
@@ -159,6 +174,7 @@ public class BloqueSubrutine extends Bloque {
 
             case Keyword.FUNCAO:
             case Keyword.PROCEDIMENTO:
+            case Keyword.CONSTRUTOR:
                 cleanMemory(node.GetLevel(), memory);
                 return node.GetNext();
 
@@ -166,6 +182,9 @@ public class BloqueSubrutine extends Bloque {
                 try {
                     Expressao.ReplaceVariablesToValues(Expressao.ExpresionStringToVector(node.GetText()), memory, true);
                 } catch (LanguageException e) {
+                    if (e.line > 0 && !e.codeLine.isEmpty()) {
+                        throw e;
+                    }
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
                             e.error, e.solution);
@@ -174,6 +193,7 @@ public class BloqueSubrutine extends Bloque {
 
             case Keyword.FIMFUNCAO:
             case Keyword.FIMPROCEDIMENTO:
+            case Keyword.FIMCONSTRUTOR:
                 cleanMemory(node.GetLevel(), memory);
                 return null;//David: Por alguna razon el metodo no se ejecuta como INICIO, se mantiene repitiendo
 
@@ -181,6 +201,9 @@ public class BloqueSubrutine extends Bloque {
                 try {
                     Variavel.defineVAR(node, memory, this.parametros, paramsValues);
                 } catch (LanguageException ex) {
+                    if (ex.line > 0 && !ex.codeLine.isEmpty()) {
+                        throw ex;
+                    }
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
                             ex.error, ex.solution);
@@ -203,6 +226,9 @@ public class BloqueSubrutine extends Bloque {
                 try {
                     executeREAD(node.GetText(), console);
                 } catch (LanguageException ex) {
+                    if (ex.line > 0 && !ex.codeLine.isEmpty()) {
+                        throw ex;
+                    }
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
                             ex.error, ex.solution);
@@ -213,6 +239,9 @@ public class BloqueSubrutine extends Bloque {
                 try {
                     executeWRITE(node.GetText(), console);
                 } catch (LanguageException ex) {
+                    if (ex.line > 0 && !ex.codeLine.isEmpty()) {
+                        throw ex;
+                    }
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
                             ex.error, ex.solution);
@@ -223,6 +252,9 @@ public class BloqueSubrutine extends Bloque {
                 try {
                     executeRETORNO(node.GetText());
                 } catch (LanguageException ex) {
+                    if (ex.line > 0 && !ex.codeLine.isEmpty()) {
+                        throw ex;
+                    }
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
                             ex.error, ex.solution);
@@ -244,6 +276,9 @@ public class BloqueSubrutine extends Bloque {
                 try {
                     value = Expressao.Evaluate(node.GetText(), memory);
                 } catch (LanguageException ex) {
+                    if (ex.line > 0 && !ex.codeLine.isEmpty()) {
+                        throw ex;
+                    }
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
                             ex.error, ex.solution);
@@ -277,6 +312,9 @@ public class BloqueSubrutine extends Bloque {
                 try {
                     compare = Expressao.Evaluate(node.GetText(), memory);
                 } catch (LanguageException ex) {
+                    if (ex.line > 0 && !ex.codeLine.isEmpty()) {
+                        throw ex;
+                    }
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
                             ex.error, ex.solution);

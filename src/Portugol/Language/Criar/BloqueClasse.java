@@ -32,8 +32,10 @@ public class BloqueClasse extends Bloque{
     public static String VERSION = "Versão:1.0 \t(c) Augusto Bilabila";
 
     public Vector<BloqueSubrutine> metodos;
+    public BloqueSubrutine Construtor;
     NodeInstruction lastNode;
     static public BloqueClasse ClaseActualParaExpandir=null;
+    
     /**
      * Constroi um fluxograma
      *
@@ -45,6 +47,7 @@ public class BloqueClasse extends Bloque{
         start = null;
         metodos = new Vector<BloqueSubrutine>();
         lastNode = null;
+        Construtor = null; 
     }
 
     /**

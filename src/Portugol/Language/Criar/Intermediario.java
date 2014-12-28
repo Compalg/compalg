@@ -2,10 +2,14 @@ package Portugol.Language.Criar;
 
 import Editor.Utils.FileManager;
 import Portugol.Language.Analisador.Keyword;
+import Portugol.Language.Analisador.TipoClasse;
 import Portugol.Language.Consola.ConsoleIO;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import Portugol.Language.Utilitario.LanguageException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * @author Augusto Bilabila original de Antonio manso
@@ -15,7 +19,7 @@ public class Intermediario {
     public static String VERSION = "Versão:1.0 \t(c) Augusto Bilabila";
     static public Vector<BloqueSubrutine> subrutinas;
     static public Vector tiposRegistos = new Vector();
-    static public Vector tiposClasses = new Vector();
+    static public Vector<TipoClasse> tiposClasses = new Vector();
     private BloqueSubrutine Inicio;
     public static ConsoleIO console;
 
@@ -69,14 +73,11 @@ public class Intermediario {
 
         //no anterior (para fazer a ligacao)
         NodeInstruction previousNode = null;
-        // novo no
+        // novo nó
         NodeInstruction newNode = null;
-
         //fazer a lista seguida
 
         while (st.hasMoreTokens()) {
-
-            //retirar os espacos
             instruction = st.nextToken();
             //contar o numero de caracteres
             charNum += instruction.length() + 1; // terminador
@@ -103,6 +104,7 @@ public class Intermediario {
                 case Keyword.INICIO:
                 case Keyword.PROCEDIMENTO:
                 case Keyword.FUNCAO:
+                case Keyword.CONSTRUTOR:
                     if (rutina != null) {
                         throw new LanguageException(
                                 newNode.GetCharNum(), newNode.GetText(),
@@ -115,27 +117,31 @@ public class Intermediario {
                                 "O BLOCO DE INICIO NÃO PODE ESTAR CONTIDO NUMA CLASSE",
                                 "MUDE O CÓDIGO"); //David: Correguir ortografia
                     }
+                    if ((newNode.GetType() == Keyword.CONSTRUTOR) && claseActual == null) {
+                        throw new LanguageException(
+                                newNode.GetCharNum(), newNode.GetText(),
+                                "O BLOCO DE CONSTRUÇÃO PRECISA ESTAR CONTIDO NUMA CLASSE",
+                                "MUDE O CÓDIGO"); //David: Correguir ortografia
+                    }
                     rutina = new BloqueSubrutine();
                     rutina.start = newNode;
                     rutina.Nome = instruction;
+                    previousNode = rutina.start;
 
                     if ((newNode.GetType() == Keyword.INICIO)) {//David: debe ser igual para que arranque por INICIO
                         Inicio = (BloqueSubrutine) rutina;
-                        previousNode = rutina.start;
                     } else {
                         if (claseActual == null) {
                             subrutinas.add((BloqueSubrutine) rutina);
-                            previousNode = rutina.start;
                         } else {
-                            claseActual.metodos.add((BloqueSubrutine) rutina);
-                            //claseActual.lastNode = previousNode;
+                            if ((newNode.GetType() == Keyword.CONSTRUTOR)) {//David: debe ser igual para que arranque por INICIO
+                                claseActual.Construtor = (BloqueSubrutine) rutina;
+                            } else {
+                                claseActual.metodos.add((BloqueSubrutine) rutina);
+                            }
                             previousNode = rutina.start;
-                            //newNode.level++;
                         }
                     }
-
-
-
                     break;
                 case Keyword.REGISTO:
                     if (rutina != null) {
@@ -181,13 +187,14 @@ public class Intermediario {
                 case Keyword.FIM:
                 case Keyword.FIMPROCEDIMENTO:
                 case Keyword.FIMFUNCAO:
+                case Keyword.FIMCONSTRUTOR:
                     previousNode.SetNext(newNode);
                     previousNode = newNode;
 
                     if (claseActual == null) {
                         ExpandFluxogram.ExpandSubrutine((BloqueSubrutine) rutina);
-                    }else{
-                        ((BloqueSubrutine)rutina).classePae = claseActual;
+                    } else {
+                        ((BloqueSubrutine) rutina).classePae = claseActual;
                     }
                     rutina = null;
                     break;
@@ -206,7 +213,7 @@ public class Intermediario {
                                 "NÃO TEM UMA CLASSE PARA ENCERRAR",
                                 "MUDE O CÓDIGO"); //David: Correguir ortografia
                     }
-                    
+
                     claseActual.lastNode.SetNext(newNode);
                     previousNode = newNode;
 

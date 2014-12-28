@@ -40,7 +40,26 @@ public class ExpandChamadoFuncao {
         String nome_proced = Text./*substring(0, endExp).*/trim();
         //String parametros = Text.substring(endExp, Text.length()).trim();
         //int cont = 0, pos = 0;
-        
+
+        if (nome_proced.toUpperCase().startsWith(Keyword.GetTextKey(Keyword.NOVO) + " ")) {
+            nome_proced = Text.substring(((String) Keyword.GetTextKey(Keyword.NOVO) + " ").length(), Text.length()).trim();
+            for (int i = 0; i < Intermediario.tiposClasses.size(); i++) {
+                if (Intermediario.tiposClasses.elementAt(i).claseOrigen.Nome.toUpperCase().equals(nome_proced.toUpperCase())) {
+                    if (Intermediario.tiposClasses.elementAt(i).claseOrigen.Construtor != null
+                            && Intermediario.tiposClasses.elementAt(i).claseOrigen.Construtor.Nome.toUpperCase().equals(nome_proced.toUpperCase())) {
+                        return Intermediario.tiposClasses.elementAt(i).claseOrigen.Construtor;
+                    } else {
+                        throw new LanguageException(
+                                "A Classe <" + nome_proced + "> não tem Construtor definido", //David: revisar ortografia
+                                "Programe o construtor da Classe");
+                    }
+                }
+            }
+            throw new LanguageException(
+                    "A Classe <" + nome_proced + "> não existe", //David: revisar ortografia
+                    "Mudeo código");
+        }
+
         if (BloqueSubrutine.InstanciaActual != null) {
             BloqueClasse claseOrigen = BloqueSubrutine.InstanciaActual.tipoClasseBase.claseOrigen;
             for (int i = 0; i < claseOrigen.metodos.size(); i++) {
@@ -49,7 +68,7 @@ public class ExpandChamadoFuncao {
                 }
             }
         }
-        
+
         for (int i = 0; i < Intermediario.subrutinas.size(); i++) {
             if (Intermediario.subrutinas.elementAt(i).Nome.toUpperCase().equals(nome_proced.toUpperCase())) {
                 return Intermediario.subrutinas.elementAt(i);
@@ -71,7 +90,15 @@ public class ExpandChamadoFuncao {
                 }
             }
         }
-        
+
+        for (int i = 0; i < Intermediario.tiposClasses.size(); i++) {
+            if (Intermediario.tiposClasses.elementAt(i).claseOrigen.Nome.toUpperCase().equals(nome_proced.toUpperCase())) {
+                throw new LanguageException(
+                        "Para chamar ao Construtor <" + nome_proced + "> debe utilizar o operador NOVO", //David: revisar ortografia
+                        "Acrecente o operador NOVO no chamado do Construtor.");
+            }
+        }
+
         throw new LanguageException(
                 "O procedimento <" + nome_proced + "> não existe", //David: revisar ortografia
                 "Revise o nome do procedimento ou função");

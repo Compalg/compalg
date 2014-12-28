@@ -3,6 +3,7 @@ package Portugol.Language.Analisador;
 import Portugol.Language.Calcular.Calculador;
 import Portugol.Language.Criar.BloqueSubrutine;
 import Portugol.Language.Criar.ExpandChamadoFuncao;
+import Portugol.Language.Criar.Intermediario;
 import Portugol.Language.Criar.NodeInstruction;
 import Portugol.Language.Utilitario.IteratorArray;
 import Portugol.Language.Utilitario.IteratorCodeParams;
@@ -138,11 +139,19 @@ public class Variavel {
                 ParteDeExpresion Source = getVariable(source, searchMemory, searchMemory);
                 if (Source instanceof SymbolObjeto) {
                     ObjetoDono = (SymbolObjeto) Source;
+
                     metodos = ObjetoDono.tipoClasseBase.claseOrigen.metodos;
                 }
             }
 
             BloqueSubrutine rutina = ExpandChamadoFuncao.ExpandCHAMADO(name, metodos);
+            if (Intermediario.console != null //não é expandir senao executar
+                    && ObjetoDono != null && ObjetoDono.Inicializado == false) {
+                throw new LanguageException(
+                        "Não pode utilizar o objeto \" " + ObjetoDono.getName() + " \" antes de ele sere inicializado com o Construtor ", //David: revisar ortografia
+                        "Antes utilice um código similar ao seguinte: \"" + ObjetoDono.getName() + " <- NOVO " + ObjetoDono.tipoClasseBase.Name.toLowerCase() + "( . . . )\"");
+            }
+
             Vector paramVals = rutina.ObterParametrosValues(chmd, searchMemory);
             ObjetoDono = ObjetoDono != null ? ObjetoDono : (BloqueSubrutine.InstanciaActual);
             return rutina.ExecuteSubrutine(paramVals, ObjetoDono);

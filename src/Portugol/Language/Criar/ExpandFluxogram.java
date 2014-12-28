@@ -148,7 +148,6 @@ public class ExpandFluxogram {
                             " ESCREVA A INSTRUÇÃO QUE INDICA O FIM DO CICLO E NÃO \"" + pt.GetText() + "\"");
                 }
 
-
                 ExpandRepeteAte.ExpandRepeat(n, pt, stack.size(), memory);
                 rutina.cleanMemory(stack.size() + 1, memory);
             } //--------------------------  Fazer os FOR -----------------------
@@ -191,12 +190,15 @@ public class ExpandFluxogram {
                 //FAZER O ESCOLHA                
                 pt = ExpandEscolhe.ExpandSWITCH(n, stack.size(), memory);
                 rutina.cleanMemory(stack.size() + 1, memory);
-            } else if (pt.GetType() == Keyword.PROCEDIMENTO || pt.GetType() == Keyword.FUNCAO) {
+            } else if (pt.GetType() == Keyword.PROCEDIMENTO || pt.GetType() == Keyword.FUNCAO || pt.GetType() == Keyword.CONSTRUTOR) {
                 ExpandProcedimento.ExpandSUBRUTINA(rutina, pt, stack.size(), memory);
             } else if (pt.GetType() == Keyword.CHAMADOPROCEDIMENTO) {
                 try {
                     ExpandChamadoProcedimento.ExpandCHAMADO(rutina, pt, stack.size(), memory);
                 } catch (LanguageException e) {
+                    if (e.line > 0 && !e.codeLine.isEmpty()) {
+                        throw e;
+                    }
                     throw new LanguageException(
                             pt.GetCharNum(), pt.GetText(),
                             e.error, e.solution);
@@ -209,7 +211,6 @@ public class ExpandFluxogram {
                         "INSTRUÇÃO DESCONHECIDA: " + pt.GetText(),
                         "VERIFIQUE A INSTRUÇÃO");
             }
-
 
             pt = pt.GetNext();
 
@@ -278,7 +279,7 @@ public class ExpandFluxogram {
                 rutina.Nome = name;
                 rutina.type = Bloque.CLASSE;
                 for (int i = 0; i < Intermediario.tiposClasses.size(); i++) {
-                    TipoRegisto tmp = (TipoRegisto) Intermediario.tiposClasses.get(i);
+                    TipoClasse tmp = Intermediario.tiposClasses.get(i);
                     if (tmp.Name.equals(name)) {
                         throw new LanguageException(
                                 "Já existe uma classe com esse nome",
@@ -295,12 +296,22 @@ public class ExpandFluxogram {
 
             pt = pt.GetNext();
         }
+        for (int i = 0; i < rutina.metodos.size(); i++) {
+            ExpandProcedimento.ExpandSUBRUTINA(rutina.metodos.get(i), rutina.metodos.get(i).getStartNode(), 0, null);
+            rutina.metodos.get(i).getStartNode().Expanded = true;
+        }
 
+        BloqueClasse ClaseAnterior = BloqueClasse.ClaseActualParaExpandir;//esto realmente não é preciso aqui, mais melhor fica
         BloqueClasse.ClaseActualParaExpandir = rutina;
+
         for (int i = 0; i < rutina.metodos.size(); i++) {
             ExpandSubrutine(rutina.metodos.get(i));
         }
-        BloqueClasse.ClaseActualParaExpandir = null;
+        if (rutina.Construtor != null) {
+            ExpandSubrutine(rutina.Construtor); //o construtor não precisa expandir previamente como os outros metodos
+        }
+
+        BloqueClasse.ClaseActualParaExpandir = ClaseAnterior;
     }
 
 //-----------------------------------------------------------------------------
@@ -350,7 +361,12 @@ public class ExpandFluxogram {
                 }
             } catch (Exception e) {
                 if (e instanceof LanguageException) {
+                if (((LanguageException)e).line > 0 && !((LanguageException)e).codeLine.isEmpty()) {
                     throw e;
+                }
+                throw new LanguageException(
+                        node.GetCharNum(), node.GetText(),
+                        ((LanguageException)e).error, ((LanguageException)e).solution);
                 } else {
                     throw new LanguageException(
                             node.GetCharNum(),
@@ -413,7 +429,12 @@ public class ExpandFluxogram {
             }
         } catch (Exception e) {
             if (e instanceof LanguageException) {
-                throw e;
+                if (((LanguageException) e).line > 0 && !((LanguageException) e).codeLine.isEmpty()) {
+                    throw e;
+                }
+                throw new LanguageException(
+                        node.GetCharNum(), node.GetText(),
+                        ((LanguageException) e).error, ((LanguageException) e).solution);
             } else {
                 throw new LanguageException(
                         node.GetCharNum(),

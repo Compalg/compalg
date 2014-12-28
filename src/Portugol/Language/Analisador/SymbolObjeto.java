@@ -12,10 +12,11 @@ import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
 
 public class SymbolObjeto extends Simbolo {
-    
+
     Vector<Simbolo> Campos;
     public TipoClasse tipoClasseBase;
-    
+    public boolean Inicializado;
+
     public SymbolObjeto(String modify, String type, String name, /*String index,*/ Object valor, int level, String origTxt)
             throws LanguageException {
         TextoOrigen = origTxt;
@@ -24,18 +25,19 @@ public class SymbolObjeto extends Simbolo {
         } else {
             this.isConst = false;
         }
-        
+
         this.type = getType(type);
         typeLexema = type;//parametro
 
         this.name = name.trim();
-        
+
         this.value = Values.getDefault(typeLexema);
-        
+
         this.level = level;
-        
+
         tipoClasseBase = ObterTipoClasse(type);
-        CriaCampos();        
+        CriaCampos();
+        Inicializado = false;
         if (valor != null && valor instanceof SymbolObjeto) {
             copyFrom((SymbolObjeto) valor);
         }
@@ -52,11 +54,12 @@ public class SymbolObjeto extends Simbolo {
         typeLexema = symbol.typeLexema;//parametro
 
         this.name = symbol.name.trim();
-        
+
         this.level = symbol.level;
-        
+
         tipoClasseBase = symbol.tipoClasseBase;
-        
+
+        Inicializado = symbol.Inicializado;
         Campos = new Vector<Simbolo>();
         for (int i = 0; i < symbol.Campos.size(); i++) {
             if (symbol.Campos.get(i) instanceof SymbolArray) {
@@ -66,22 +69,28 @@ public class SymbolObjeto extends Simbolo {
             } else {
                 Campos.add(new Simbolo(symbol.Campos.get(i)));
             }
-        }       
+        }
     }
-    
-    public void copyFrom(SymbolObjeto registro) throws LanguageException {
+
+    public void copyFrom(SymbolObjeto objecto) throws LanguageException {
+        if (objecto.Inicializado == false) {
+            throw new LanguageException(
+                    "O objecto \" "+objecto.getName()+" \" ainda não tem sido inicializado",
+                    "Mude o código"); //David: Revisar ortografia                        
+        }
         Campos.clear();
-        for (int i = 0; i < registro.Campos.size(); i++) {
-            if (registro.Campos.get(i) instanceof SymbolArray) {
-                Campos.add(new SymbolArray((SymbolArray) registro.Campos.get(i)));
-            } else if (registro.Campos.get(i) instanceof SymbolObjeto) {
-                Campos.add(new SymbolObjeto((SymbolObjeto) registro.Campos.get(i)));
+        Inicializado = objecto.Inicializado;
+        for (int i = 0; i < objecto.Campos.size(); i++) {
+            if (objecto.Campos.get(i) instanceof SymbolArray) {
+                Campos.add(new SymbolArray((SymbolArray) objecto.Campos.get(i)));
+            } else if (objecto.Campos.get(i) instanceof SymbolObjeto) {
+                Campos.add(new SymbolObjeto((SymbolObjeto) objecto.Campos.get(i)));
             } else {
-                Campos.add(new Simbolo(registro.Campos.get(i)));
+                Campos.add(new Simbolo(objecto.Campos.get(i)));
             }
         }
     }
-    
+
     public void copyFrom(SimboloDeParametro origen) throws LanguageException {
         if (origen == null) {
             return;
@@ -114,10 +123,9 @@ public class SymbolObjeto extends Simbolo {
 //    public Object getValue() {
 //        return (String) Campos.get(0);
 //    }
-
     public static TipoClasse ObterTipoClasse(String type) throws LanguageException {
         for (int i = 0; i < Intermediario.tiposClasses.size(); i++) {
-            TipoClasse tmp = (TipoClasse) Intermediario.tiposClasses.get(i);
+            TipoClasse tmp = Intermediario.tiposClasses.get(i);
             if (tmp.Name.toUpperCase().equals(type.toUpperCase().trim())) {
                 return tmp;
             }
@@ -126,7 +134,7 @@ public class SymbolObjeto extends Simbolo {
                 "O tipo de Classe não foi declarado",
                 "Declare o tipo de classe"); //David: Revisar ortografia                        
     }
-    
+
     //////////////////////////////////////////////////////////////////////////////
     private void CriaCampos() throws LanguageException {
         NodeInstruction pt = null;
@@ -139,10 +147,10 @@ public class SymbolObjeto extends Simbolo {
             ExpandDefinirSimbol.ExpandVariable(pt, 0, Campos);
         }
     }
-    
+
     private void CopiarValor() {
     }
-    
+
     public String toString() {
         return name + " = " + Campos.toString();
     }

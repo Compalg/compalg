@@ -14,6 +14,7 @@ import Portugol.Language.Consola.ConsoleIO;
 import Portugol.Language.Criar.Intermediario;
 import Portugol.Language.Criar.NodeInstruction;
 import Portugol.Language.Analisador.Keyword;
+import Portugol.Language.Criar.BloqueClasse;
 import Portugol.Language.Criar.BloqueSubrutine;
 import Portugol.Language.Utilitario.LanguageException;
 import java.awt.BorderLayout;
@@ -2141,6 +2142,10 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
             info.write("\nAlgoritmo: " + fileManager.getFileName());
             info.write("\n\nA compilar o algoritmo...");
 
+            Intermediario.console = null; //David: Isto é preciso, não tirar
+            BloqueSubrutine.InstanciaActual = null;
+            BloqueClasse.ClaseActualParaExpandir = null;            
+            
             intermediario = new Intermediario(TextPaneCode.getText());
             prog = intermediario.getInicio();
             info.write("\nO algoritmo não tem erros da compilação...\n");
@@ -2175,6 +2180,8 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
             prog.ExecuteSubrutine(new Vector<String>(), null);
 
             Intermediario.console = null; //David: Isto é preciso, não tirar
+            BloqueSubrutine.InstanciaActual = null;
+            BloqueClasse.ClaseActualParaExpandir = null;            
 
             calend = new Calendario();
             info.write("\nO programa terminou com sucesso... ");

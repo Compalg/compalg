@@ -142,7 +142,8 @@ public class Calculador {
         if (result.size() == 1) {
             return result.pop();
         } else {
-            throw new Exception(" ERRO 011:\nA EXPRESSÃO [" + expr + "] ESTÁ MAL CONSTRUÍDA");
+            throw new Exception("A EXPRESSÃO ESTÁ MAL CONSTRUÍDA");
+            //throw new Exception(" ERRO 011:\nA EXPRESSÃO [" + expr + "] ESTÁ MAL CONSTRUÍDA");
         }
     }
 }

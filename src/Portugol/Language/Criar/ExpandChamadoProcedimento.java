@@ -40,6 +40,9 @@ public class ExpandChamadoProcedimento {
         try {
             Expressao.ReplaceVariablesToValues(Expressao.ExpresionStringToVector(begin.GetText()), memory, false);
         } catch (LanguageException e) {
+            if (e.line > 0 && !e.codeLine.isEmpty()) {
+                throw e;
+            }
             throw new LanguageException(
                     begin.GetCharNum(), begin.GetText(),
                     e.error, e.solution);

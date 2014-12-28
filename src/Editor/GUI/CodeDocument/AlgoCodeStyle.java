@@ -97,7 +97,7 @@ public class AlgoCodeStyle extends AlgoSyntaxHighlight {
         //set the attributes for operators
         newdatatype = new SimpleAttributeSet();
         StyleConstants.setBold(newdatatype, true );
-        StyleConstants.setForeground( newdatatype, Color.RED); //castanho meio claro
+        StyleConstants.setForeground( newdatatype, Color.magenta); //David: Classe côr
         StyleConstants.setFontFamily( newdatatype, "Courier" );
     }
     

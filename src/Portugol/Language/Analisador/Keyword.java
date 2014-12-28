@@ -55,6 +55,9 @@ public class Keyword {
     public static final int CHAMADOPROCEDIMENTO = 43;
     public static final int CLASSE = 44;
     public static final int FIMCLASSE = 45;
+    public static final int CONSTRUTOR = 46;
+    public static final int FIMCONSTRUTOR = 47;
+    public static final int NOVO = 48;
     public static final String ATRIBUI = "<-";
     public static final String PARENTESIS = "("; //David: Para intentar reconocer el llamado a metodos
     public static final String STR = "\""; //David:  Para determinar si  <- o ( no estan dentro de comillas
@@ -107,7 +110,9 @@ public class Keyword {
         "CHAMADOPROCEDIMENTO", //David: Acrecentado
         "CLASSE", //David: Acrecentado
         "FIMCLASSE", //David: Acrecentado
-
+        "CONSTRUTOR",
+        "FIMCONSTRUTOR",
+        "NOVO",
         //Alternativas
         "MOSTRE",
         "RECEBA",
@@ -198,7 +203,6 @@ public class Keyword {
             return ATE;
         }
 
-
         if (instrucao.startsWith("INTEIRO ")) {
             return DEFINIR;
         }
@@ -287,18 +291,29 @@ public class Keyword {
         if (instrucao.startsWith("FIM PROCEDIMENTO")) {
             return FIMPROCEDIMENTO;
         }
-
+        if (instrucao.startsWith("CONSTRUTOR ")) {
+            return CONSTRUTOR;
+        }
+        if (instrucao.startsWith("FIMCONSTRUTOR")) {
+            return FIMCONSTRUTOR;
+        }
+        if (instrucao.startsWith("FIM CONSTRUTOR")) {
+            return FIMCONSTRUTOR;
+        }
+        if (instrucao.equals("NOVO")) {
+            return NOVO;
+        }
         if (instrucao.startsWith("FUNCAO ")) {
             return FUNCAO;
         }
         if (instrucao.startsWith("FIMFUNCAO")) {
             return FIMFUNCAO;
         }
-        if (instrucao.startsWith("RETORNE")) {
-            return RETORNE;
-        }
         if (instrucao.startsWith("FIM FUNCAO")) {
             return FIMFUNCAO;
+        }
+        if (instrucao.startsWith("RETORNE")) {
+            return RETORNE;
         }
 
         if (instrucao.startsWith("FICHEIRO ")) {
