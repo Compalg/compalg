@@ -42,6 +42,9 @@ public class Values {
         if (Keyword.DefineRegisto(type)) {
             return type.toUpperCase();
         }
+        if (Keyword.DefineClasse(type)) {
+            return type.toUpperCase();
+        }
         return "erro";
     }
 
@@ -285,6 +288,10 @@ public class Values {
         return Keyword.DefineRegisto(str);
     }
 
+    public static boolean IsObjeto(String str) {
+        return Keyword.DefineClasse(str);
+    }
+    
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
     /**

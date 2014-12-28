@@ -5,6 +5,7 @@ import Portugol.Language.Analisador.Keyword;
 import Portugol.Language.Analisador.Operador;
 import Portugol.Language.Analisador.ParteDeExpresion;
 import Portugol.Language.Analisador.Simbolo;
+import Portugol.Language.Analisador.TipoClasse;
 import Portugol.Language.Analisador.TipoRegisto;
 import Portugol.Language.Analisador.Variavel;
 import Portugol.Language.Utilitario.IteratorCodeParams;
@@ -29,15 +30,7 @@ public class ExpandFluxogram {
                 //si existe una variable de registro en definicion entonces todas las variables
                 //van como campos de este
                 pt = ExpandDefinirSimbol.ExpandVariable(pt, stack.size(), memory);
-            } else if (pt.GetType() == Keyword.REGISTO) {
-                //crear una variable de tipo registro para agregarle los campos
-                //agregar el registro a la lista de registros
-                ExpandChamadoProcedimento.ExpandCHAMADO(rutina, pt, stack.size(), memory);
-            } else if (pt.GetType() == Keyword.FIMREGISTO) {
-                //eliminar la variable de tipo registro
-                ExpandChamadoProcedimento.ExpandCHAMADO(rutina, pt, stack.size(), memory);
-            } //verificar o calculo
-            else if (pt.GetType() == Keyword.CALCULAR) {
+            } else if (pt.GetType() == Keyword.CALCULAR) {
                 VerifyCalculate(pt, memory);
             } //fazer a leitura das  variaveis
             else if (pt.GetType() == Keyword.RETORNE) {
@@ -201,20 +194,27 @@ public class ExpandFluxogram {
             } else if (pt.GetType() == Keyword.PROCEDIMENTO || pt.GetType() == Keyword.FUNCAO) {
                 ExpandProcedimento.ExpandSUBRUTINA(rutina, pt, stack.size(), memory);
             } else if (pt.GetType() == Keyword.CHAMADOPROCEDIMENTO) {
-                ExpandChamadoProcedimento.ExpandCHAMADO(rutina, pt, stack.size(), memory);
+                try {
+                    ExpandChamadoProcedimento.ExpandCHAMADO(rutina, pt, stack.size(), memory);
+                } catch (LanguageException e) {
+                    throw new LanguageException(
+                            pt.GetCharNum(), pt.GetText(),
+                            e.error, e.solution);
+                }
             } else if (pt.GetType() == Keyword.CHAMADOPROCEDIMENTO) {
                 ExpandChamadoProcedimento.ExpandCHAMADO(rutina, pt, stack.size(), memory);
             } else if (pt.GetType() == Keyword.DESCONHECIDO) {
-                    throw new LanguageException(
-                            pt.GetCharNum(), pt.GetText(),
-                            "INSTRUÇÃO DESCONHECIDA: "+pt.GetText(),
-                            "VERIFIQUE A INSTRUÇÃO");                
+                throw new LanguageException(
+                        pt.GetCharNum(), pt.GetText(),
+                        "INSTRUÇÃO DESCONHECIDA: " + pt.GetText(),
+                        "VERIFIQUE A INSTRUÇÃO");
             }
 
 
             pt = pt.GetNext();
 
-        }// pt != null
+        }// pt != null        
+
         //  - - -- ciclos nao fechados  . . . .
         //David: troque el mensaje para que sea acorde con todas las estructuras, antes solo falaba ciclo, agora fala estructura 
         if (!stack.isEmpty()) {
@@ -260,6 +260,47 @@ public class ExpandFluxogram {
 
             pt = pt.GetNext();
         }
+    }
+
+    //David: NOVO
+    public static void ExpandClasse(BloqueClasse rutina) throws LanguageException {
+        NodeInstruction pt = rutina.getStartNode();
+
+        TipoClasse tipoClasse;
+        tipoClasse = new TipoClasse(rutina);
+        while (pt != null) {
+            //fazer as variaveis            
+            if (pt.GetType() == Keyword.DEFINIR) {
+                pt = ExpandDefinirSimbol.ExpandVariable(pt, 0, tipoClasse.Defs);
+            } else if (pt.GetType() == Keyword.CLASSE) {
+                String name = pt.text.toUpperCase().replace("CLASSE ", "").trim();
+                tipoClasse.Name = name;
+                rutina.Nome = name;
+                rutina.type = Bloque.CLASSE;
+                for (int i = 0; i < Intermediario.tiposClasses.size(); i++) {
+                    TipoRegisto tmp = (TipoRegisto) Intermediario.tiposClasses.get(i);
+                    if (tmp.Name.equals(name)) {
+                        throw new LanguageException(
+                                "Já existe uma classe com esse nome",
+                                "Mude o nome da classe"); //David: Revisar ortografia                        
+                    }
+                }
+            } else if (pt.GetType() == Keyword.FIMCLASSE) {
+                Intermediario.tiposClasses.add(tipoClasse);
+            } else {
+                throw new LanguageException(
+                        "Uma declaração de tipo de dado registo só pode ter declaraçoes de variaveis",
+                        "Tire esta instrucção"); //David: Revisar ortografia
+            }
+
+            pt = pt.GetNext();
+        }
+
+        BloqueClasse.ClaseActualParaExpandir = rutina;
+        for (int i = 0; i < rutina.metodos.size(); i++) {
+            ExpandSubrutine(rutina.metodos.get(i));
+        }
+        BloqueClasse.ClaseActualParaExpandir = null;
     }
 
 //-----------------------------------------------------------------------------
@@ -354,7 +395,7 @@ public class ExpandFluxogram {
             throw new LanguageException(
                     node.GetCharNum(), str,
                     " O VALOR DA EXPRESSÃO :" + elem,
-                    " NÃO É COMPATÍVEL COM O TIPO DE DADO:" + ((Simbolo)var).getTypeLexema());
+                    " NÃO É COMPATÍVEL COM O TIPO DE DADO:" + ((Simbolo) var).getTypeLexema());
         }
         node.SetText(name + " " + Keyword.ATRIBUI + " " + elem);
     }

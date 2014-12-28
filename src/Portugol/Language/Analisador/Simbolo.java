@@ -35,6 +35,10 @@ public class Simbolo extends ParteDeExpresion {
      */
     public final static int REGISTO = 6;
     /**
+     * tipo Classe 
+     */
+    public final static int CLASSE = 7;
+    /**
      * tipo Desconhecido
      */
     public final static int DESCONHECIDO = -1;
@@ -152,6 +156,9 @@ public class Simbolo extends ParteDeExpresion {
         }
         if (Keyword.DefineRegisto(t)) {
             return REGISTO;
+        }
+        if (Keyword.DefineClasse(t)) {
+            return CLASSE;
         }
 
         return DESCONHECIDO;
@@ -273,6 +280,13 @@ public class Simbolo extends ParteDeExpresion {
             }
 
             return new SymbolComposto("", typeLexema, "", typeLexema, 0, (typeLexema + " nao_nome"));
+        } else if (type == CLASSE) {
+            if (!Values.IsRegisto(val)) {
+                throw new LanguageException(
+                        0, "", name + " É UMA VARIÁVEL DO TIPO CLASSE", "\"" + val + "\" NÃO É UMA CLASSE VÁLIDA");
+            }
+
+            return new SymbolObjeto("", typeLexema, "", typeLexema, 0, (typeLexema + " nao_nome"));
         }
         return null;
     }
@@ -389,11 +403,13 @@ public class Simbolo extends ParteDeExpresion {
             }
             if (value instanceof Simbolo
                     && ((Simbolo) target).type != Simbolo.REGISTO
+                    && ((Simbolo) target).type != Simbolo.CLASSE
                     && ((Simbolo) target).type == ((Simbolo) value).type) {
                 return true;
             }
             if (value instanceof Simbolo
                     && ((Simbolo) target).type == Simbolo.REGISTO
+                    && ((Simbolo) target).type == Simbolo.CLASSE
                     && ((Simbolo) target).type == ((Simbolo) value).type
                     && ((Simbolo) target).typeLexema.toUpperCase().equals(((Simbolo) value).typeLexema.toUpperCase())) {
                 return true;
@@ -420,19 +436,37 @@ public class Simbolo extends ParteDeExpresion {
             return true;
         }
 
-        if (typeNUM == Simbolo.REGISTO
+        if (typeNUM == Simbolo.REGISTO || typeNUM == Simbolo.CLASSE
                 && value instanceof Simbolo
-                && ((Simbolo) value).type == Simbolo.REGISTO
-                && ((Simbolo) value).typeLexema.toUpperCase().equals(((String) target).toUpperCase())) {
+                && ((Simbolo) value).type == typeNUM
+                && target instanceof Simbolo
+                && ((Simbolo) value).typeLexema.toUpperCase().equals(((Simbolo) target).typeLexema.toUpperCase())) {
             return true;
         }
 
+        if (typeNUM == Simbolo.REGISTO || typeNUM == Simbolo.CLASSE
+                && value instanceof Simbolo
+                && ((Simbolo) value).type == typeNUM
+                && target instanceof String
+                && ((Simbolo) value).typeLexema.toUpperCase().equals(((String) target).toUpperCase())) {
+            return true;
+        }
+        
         //Esta entrada deberia desaparecer. Es para la inicializacion de variables, para tener un valor por defecto para cada registo (su mismo nombre)
-        if (typeNUM == Simbolo.REGISTO
+        if ( (typeNUM == Simbolo.REGISTO || typeNUM == Simbolo.CLASSE)
                 && value instanceof String
+                && target instanceof String
                 && ((String) value).toUpperCase().equals(((String) target).toUpperCase())) {
             return true;
         }
+
+        if ( (typeNUM == Simbolo.REGISTO || typeNUM == Simbolo.CLASSE)
+                && value instanceof String
+                && target instanceof Simbolo
+                && ((String) value).toUpperCase().equals(((Simbolo) value).typeLexema.toUpperCase())) {
+            return true;
+        }
+        
         return false;
     }
 

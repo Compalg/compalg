@@ -46,6 +46,9 @@ public class BeautifyCode {
             if (node.GetType() == Keyword.DEFEITO) {
                 level--;
             }
+            if (node.GetType() == Keyword.FIMCLASSE) {
+                level--;
+            }
 
             line = IdentLine(node.GetText() + comments, level);
 
@@ -53,6 +56,9 @@ public class BeautifyCode {
             newCode.append(line + "\n");
             //regressar a posicao boa
             if (node.GetType() == Keyword.SENAO) {
+                level++;
+            }
+            if (node.GetType() == Keyword.CLASSE) {
                 level++;
             }
 
@@ -74,7 +80,8 @@ public class BeautifyCode {
             }
             if (node.GetType() == Keyword.FIMFUNCAO
                     || node.GetType() == Keyword.FIMPROCEDIMENTO
-                    || node.GetType() == Keyword.FIMREGISTO) {
+                    || node.GetType() == Keyword.FIMREGISTO
+                    || node.GetType() == Keyword.FIMCLASSE) {
                 newCode.append("\n");
             }
         }

@@ -53,6 +53,8 @@ public class Keyword {
     public static final int RETORNE = 41;
     public static final int FICHEIRO = 42;
     public static final int CHAMADOPROCEDIMENTO = 43;
+    public static final int CLASSE = 44;
+    public static final int FIMCLASSE = 45;
     public static final String ATRIBUI = "<-";
     public static final String PARENTESIS = "("; //David: Para intentar reconocer el llamado a metodos
     public static final String STR = "\""; //David:  Para determinar si  <- o ( no estan dentro de comillas
@@ -103,6 +105,8 @@ public class Keyword {
         "RETORNE",
         "FICHEIRO",
         "CHAMADOPROCEDIMENTO", //David: Acrecentado
+        "CLASSE", //David: Acrecentado
+        "FIMCLASSE", //David: Acrecentado
 
         //Alternativas
         "MOSTRE",
@@ -218,8 +222,10 @@ public class Keyword {
         }
         if (DefineRegisto(instrucao)) {
             return DEFINIR; //David: Funcao que determina si é uma declaracao de variavel de registo
-        }
-        
+        }        
+        if (DefineClasse(instrucao)) {
+            return DEFINIR; //David: Funcao que determina si é uma declaracao de variavel de Objeto
+        }        
         if (instrucao.startsWith("CONSTANTE ")) {
             return DEFINIR;
         }
@@ -255,6 +261,15 @@ public class Keyword {
 
         if (instrucao.startsWith("REGISTO ")) {
             return REGISTO;
+        }
+        if (instrucao.startsWith("CLASSE ")) {
+            return CLASSE;
+        }
+        if (instrucao.startsWith("FIMCLASSE")) {
+            return FIMCLASSE;
+        }
+        if (instrucao.startsWith("FIM CLASSE")) {
+            return FIMCLASSE;
         }
         if (instrucao.startsWith("FIMREGISTO")) {
             return FIMREGISTO;
@@ -355,4 +370,26 @@ public class Keyword {
             return false;
         }
     }
+    
+    //David: Funcao que determina si é uma declaracao de variavel de classe
+    public static boolean DefineClasse(Object elem) {
+        if (!(elem instanceof String))
+            return false;
+        
+        String instrucao = (String) elem;
+        String varName;
+        int pos = instrucao.indexOf(" ");
+        if (pos == -1) {
+            varName = instrucao;
+        } else {
+            varName = instrucao.substring(0, pos).trim();
+        }
+
+        try {
+            return (SymbolObjeto.ObterTipoClasse(varName) != null);
+        } catch (LanguageException e) {
+            return false;
+        }
+    }
+    
 }

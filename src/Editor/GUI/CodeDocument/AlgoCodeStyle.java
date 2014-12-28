@@ -26,6 +26,7 @@ public class AlgoCodeStyle extends AlgoSyntaxHighlight {
     public final static int STATEMENT_MODE = 17;
     public final static int OPERATOR_MODE = 18;
     public final static int ATTRIB_MODE = 19;
+    public final static int NEWDATATYPE_MODE = 20;//registos e classes são novos tipos de dados 
     
     private int mode = TEXT_MODE;
     private int currentPos = 0;
@@ -41,6 +42,7 @@ public class AlgoCodeStyle extends AlgoSyntaxHighlight {
     private SimpleAttributeSet keyword;  // palavras reservadas
     private SimpleAttributeSet operator; // operadores
     private SimpleAttributeSet attrib;   // sinal de atribuicao
+    private SimpleAttributeSet newdatatype;   // registos e classes
     
     
     public AlgoCodeStyle(){
@@ -91,6 +93,12 @@ public class AlgoCodeStyle extends AlgoSyntaxHighlight {
         StyleConstants.setBold(attrib, true );
         StyleConstants.setForeground( attrib, new Color(139, 71, 38)); //castanho meio claro
         StyleConstants.setFontFamily( attrib, "Courier" );
+
+        //set the attributes for operators
+        newdatatype = new SimpleAttributeSet();
+        StyleConstants.setBold(newdatatype, true );
+        StyleConstants.setForeground( newdatatype, Color.RED); //castanho meio claro
+        StyleConstants.setFontFamily( newdatatype, "Courier" );
     }
     
     
@@ -263,6 +271,11 @@ public class AlgoCodeStyle extends AlgoSyntaxHighlight {
             insertHighlight( word, currentPos - word.length());
             return true;
             //operadores aritmeticos relacionais e logicos
+        } else if( Keyword.DefineClasse(word ) || Keyword.DefineRegisto(word )){
+            mode = this.NEWDATATYPE_MODE;
+            insertHighlight( word, currentPos - word.length());
+            return true;
+            //operadores aritmeticos relacionais e logicos
         } else if( CalculusElement.IsElemCalculus( word )){
             mode = this.OPERATOR_MODE;
             insertHighlight( word, currentPos - word.length());
@@ -396,6 +409,10 @@ public class AlgoCodeStyle extends AlgoSyntaxHighlight {
                     
                 case ATTRIB_MODE:
                     attr = attrib;
+                    break;
+                    
+                case NEWDATATYPE_MODE:
+                    attr = newdatatype;
                     break;
                     
                 case BLOCK_COMMENT_MODE:

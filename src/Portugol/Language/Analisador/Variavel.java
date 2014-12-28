@@ -113,19 +113,41 @@ public class Variavel {
             if (res != null) {
                 return res;
             }
-        } else if (elemento instanceof Vector) {
-            Vector chmd = (Vector) elemento;
-            name = (String) chmd.get(0);
-            if (((String) chmd.get(1)).equals("(") && ((String) chmd.get(chmd.size() - 1)).equals(")")) {
-                BloqueSubrutine rutina = ExpandChamadoFuncao.ExpandCHAMADO(name);
-                Vector paramVals = rutina.ObterParametrosValues(chmd, searchMemory);
-
-                return rutina.ExecuteSubrutine(paramVals);
-            }
-
+            return getVariable(name, searchMemory, searchMemory);
         }
 
-        return getVariable(name, searchMemory, searchMemory);
+        if (elemento instanceof Vector) {
+            Vector chmd = (Vector) elemento;
+            name = (String) chmd.get(0);
+            if (!(((String) chmd.get(1)).equals("(") && ((String) chmd.get(chmd.size() - 1)).equals(")"))) {
+                //en caso de que el vector no sea de un llamado a metodo
+                return getVariable(name, searchMemory, searchMemory);
+            }
+
+            int posR = name.indexOf(".");
+            String source = "";
+            while (posR > -1) {
+                source = source + (source.isEmpty() ? "" : ".") + name.substring(0, posR).trim();
+                name = name.substring(posR + 1).trim();
+                posR = name.indexOf(".");
+            }
+
+            Vector<BloqueSubrutine> metodos = null;
+            SymbolObjeto ObjetoDono = null;
+            if (!source.isEmpty()) {
+                ParteDeExpresion Source = getVariable(source, searchMemory, searchMemory);
+                if (Source instanceof SymbolObjeto) {
+                    ObjetoDono = (SymbolObjeto) Source;
+                    metodos = ObjetoDono.tipoClasseBase.claseOrigen.metodos;
+                }
+            }
+
+            BloqueSubrutine rutina = ExpandChamadoFuncao.ExpandCHAMADO(name, metodos);
+            Vector paramVals = rutina.ObterParametrosValues(chmd, searchMemory);
+            ObjetoDono = ObjetoDono != null ? ObjetoDono : (BloqueSubrutine.InstanciaActual);
+            return rutina.ExecuteSubrutine(paramVals, ObjetoDono);
+        }
+        return null;
     }
     //-------------------------------------------------------------------------
 
@@ -144,6 +166,8 @@ public class Variavel {
             varName = name.substring(0, posR).trim();
             Campo = name.substring(posR + 1).trim();
         }
+        int pa = Campo.indexOf("(");
+        int pb = Campo.indexOf(")");
 
         //String varName = name.trim();
         for (int index = searchMemory.size() - 1; index >= 0; index--) {
@@ -165,9 +189,38 @@ public class Variavel {
                 } else {
                     if (v instanceof SymbolArray) {
                         ((SymbolArray) v).SetIndex(varName, dataMemory);
-                        return getVariable(Campo, ((SymbolComposto) v.getValue()).Campos, dataMemory);
+                        if (v.getValue() instanceof SymbolComposto) {
+                            return getVariable(Campo, ((SymbolComposto) v.getValue()).Campos, dataMemory);
+                        } else if (v.getValue() instanceof SymbolObjeto) {
+                            if (pa > -1 && pb > -1 && pa < pb) {
+                                return getVariable(Campo, dataMemory/*, ((SymbolObjeto) v.getValue()).tipoClasseBase*/);
+                            } else {
+                                return getVariable(Campo, ((SymbolObjeto) v.getValue()).Campos, dataMemory);
+                            }
+                        } else {
+                            throw new LanguageException(
+                                    "Posiblemente este llamando a un metodo de un objeto dentro de un vector",
+                                    "Todavia no es permitido");
+                        }
                     } else {
-                        return getVariable(Campo, ((SymbolComposto) v).Campos, dataMemory);
+                        if (v instanceof SymbolComposto) {
+                            return getVariable(Campo, ((SymbolComposto) v).Campos, dataMemory);
+                        }
+                        if (v instanceof SymbolObjeto) {
+                            if (pa > -1 && pb > -1 && pa < pb) {
+                                return getVariable(Campo, dataMemory/*, ((SymbolObjeto) v).Campos*/);
+                            } else {
+                                return getVariable(Campo, ((SymbolObjeto) v).Campos, dataMemory);
+                            }
+
+
+                        } else {
+                            throw new LanguageException(
+                                    "Posiblemente esté llamando a un método de un objeto",
+                                    "Todavia no es permitido");
+                        }
+
+
                     }
                 }
             }
@@ -199,6 +252,7 @@ public class Variavel {
 
         Object valor = null;
         SimboloDeParametro Parametro = null;
+        Simbolo v = null;
         try {
             int pos = -1;
             for (int i = 0; i < params.size(); i++) {
@@ -211,7 +265,16 @@ public class Variavel {
                 valor = null;
                 Parametro = paramVals.get(pos);
             } else {
-                valor = Expressao.Evaluate(valorUnproc, memory);
+                if (node.EsReferencia && BloqueSubrutine.InstanciaActual != null) {
+                    for (int kk = 0; kk < BloqueSubrutine.InstanciaActual.Campos.size(); kk++) {
+                        if (BloqueSubrutine.InstanciaActual.Campos.get(kk).nameEqual(nome)) {
+                            v = BloqueSubrutine.InstanciaActual.Campos.get(kk);
+                            break;
+                        }
+                    }
+                } else {
+                    valor = Expressao.Evaluate(valorUnproc, memory);
+                }
             }
         } catch (Exception e) {
             throw new LanguageException(
@@ -219,13 +282,16 @@ public class Variavel {
                     e.toString(),
                     "VERIFIQUE A EXPRESSÃO <" + valorUnproc + ">");
         }
-        Simbolo v;
-        if (Simbolo.getType(tipo) == Simbolo.REGISTO) {
-            v = new SymbolComposto(modif, tipo, nome, valor, node.GetLevel(), node.GetText());
-        } else {
-            v = new Simbolo(modif, tipo, nome, valor, node.GetLevel(), node.GetText());
+        if (v == null) {
+            if (Simbolo.getType(tipo) == Simbolo.REGISTO) {
+                v = new SymbolComposto(modif, tipo, nome, valor, node.GetLevel(), node.GetText());
+            } else if (Simbolo.getType(tipo) == Simbolo.CLASSE) {
+                v = new SymbolObjeto(modif, tipo, nome, valor, node.GetLevel(), node.GetText());
+            } else {
+                v = new Simbolo(modif, tipo, nome, valor, node.GetLevel(), node.GetText());
+            }
+            v.copyFrom(Parametro);
         }
-        v.copyFrom(Parametro);
         memory.add(v);
     }
 
@@ -245,7 +311,6 @@ public class Variavel {
         String indexes = rest.substring(0, atr).trim();
         String valorUnProc = rest.substring(atr + Keyword.ATRIBUI.length()).trim();
         Vector<Integer> indexLimits = new Vector<Integer>();
-        String NovosIndexes = "[1]";//David: Inicialização falsa
         IteratorArray iter = new IteratorArray(indexes);
         while (iter.hasMoreElements()) {
             String exp = iter.getNext();
@@ -284,108 +349,130 @@ public class Variavel {
                 break;
             }
         }
+        SymbolArray v = null;
         if (pos > -1) {
             Parametro = paramVals.get(pos);
-        } else if (indexLimits.size() == 1) {
-            int index = 0;
+        } else {
+            if (node.EsReferencia && BloqueSubrutine.InstanciaActual != null) {
+                for (int kk = 0; kk < BloqueSubrutine.InstanciaActual.Campos.size(); kk++) {
+                    if (BloqueSubrutine.InstanciaActual.Campos.get(kk).nameEqual(name)) {
+                        v = (SymbolArray) BloqueSubrutine.InstanciaActual.Campos.get(kk);
+                        break;
+                    }
+                }
+            } else {
+                if (indexLimits.size() == 1) {
+                    int index = 0;
 
-            itercp = new IteratorCodeParams(valorUnProc, ",{}");
-            while (itercp.hasMoreElements()) {
-                String value = itercp.current();
-                //Avaliar a expressao
-                // se nao for possivel avaliar provoca erro
-                Object result;
-                try {
-                    pdexpr = Variavel.getVariable(value, memory);
+                    itercp = new IteratorCodeParams(valorUnProc, ",{}");
+                    while (itercp.hasMoreElements()) {
+                        String value = itercp.current();
+                        //Avaliar a expressao
+                        // se nao for possivel avaliar provoca erro
+                        Object result;
+                        try {
+                            pdexpr = Variavel.getVariable(value, memory);
 //                    if (pdexpr == null) {
 //                        throw new LanguageException(
 //                                node.GetCharNum(), node.GetText(),
 //                                "A EXPRESSÃO :" + value + " NÃO FOI RECONHECIDA",
 //                                "MUDE A EXPRESSÃO <" + value + ">");
 //                    }
-                    ///Hay que verificar que coincidan los tipos de VAR y el tipo base del arreglo
-                    if (pdexpr instanceof Operador) {
-                        //esto no debe pasar
-                        throw new LanguageException(
-                                node.GetCharNum(), node.GetText(),
-                                "A EXPRESSÃO :" + value + " NÃO POSE SER UM OPERADOR",
-                                "MUDE A EXPRESSÃO <" + value + ">");
-                    } else if (pdexpr instanceof SymbolComposto) {
-                        if (pdexpr instanceof SymbolArray) {
-                            //esto no debe pasar
-                            result = new SymbolArray((SymbolArray) pdexpr);
-                        } else if (pdexpr instanceof SymbolComposto) {
-                            if (((SymbolComposto) pdexpr).typeLexema.toUpperCase().trim().equals(type.toUpperCase().trim())) {
-                                result = new SymbolComposto((SymbolComposto) pdexpr);
-                            } else {
+                            ///Hay que verificar que coincidan los tipos de VAR y el tipo base del arreglo
+                            if (pdexpr instanceof Operador) {
+                                //esto no debe pasar
                                 throw new LanguageException(
                                         node.GetCharNum(), node.GetText(),
-                                        "A EXPRESSÃO :" + value + " NÃO É DE TIPO " + ((SymbolComposto) pdexpr).typeLexema,
-                                        "MUDE ESTA EXPRESSÃO <" + value + ">");
-                            }
-                        } else if (pdexpr instanceof Simbolo) {
-                            if (((Simbolo) pdexpr).typeLexema.toUpperCase().trim().equals(type.toUpperCase().trim())) {
-                                result = new Simbolo((Simbolo) pdexpr);
+                                        "A EXPRESSÃO :" + value + " NÃO POSE SER UM OPERADOR",
+                                        "MUDE A EXPRESSÃO <" + value + ">");
+                            } else if (pdexpr instanceof SymbolComposto) {
+                                if (pdexpr instanceof SymbolArray) {
+                                    //esto no debe pasar, a menos que SymbolArray esté heredando de SymbolComposto
+                                    result = new SymbolArray((SymbolArray) pdexpr);
+                                } else if (pdexpr instanceof SymbolComposto) {
+                                    if (((SymbolComposto) pdexpr).typeLexema.toUpperCase().trim().equals(type.toUpperCase().trim())) {
+                                        result = new SymbolComposto((SymbolComposto) pdexpr);
+                                    } else {
+                                        throw new LanguageException(
+                                                node.GetCharNum(), node.GetText(),
+                                                "A EXPRESSÃO :" + value + " NÃO É DE TIPO " + ((SymbolComposto) pdexpr).typeLexema,
+                                                "MUDE ESTA EXPRESSÃO <" + value + ">");
+                                    }
+                                } else if (pdexpr instanceof SymbolObjeto) {
+                                    if (((SymbolObjeto) pdexpr).typeLexema.toUpperCase().trim().equals(type.toUpperCase().trim())) {
+                                        result = new SymbolObjeto((SymbolObjeto) pdexpr);
+                                    } else {
+                                        throw new LanguageException(
+                                                node.GetCharNum(), node.GetText(),
+                                                "A EXPRESSÃO :" + value + " NÃO É DE TIPO " + ((SymbolObjeto) pdexpr).typeLexema,
+                                                "MUDE ESTA EXPRESSÃO <" + value + ">");
+                                    }
+
+                                } else if (pdexpr instanceof Simbolo) {
+                                    if (((Simbolo) pdexpr).typeLexema.toUpperCase().trim().equals(type.toUpperCase().trim())) {
+                                        result = new Simbolo((Simbolo) pdexpr);
+                                    } else {
+                                        throw new LanguageException(
+                                                node.GetCharNum(), node.GetText(),
+                                                "A EXPRESSÃO :" + value + " NÃO É DE TIPO " + ((Simbolo) pdexpr).typeLexema,
+                                                "MUDE ESTA EXPRESSÃO <" + value + ">");
+                                    }
+                                } else {
+                                    throw new LanguageException(
+                                            node.GetCharNum(), node.GetText(),
+                                            "ERRO NA EXPRESSÃO :" + value,
+                                            "VERIFIQUE BEM ESTA EXPRESSÃO <" + value + ">");
+                                }
                             } else {
-                                throw new LanguageException(
-                                        node.GetCharNum(), node.GetText(),
-                                        "A EXPRESSÃO :" + value + " NÃO É DE TIPO " + ((SymbolComposto) pdexpr).typeLexema,
-                                        "MUDE ESTA EXPRESSÃO <" + value + ">");
+                                result = Expressao.Evaluate(value, memory);
                             }
-                        } else {
+                        } catch (Exception e) {
                             throw new LanguageException(
                                     node.GetCharNum(), node.GetText(),
                                     "ERRO NA EXPRESSÃO :" + value,
                                     "VERIFIQUE BEM ESTA EXPRESSÃO <" + value + ">");
                         }
-                    } else {
-                        result = Expressao.Evaluate(value, memory);
-                    }
-                } catch (Exception e) {
-                    throw new LanguageException(
-                            node.GetCharNum(), node.GetText(),
-                            "ERRO NA EXPRESSÃO :" + value,
-                            "VERIFIQUE BEM ESTA EXPRESSÃO <" + value + ">");
-                }
 
-                //verificar se o resultado da expressao e compativel com a variavel
-                if (!Simbolo.IsCompatible(type, result)) {
-                    throw new LanguageException(
-                            node.GetCharNum(), node.GetText(),
-                            "O valor <" + result + "> NÃO É PERMITIDO PARA A VARIÁVEL " + type,
-                            " VERIFIQUE BEM ESTA EXPRESSÃO :" + value);
-                }
+                        //verificar se o resultado da expressao e compativel com a variavel
+                        if (!Simbolo.IsCompatible(type, result)) {
+                            throw new LanguageException(
+                                    node.GetCharNum(), node.GetText(),
+                                    "O valor <" + result + "> NÃO É PERMITIDO PARA A VARIÁVEL " + type,
+                                    " VERIFIQUE BEM ESTA EXPRESSÃO :" + value);
+                        }
 
-                if (result instanceof Simbolo) //normalizar o resultado
-                {
-                    dataValues.add((Simbolo) result);
-                } else if (result instanceof String) {
-                    if (type.toUpperCase().equals(((String) result).toUpperCase())) {
-                        //David: simbolo composto
-                        dataValues.add(new SymbolComposto("", type, "nao_nome", result, node.GetLevel(), (type + " nao_nome <-" + type)));
-                    } else {
-                        //David: Só simbolo
-                        dataValues.add(new Simbolo("", type, "nao_nome", result, node.GetLevel(), (type + " nao_nome")));
+                        if (result instanceof Simbolo) //normalizar o resultado
+                        {
+                            dataValues.add((Simbolo) result);
+                        } else if (result instanceof String) {
+                            if (type.toUpperCase().equals(((String) result).toUpperCase())) {
+                                //David: simbolo composto ou objeto?????
+                                dataValues.add(new SymbolComposto("", type, "nao_nome", result, node.GetLevel(), (type + " nao_nome <-" + type)));
+                            } else {
+                                //David: Só simbolo
+                                dataValues.add(new Simbolo("", type, "nao_nome", result, node.GetLevel(), (type + " nao_nome")));
+                            }
+                        }
+                        index++;
+                        if (index > indexLimits.get(0)) {
+                            throw new LanguageException(
+                                    node.GetCharNum(), node.GetText(),
+                                    valorUnProc + " TEM MAIS QUE " + indexLimits.size() + " ELEMENTOS",
+                                    " DEFINA MENOS ELEMENTOS");
+                        }
+                        itercp.next();
                     }
-                }
-                index++;
-                if (index > indexLimits.get(0)) {
+                } else if (indexLimits.size() > 1 && !valorUnProc.equals("0")) {
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
-                            valorUnProc + " TEM MAIS QUE " + indexLimits.size() + " ELEMENTOS",
-                            " DEFINA MENOS ELEMENTOS");
+                            "O CompAlg não suporta inicialização dos vetores com mais duma dimenção",
+                            "Tire a inicialização.");
                 }
-                itercp.next();
+                v = new SymbolArray(modif, type, name, indexLimits, dataValues, node.GetLevel(), memory, node.GetText());
+                v.copyFrom(Parametro);
             }
-        } else if (indexLimits.size() > 1 && !valorUnProc.equals("0")) {
-            throw new LanguageException(
-                    node.GetCharNum(), node.GetText(),
-                    "O CompAlg não suporta inicialização dos vetores com mais duma dimenção",
-                    "Tire a inicialização.");
         }
-        SymbolArray v = new SymbolArray(modif, type, name, indexLimits, dataValues, node.GetLevel(), memory, node.GetText());
 
-        v.copyFrom(Parametro);
         memory.add(v);
     }
 
@@ -418,6 +505,17 @@ public class Variavel {
             } else {
                 throw new LanguageException(0, varName,
                         "O registo " + varName + " só pode recever valores do tipo " + pde.TextoOrigen,
+                        "Mude a assinação");//David:Revisar
+            }
+        }
+
+        if (pde instanceof SymbolObjeto) {
+            if (newValue instanceof SymbolObjeto) {
+                ((SymbolObjeto) pde).copyFrom((SymbolObjeto) newValue);
+                return; //debe parar aqui, ya a copia foi feita
+            } else {
+                throw new LanguageException(0, varName,
+                        "O objeto " + varName + " só pode recever valores do tipo " + pde.TextoOrigen,
                         "Mude a assinação");//David:Revisar
             }
         }

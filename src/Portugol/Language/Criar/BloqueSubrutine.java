@@ -9,6 +9,7 @@ import Portugol.Language.Analisador.Simbolo;
 import Portugol.Language.Analisador.SimboloDeParametro;
 import Portugol.Language.Analisador.SymbolArray;
 import Portugol.Language.Analisador.SymbolComposto;
+import Portugol.Language.Analisador.SymbolObjeto;
 import Portugol.Language.Analisador.TipoDeParametro;
 import Portugol.Language.Analisador.Variavel;
 import Portugol.Language.Calcular.Aritmeticos;
@@ -25,6 +26,7 @@ import java.util.logging.Logger;
 public class BloqueSubrutine extends Bloque {
 
     public static String VERSION = "Versão:1.0 \t(c) Augusto Bilabila";
+    public static String ErroRecursividad = "Detectado llamado recursivo. CompAlg no permite este llamado";
     /**
      * vector das variaveis em memoria
      */
@@ -38,6 +40,9 @@ public class BloqueSubrutine extends Bloque {
      */
     public Vector paramsValues;//David:
     public String TipoRetorno;
+    public boolean EstaExecutando;
+    public BloqueClasse classePae; //Se esta dentro duma classe, aqui temos a referença
+    static public SymbolObjeto InstanciaActual = null;//Se esta dentro duma classe, aqui temos a instancia actual
 
     //public static String VerOperator = " " ;//im
     /**
@@ -51,6 +56,8 @@ public class BloqueSubrutine extends Bloque {
         memory = new Vector();
         start = null;
         parametros = new Vector<TipoDeParametro>();
+        EstaExecutando = false;
+        classePae = null; //vamos supor que a sub-rutina não esta dentro de classe alguma
     }
 
 //-------------------------------------------------------------------------------------
@@ -63,12 +70,18 @@ public class BloqueSubrutine extends Bloque {
     /**
      * Executa uma linha de codigo - normalmente
      */
-    public Simbolo ExecuteSubrutine(Vector paramVals) throws LanguageException {
-        memory = new Vector();
+    public Simbolo ExecuteSubrutine(Vector paramVals, SymbolObjeto ObjetoDono) throws LanguageException {
+        if (EstaExecutando) {
+            throw new LanguageException(
+                    ErroRecursividad,
+                    "Verifique o nome do sub-algoritmo" //David: Traducir.
+                    );
+        }
+
         NodeInstruction temporal = getStartNode();
         boolean esperarRetorno = temporal.GetType() == Keyword.FUNCAO;
         paramsValues = paramVals;
-
+        
         if (parametros.size() != paramsValues.size()) {
             throw new LanguageException(
                     "No se están pasando todos los parametros requeridos", //David: Traducir
@@ -81,17 +94,33 @@ public class BloqueSubrutine extends Bloque {
             } else {
                 if (Simbolo.getType(TipoRetorno) == Simbolo.REGISTO) {
                     return new SymbolComposto("", TipoRetorno, "RETORNO", TipoRetorno, 0, (TipoRetorno + " RETORNO <- " + TipoRetorno));
+                } else if (Simbolo.getType(TipoRetorno) == Simbolo.CLASSE) {
+                    return new SymbolObjeto("", TipoRetorno, "RETORNO", TipoRetorno, 0, (TipoRetorno + " RETORNO <- " + TipoRetorno));
                 } else {
                     return new Simbolo("", TipoRetorno, "RETORNO", null, 0, (TipoRetorno + " RETORNO"));
                 }
             }
         }
 
+        if (classePae == null && ObjetoDono != null
+                || classePae != null && ObjetoDono == null) {
+            throw new LanguageException(
+                    "Problema com paridade entre clase e instancia para um metodo",
+                    "Erro interno do CompAlg" //David: Traducir.
+                    );
+        }
+        
+        SymbolObjeto InstanciaAnterior = InstanciaActual;
+        InstanciaActual = ObjetoDono;
+        memory = new Vector();
+        EstaExecutando = true;
         while (temporal != null) //David: novo
         {
             temporal = ExecuteLine(temporal, Intermediario.console);
             //autoExecute.sleep(2);//David: 10 //David: Verificar si es necesario este sleep
         }
+        EstaExecutando = false;
+        InstanciaActual = InstanciaAnterior;
 
         if (!esperarRetorno) {
             return null;//David: Futuro uso de funciones
@@ -134,22 +163,13 @@ public class BloqueSubrutine extends Bloque {
                 return node.GetNext();
 
             case Keyword.CHAMADOPROCEDIMENTO:
-                if (this.Nome.equals(node.subrutine.Nome)) {
-                    throw new LanguageException(
-                            node.GetCharNum(), node.GetText(),
-                            "Detectado llamado recursivo. CompAlg no permite este llamado",
-                            "Verifique el nombre del sub-algoritmo al que llama" //David: Traducir.
-                            );
-                }
                 try {
-                    Vector<String> paramVals = ObterParametrosValues(Expressao.ExpresionStringToVector(node.GetText()), memory);
-                    node.subrutine.ExecuteSubrutine(paramVals);
+                    Expressao.ReplaceVariablesToValues(Expressao.ExpresionStringToVector(node.GetText()), memory, true);
                 } catch (LanguageException e) {
                     throw new LanguageException(
                             node.GetCharNum(), node.GetText(),
                             e.error, e.solution);
                 }
-                //David: simbolo v nao vai ser utilizado, iste é um procedimento
                 return node.GetNext();
 
             case Keyword.FIMFUNCAO:
@@ -290,6 +310,7 @@ public class BloqueSubrutine extends Bloque {
         if (newValue != null && newValue instanceof String
                 && (newValue.equals(Expressao.ErroDeCalculo)
                 || newValue.equals(Aritmeticos.ErroDivPorZero)
+                || newValue.equals(BloqueSubrutine.ErroRecursividad)
                 || ((String) newValue).startsWith(SymbolArray.ErroForaLimites))) {
             throw new Exception((String) newValue);
         }
@@ -363,6 +384,8 @@ public class BloqueSubrutine extends Bloque {
                 }
             } else if (elemLine instanceof SymbolComposto) {
                 //error
+            } else if (elemLine instanceof SymbolObjeto) {
+                //error
             } else {
                 console.write(Values.getStringValue(((Simbolo) elemLine).getValue().toString()));
             }
@@ -380,10 +403,12 @@ public class BloqueSubrutine extends Bloque {
         Simbolo v;
         if (type == Simbolo.REGISTO && newValue instanceof SymbolComposto) {
             v = new SymbolComposto((SymbolComposto) newValue);
-            //((SymbolComposto)v).copyFrom((SymbolComposto) newValue);
+        } else if (type == Simbolo.CLASSE && newValue instanceof SymbolObjeto) {
+            v = new SymbolObjeto((SymbolObjeto) newValue);
         } else if (newValue instanceof SymbolArray) {
             v = new SymbolArray((SymbolArray) newValue);
-            //((SymbolArray)v).copyFrom((SymbolArray) newValue);
+        } else if (newValue instanceof Simbolo) {
+            v = new Simbolo((Simbolo) newValue);
         } else {
             v = new Simbolo("const", TipoRetorno, "RETORNE", newValue, 0, ("const " + TipoRetorno + " RETORNE <- " + (String) newValue));
         }

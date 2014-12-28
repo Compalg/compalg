@@ -59,6 +59,7 @@ public class ExpandProcedimento {
                     "Mude a declaração"); //David: revisar ortografia
         }
 
+        //Procesar os parametros
         String parametros = begin.GetText().substring(endExp, begin.GetText().length()).trim();
 
         String str = parametros.replace('(', (char) (32)).replace(')', (char) (32)).trim();
@@ -112,6 +113,19 @@ public class ExpandProcedimento {
                     "Tire uma vírgula o complete o código"); //David:Revisar ortografia
         }
         AddParameter(rutina, begin, tempStr);
+        
+        //Agregar atributos ao metodo
+        if (rutina.classePae != null) {
+            NodeInstruction node = rutina.getStartNode(); //primeiro nodo da rutina, depois da declaracion (nome e parametros)
+            NodeInstruction pt = rutina.classePae.start.GetNext();//pegar a instruçao depois da clase, deve ser atributo               
+            while (pt != null && pt.GetType() != Keyword.FIMCLASSE) {
+                NodeInstruction copia = new NodeInstruction(pt);
+                copia.SetNext(node.GetNext());
+                node.SetNext(copia);
+                copia.EsReferencia = true;
+                pt = pt.GetNext();
+            }
+        }                
     }
 //-------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------- 
@@ -201,7 +215,7 @@ public class ExpandProcedimento {
             String PERMITIDOS = "abcdefghijkmnlopqrstuvwxyzABCDEFGHIJKMNLOPQRSTUVWXYZ0123456789_";//David: virgula e espacio
 
             //David: provocar la creacion de la variable como un instruccion mas, cuando esto ocurra va a verificar si es parametro para tomar el valor del parametro en el chamado
-            NodeInstruction node = new NodeInstruction(tempStr.replace("&", "").replace("*", ""), 0, 0); //los parametros quedan insertados en el principio del metodo, en orden inverso
+            NodeInstruction node = new NodeInstruction(tempStr.replace("&", "").replace("*", ""), begin.GetCharNum(), begin.GetLevel()); //los parametros quedan insertados en el principio del metodo, en orden inverso
             node.SetNext(begin.GetNext());
             begin.SetNext(node);
 

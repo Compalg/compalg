@@ -3,6 +3,7 @@ package Portugol.Language.Calcular;
 import Portugol.Language.Analisador.Simbolo;
 import Portugol.Language.Analisador.SymbolArray;
 import Portugol.Language.Analisador.SymbolComposto;
+import Portugol.Language.Analisador.SymbolObjeto;
 import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
 
@@ -90,6 +91,8 @@ public class FuncoesMatematicas extends AbstractCalculus {
             n1 = Values.StringToDouble((String) str1) + 1;
         } else if (str1 instanceof SymbolComposto) {
             throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER REGISTO [" + ((SymbolComposto) str1).getName() + "]");
+        } else if (str1 instanceof SymbolObjeto) {
+            throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER OBJETO [" + ((SymbolObjeto) str1).getName() + "]");
         } else if (str1 instanceof SymbolArray) {
             throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER VETOR [" + ((SymbolArray) str1).getName() + "]");
         } else if (str1 instanceof Simbolo) {
@@ -172,6 +175,8 @@ public class FuncoesMatematicas extends AbstractCalculus {
             n1 = Values.StringToDouble((String) str1) + 1;
         } else if (str1 instanceof SymbolComposto) {
             throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER REGISTO [" + ((SymbolComposto) str1).getName() + "]");
+        } else if (str1 instanceof SymbolObjeto) {
+            throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER OBJETO [" + ((SymbolObjeto) str1).getName() + "]");
         } else if (str1 instanceof SymbolArray) {
             throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER VETOR [" + ((SymbolArray) str1).getName() + "]");
         } else if (str1 instanceof Simbolo) {
@@ -188,6 +193,8 @@ public class FuncoesMatematicas extends AbstractCalculus {
             n1 = Values.StringToDouble((String) str2) + 1;
         } else if (str2 instanceof SymbolComposto) {
             throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER REGISTO [" + ((SymbolComposto) str2).getName() + "]");
+        } else if (str2 instanceof SymbolObjeto) {
+            throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER OBJETO [" + ((SymbolObjeto) str2).getName() + "]");
         } else if (str2 instanceof SymbolArray) {
             throw new Exception("ERRO 013:\nA POSIÇAO NAO POSE SER VETOR [" + ((SymbolArray) str2).getName() + "]");
         } else if (str2 instanceof Simbolo) {

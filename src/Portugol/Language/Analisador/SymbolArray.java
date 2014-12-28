@@ -1,6 +1,9 @@
 package Portugol.Language.Analisador;
 
+import static Portugol.Language.Analisador.Simbolo.REGISTO;
+import Portugol.Language.Calcular.Aritmeticos;
 import Portugol.Language.Calcular.Calculador;
+import Portugol.Language.Criar.BloqueSubrutine;
 import Portugol.Language.Utilitario.IteratorArray;
 import Portugol.Language.Utilitario.IteratorCodeParams;
 import Portugol.Language.Utilitario.LanguageException;
@@ -64,6 +67,8 @@ public class SymbolArray extends Simbolo {
                 dataValues.add(new SymbolArray((SymbolArray) arreglo.dataValues.get(i)));
             } else if (arreglo.dataValues.get(i) instanceof SymbolComposto) {
                 dataValues.add(new SymbolComposto((SymbolComposto) arreglo.dataValues.get(i)));
+            } else if (arreglo.dataValues.get(i) instanceof SymbolObjeto) {
+                dataValues.add(new SymbolObjeto((SymbolObjeto) arreglo.dataValues.get(i)));
             } else //if (arreglo.dataValues.get(i) instanceof Simbolo) 
             {
                 dataValues.add(new Simbolo(arreglo.dataValues.get(i)));
@@ -164,6 +169,8 @@ public class SymbolArray extends Simbolo {
             }
             if (value instanceof SymbolComposto) {
                 dataValues.add((SymbolComposto) value);
+            } else if (value instanceof SymbolObjeto) {
+                dataValues.add((SymbolObjeto) value);
             } else if (value instanceof Simbolo) {
                 dataValues.add((Simbolo) value);
             } else if (value instanceof SymbolArray) {
@@ -179,6 +186,8 @@ public class SymbolArray extends Simbolo {
                 i++) {
             if (type == REGISTO) {
                 dataValues.add(new SymbolComposto("", typeLexema + " ", " nao_nome", typeLexema + "", level, (typeLexema + " nao_nome <- " + typeLexema)));
+            } else if (type == CLASSE) {
+                dataValues.add(new SymbolObjeto("", typeLexema + " ", " nao_nome", typeLexema + "", level, (typeLexema + " nao_nome <- " + typeLexema)));
             } else {
                 dataValues.add(new Simbolo("", typeLexema + " ", " nao_nome", defValue, level, (typeLexema + " nao_nome")));
             }

@@ -13,11 +13,12 @@ import Portugol.Language.Utilitario.LanguageException;
 public class Intermediario {
 
     public static String VERSION = "Versão:1.0 \t(c) Augusto Bilabila";
-    static public Vector<Bloque> subrutinas;
+    static public Vector<BloqueSubrutine> subrutinas;
     static public Vector tiposRegistos = new Vector();
+    static public Vector tiposClasses = new Vector();
     private BloqueSubrutine Inicio;
-
     public static ConsoleIO console;
+
     public BloqueSubrutine getInicio() {
         return Inicio;
     }
@@ -28,7 +29,7 @@ public class Intermediario {
      * @param code programa fonte
      * @throws Portugol.Language.Utils.LanguageException excepcao
      */
-    public Intermediario(String code) throws LanguageException {        
+    public Intermediario(String code) throws LanguageException {
         Construir(code);
     }
 
@@ -51,13 +52,15 @@ public class Intermediario {
      */
     protected void Construir(String programa) throws LanguageException {
 
-        subrutinas = new Vector<Bloque>();
+        subrutinas = new Vector<BloqueSubrutine>();
         tiposRegistos = new Vector();
-        
+        tiposClasses = new Vector();
+
         int charNum = 0;
         int positionY = 0;
 
         Bloque rutina = null;
+        BloqueClasse claseActual = null;
         String instruction;
 
         //System.out.print("programa \n" + programa);
@@ -70,7 +73,7 @@ public class Intermediario {
         NodeInstruction newNode = null;
 
         //fazer a lista seguida
-        
+
         while (st.hasMoreTokens()) {
 
             //retirar os espacos
@@ -100,39 +103,92 @@ public class Intermediario {
                 case Keyword.INICIO:
                 case Keyword.PROCEDIMENTO:
                 case Keyword.FUNCAO:
-                    if (rutina != null)
+                    if (rutina != null) {
                         throw new LanguageException(
-                                "AINDA EM OTRO BLOCO DE CODIGO", "DEBE ENCERRAR O BLOCO"); //David: Correguir ortografia
+                                newNode.GetCharNum(), newNode.GetText(),
+                                "AINDA EM OTRO BLOCO DE CODIGO",
+                                "DEBE ENCERRAR O BLOCO"); //David: Correguir ortografia
+                    }
+                    if ((newNode.GetType() == Keyword.INICIO) && claseActual != null) {
+                        throw new LanguageException(
+                                newNode.GetCharNum(), newNode.GetText(),
+                                "O BLOCO DE INICIO NÃO PODE ESTAR CONTIDO NUMA CLASSE",
+                                "MUDE O CÓDIGO"); //David: Correguir ortografia
+                    }
                     rutina = new BloqueSubrutine();
                     rutina.start = newNode;
-                    previousNode = rutina.start;
                     rutina.Nome = instruction;
 
                     if ((newNode.GetType() == Keyword.INICIO)) {//David: debe ser igual para que arranque por INICIO
                         Inicio = (BloqueSubrutine) rutina;
+                        previousNode = rutina.start;
                     } else {
-                        subrutinas.add(rutina);
+                        if (claseActual == null) {
+                            subrutinas.add((BloqueSubrutine) rutina);
+                            previousNode = rutina.start;
+                        } else {
+                            claseActual.metodos.add((BloqueSubrutine) rutina);
+                            //claseActual.lastNode = previousNode;
+                            previousNode = rutina.start;
+                            //newNode.level++;
+                        }
                     }
+
+
 
                     break;
                 case Keyword.REGISTO:
-                    if (rutina != null)
+                    if (rutina != null) {
                         throw new LanguageException(
-                                "AINDA EM OTRO BLOCO DE CODIGO", "DEBE ENCERRAR O BLOCO"); //David: Correguir ortografia
-                    
+                                newNode.GetCharNum(), newNode.GetText(),
+                                "AINDA EM OTRO BLOCO DE CODIGO",
+                                "DEBE ENCERRAR O BLOCO"); //David: Correguir ortografia
+                    }
+                    if (claseActual != null) {
+                        throw new LanguageException(
+                                newNode.GetCharNum(), newNode.GetText(),
+                                "NO COMPALG NÂO PODE DECLARAR REGISTOS DENTRO DAS CLASSES",
+                                "MUDE O CÓDIGO"); //David: Correguir ortografia
+                    }
+
                     rutina = new BloqueRegisto();
                     rutina.start = newNode;
                     previousNode = rutina.start;
                     rutina.Nome = instruction;
                     break;
-                    
+
+                case Keyword.CLASSE:
+                    if (rutina != null) {
+                        throw new LanguageException(
+                                newNode.GetCharNum(), newNode.GetText(),
+                                "AINDA EM OTRO BLOCO DE CODIGO",
+                                "DEBE ENCERRAR O BLOCO"); //David: Correguir ortografia
+                    }
+                    if (claseActual != null) {
+                        throw new LanguageException(
+                                newNode.GetCharNum(), newNode.GetText(),
+                                "NO COMPALG NÂO PODE DECLARAR CLASSES DENTRO DE CLASSES",
+                                "MUDE O CÓDIGO"); //David: Correguir ortografia
+                    }
+                    claseActual = new BloqueClasse();
+                    rutina = null;//redundante
+                    claseActual.start = newNode;
+                    previousNode = claseActual.start;
+                    claseActual.lastNode = previousNode;
+                    claseActual.Nome = instruction;
+                    break;
+
                 case Keyword.FIM:
                 case Keyword.FIMPROCEDIMENTO:
                 case Keyword.FIMFUNCAO:
                     previousNode.SetNext(newNode);
                     previousNode = newNode;
 
-                    ExpandFluxogram.ExpandSubrutine((BloqueSubrutine)rutina);
+                    if (claseActual == null) {
+                        ExpandFluxogram.ExpandSubrutine((BloqueSubrutine) rutina);
+                    }else{
+                        ((BloqueSubrutine)rutina).classePae = claseActual;
+                    }
                     rutina = null;
                     break;
 
@@ -143,9 +199,31 @@ public class Intermediario {
                     ExpandFluxogram.ExpandRegisto((BloqueRegisto) rutina);
                     rutina = null;
                     break;
+                case Keyword.FIMCLASSE:
+                    if (claseActual == null) {
+                        throw new LanguageException(
+                                newNode.GetCharNum(), newNode.GetText(),
+                                "NÃO TEM UMA CLASSE PARA ENCERRAR",
+                                "MUDE O CÓDIGO"); //David: Correguir ortografia
+                    }
+                    
+                    claseActual.lastNode.SetNext(newNode);
+                    previousNode = newNode;
+
+                    ExpandFluxogram.ExpandClasse(claseActual);
+                    claseActual = null;
+                    rutina = null;
+                    break;
                 default:
+                    if (claseActual != null && rutina == null) {
+                        previousNode = claseActual.lastNode;
+                    }
                     previousNode.SetNext(newNode);
                     previousNode = newNode;
+                    if (claseActual != null && rutina == null) {
+                        claseActual.lastNode = newNode;
+                        //newNode.level++;
+                    }
                     break;
             }
         }//fim da lista seguida

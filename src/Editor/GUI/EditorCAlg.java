@@ -2172,7 +2172,7 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
 
             //David: Ejecutar el llamado a la instruccion falsa temporal
             info.write("\nO Algoritmo está sendo executado. . . ");
-            prog.ExecuteSubrutine(new Vector<String>());
+            prog.ExecuteSubrutine(new Vector<String>(), null);
 
             Intermediario.console = null; //David: Isto é preciso, não tirar
 
@@ -2554,10 +2554,11 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
                 //+ "   a[0] <- 10 \n"
                 //+ "  escreva a[0]+a[1]+a[2]\n"
                 //+ "fimprocedimento\n"
-                + "registo pessoa\n"
+                + "classe pessoa\n"
                 + "   literal nome\n"
                 + "   inteiro idade\n"
-                + "fimregisto\n"
+                + "fimclasse\n"
+                + "\n"
                 + "inicio\n"
                 + "  escreva \"Codigo principal \\n\"\n"
                 + "   pessoa b\n"

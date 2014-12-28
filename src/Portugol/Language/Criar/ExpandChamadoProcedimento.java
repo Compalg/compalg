@@ -37,26 +37,13 @@ public class ExpandChamadoProcedimento {
                     "Coloque o parêntese depois do chamado ao procedimento");
         }
 
-        // SE ocupa dois caracteres
-        String nome_proced = begin.GetText().substring(0, endExp).trim();
-        //String parametros = begin.GetText().substring(endExp, begin.GetText().length()).trim();
-        //int cont = 0, pos = 0;
-        BloqueSubrutine subr_destino = null;
-        for (int i = 0; i < Intermediario.subrutinas.size(); i++) {
-            if (Intermediario.subrutinas.elementAt(i).Nome.toUpperCase().equals(nome_proced.toUpperCase())) {
-                subr_destino = (BloqueSubrutine) Intermediario.subrutinas.elementAt(i);
-                break;
-            }
-        }
-
-        if (subr_destino == null) {
+        try {
+            Expressao.ReplaceVariablesToValues(Expressao.ExpresionStringToVector(begin.GetText()), memory, false);
+        } catch (LanguageException e) {
             throw new LanguageException(
                     begin.GetCharNum(), begin.GetText(),
-                    "O procedimento <" + nome_proced + "> não existe", //David: revisar ortografia
-                    "Revise o nome do procedimento");
+                    e.error, e.solution);
         }
-
-        begin.subrutine = subr_destino;
     }
 //-------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------- 
@@ -89,7 +76,6 @@ public class ExpandChamadoProcedimento {
     }
     //-------------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------------
-
     //David: Agregado para permitir que se identifique ENTÃO con acento
     static private String from = "ãõáéíóúàèìòùâêîôûÁÉÍÓÚÀÈÌÒÙÃÕÂÊÎÔÛçÇ";
     static private String to = "AOAEIOUAEIOUAEIOUAEIOUAEIOUAOAEIOUCC";

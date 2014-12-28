@@ -1,6 +1,7 @@
 package Portugol.Language.Analisador;
 
 import Portugol.Language.Calcular.*;
+import Portugol.Language.Criar.BloqueSubrutine;
 import Portugol.Language.Utilitario.IteratorElements;
 import Portugol.Language.Utilitario.IteratorExpression;
 import Portugol.Language.Utilitario.LanguageException;
@@ -10,46 +11,6 @@ import java.util.Vector;
 
 public class Expressao {
 
-//    public static void Verify(Vector infix) throws Exception {
-//        if (!IsGood(infix)) {
-//            throw new Exception("ERRO NO ANALISADOR :" + GetError(infix));
-//        }
-//    }
-//
-//    public static boolean IsGood(Vector infix) {
-//        //verificar parentesis
-//        if (!Parentesis.Verify(infix)) {
-//            return false;
-//        }
-//        //verificar valores operadores e funcoes
-//        IteratorExpression it = new IteratorExpression(infix);
-//        CalculusElement calc = new CalculusElement();
-//        while (it.hasMoreElements()) {
-//            String elem = it.current();
-//            it.next();
-//            if (!calc.IsCalculus(elem) && !Values.IsValue(elem) && !Parentesis.IsParentesis(elem)) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    public static String GetError(String infix) {
-//        if (!Parentesis.Verify(infix)) {
-//            return Parentesis.GetError(infix);
-//        }
-//
-//        IteratorExpression it = new IteratorExpression(infix);
-//        CalculusElement calc = new CalculusElement();
-//        while (it.hasMoreElements()) {
-//            String elem = it.current();
-//            it.next();
-//            if (!calc.IsCalculus(elem) && !Values.IsValue(elem) && !Parentesis.IsParentesis(elem)) {
-//                return " ERRO : simbolo [" + elem + "] desconhecido ";
-//            }
-//        }
-//        return "OK";
-//    }
     static public String ErroDeCalculo = "ERRO DE CALCULO";
 
     public static Vector ReplaceVariablesToValues(Vector expr, Vector memory, boolean safe) throws LanguageException {
@@ -180,19 +141,10 @@ public class Expressao {
             }
         } else if (pde instanceof SymbolComposto) {
             return pde;
+        } else if (pde instanceof SymbolObjeto) {
+            return pde;
         } else {
-            //String RetVal;
-            //if (safe) {
-            //RetVal = ((Simbolo) pde).getDefaultValue().toString();
             return (Simbolo) pde;
-            //} else {
-            //  RetVal = ((Simbolo) pde).getValue().toString();
-            //}
-            //if (minus) { //David: temos que trabalhar en colocar o minus, sinao nao temos:  -var, só: -valor
-            //  return "(" + RetVal + "* -1)";
-            //} else {
-            //  return RetVal;
-            //}
         }
     }
 
@@ -203,6 +155,7 @@ public class Expressao {
             if (!Calculador.IsCalculus(elem)
                     && !Values.IsValue(elem)
                     && !Keyword.DefineRegisto(elem)
+                    && !Keyword.DefineClasse(elem)
                     && !(elem instanceof Simbolo)
                     && elem instanceof String
                     && !(Variavel.getVariable(elem, memory) instanceof Simbolo)
@@ -286,7 +239,9 @@ public class Expressao {
             } else if (e.getMessage().equals(Aritmeticos.ErroDivPorZero)) {
                 return Aritmeticos.ErroDivPorZero;
             } else if (e.getMessage().startsWith(SymbolArray.ErroForaLimites)) {
-                return e.getMessage();
+                return SymbolArray.ErroForaLimites;
+            } else if (e.getMessage().startsWith(BloqueSubrutine.ErroRecursividad)) {
+                return BloqueSubrutine.ErroRecursividad;
             } else {
                 return ErroDeCalculo;
             }
