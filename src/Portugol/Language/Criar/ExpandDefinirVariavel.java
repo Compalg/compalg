@@ -2,6 +2,8 @@ package Portugol.Language.Criar;
 
 import Portugol.Language.Analisador.Expressao;
 import Portugol.Language.Analisador.Simbolo;
+import Portugol.Language.Analisador.SimboloDeParametro;
+import Portugol.Language.Analisador.TipoDeParametro;
 import Portugol.Language.Analisador.Variavel;
 import Portugol.Language.Utilitario.LanguageException;
 import java.util.Vector;
@@ -25,7 +27,7 @@ public class ExpandDefinirVariavel {
         //verificar se a variavel ja esta definida
         //David:
         Simbolo tmpVar = Variavel.getVariable(name,memory);
-        if( tmpVar != null && tmpVar.getLevel() == node.GetLevel())
+        if( tmpVar != null /*&& tmpVar.getLevel() == node.GetLevel()*/) //David: quitado lo de posible repeticion de variables para niveles distintos
             throw new  LanguageException(
                     node.GetCharNum(), node.GetText() ,
                     "O SIMBOLO <" + name + "> JÁ FOI DECLARADO",
@@ -36,11 +38,11 @@ public class ExpandDefinirVariavel {
             throw new  LanguageException(
                     node.GetCharNum(), node.GetText() ,
                     "O SIMBOLO <"+ Expressao.ErrorExpression(value,memory) + "> NÃO FOI DECLARADO",
-                    "DECLARE ANTES DE UTILIZAR");
+                    "DECLARE ANTES DE UTILIZAR");//David: el mensaje debe decir que la expresion nao es correcta, es posible que el problema no sea de declarar variable
         
         //Avaliar a expressao
         // se nao for possivel avaliar provoca erro
-        String memValue;
+        Object memValue;
         try {
             memValue = Expressao.EvaluateByDefaults(value,memory);
         } catch( Exception e){
@@ -61,7 +63,7 @@ public class ExpandDefinirVariavel {
         // fazer um novo no
         NodeInstruction  newNode = new NodeInstruction(node);
         newNode.SetText(text);
-        Variavel.defineVAR(newNode,memory);
+        Variavel.defineVAR(newNode,memory, new Vector<TipoDeParametro>(), new Vector<SimboloDeParametro>());
         return newNode;
     }
     

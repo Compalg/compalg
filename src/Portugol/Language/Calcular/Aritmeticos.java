@@ -44,6 +44,7 @@ public class Aritmeticos extends AbstractCalculus{
     
      // executa o calculo
 
+    @Override
     public  String Calculate( String oper , Vector params)throws Exception{
         if( params.size() != 2 ){
             throw new Exception("ERRO 012:\nARITMÉTCOS COM DOIS PARAMETROS");

@@ -26,6 +26,7 @@ public class FuncaoTexto extends AbstractCalculus{
           
     }
    //---------------------------------------------------------------------------
+    @Override
     public String Calculate( String oper , Vector params)throws Exception{
         if( params.size() == 1 )
             return Calculate1(oper,(String)params.get(0));

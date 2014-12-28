@@ -14,7 +14,7 @@ import Portugol.Language.Consola.ConsoleIO;
 import Portugol.Language.Criar.Intermediario;
 import Portugol.Language.Criar.NodeInstruction;
 import Portugol.Language.Analisador.Keyword;
-import Portugol.Language.Criar.Subrutine;
+import Portugol.Language.Criar.BloqueSubrutine;
 import Portugol.Language.Utilitario.LanguageException;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Box;
@@ -95,7 +96,7 @@ public static String codigo = "";
     //---------------------------- EXecucao do programa ---------
     private Thread autoExecute=null;                            
     private NodeInstruction instruction;
-    private Subrutine prog;
+    private BloqueSubrutine prog;
     private Intermediario intermediario;
     //-----------------------------------------------------------
     private UIManager.LookAndFeelInfo[] look;
@@ -646,14 +647,10 @@ public static String codigo = "";
     public void run(){
         try{
             instruction = prog.getStart();
-            while(autoExecute != null )  {
-                instruction = prog.ExecuteLine(instruction, console);
-                autoExecute.sleep(10);
-                if( instruction.GetType() == Keyword.FIM){
-                    autoExecute =null;
-                    break;
-                }
-            }
+            
+            //David: Ejecutar el llamado a la instruccion falsa temporal
+            prog.ExecuteSubrutine(new Vector<String>() /*sim pasar parametros*/, console);
+         
             calend = new Calendario();
             info.write("\nO programa terminou com sucesso... ");
             info.write("\n\t\t\t\t\t"+ calend.dataAtual() );
@@ -2583,12 +2580,23 @@ public static String codigo = "";
                 //+ "\n--AUTOR: "+System.getProperty("user.name")+""
                 //+ "\n--DATA E HORA:"+calend.dataAtual()
                 //+ " */ \n"
-                + "//procedimento idade ( inteiro idade )  \n"
-                + "//mostre( \"Adulto \" ) , idade   \n"
-                + "//fimprocedimento\n"
+                //+ "procedimento idade(inteiro a[3])  \n"
+                //+ "  mostre \"idade \\n\"\n"
+                //+ "   inteiro a\n"
+                //+ "  escreva a\n"
+                //+ "   a[0] <- 10 \n"
+                //+ "  escreva a[0]+a[1]+a[2]\n"
+                //+ "fimprocedimento\n"
+                + "registo pessoa\n"
+                + "   literal nome\n"
+                + "   inteiro idade\n"
+                + "fimregisto\n"
                 + "inicio\n"
-                + "//idade( 53 )\n"
-                + "  escreva \"Adulto \" \n"
+                + "  escreva \"Codigo principal \\n\"\n"
+                + "   pessoa b\n"
+                + "   b.nome <- \"David\"\n"
+                + "   b.idade <- 34\n"
+                + "  escreva b.idade\n"
                 + "fimalgoritmo \n";
 
  }

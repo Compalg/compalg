@@ -6,7 +6,6 @@ import Portugol.Language.Criar.NodeInstruction;
 import java.util.StringTokenizer;
 import Portugol.Language.Analisador.Keyword;
 import javax.swing.JOptionPane;
-import Portugol.Language.Analisador.Registo;
 
 public class construirProgramaC {
     

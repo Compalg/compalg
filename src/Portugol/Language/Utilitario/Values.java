@@ -1,5 +1,6 @@
 package Portugol.Language.Utilitario;
 
+import Portugol.Language.Analisador.Keyword;
 import Portugol.Language.Analisador.Simbolo;
 import javax.swing.JOptionPane;
 
@@ -25,8 +26,10 @@ public class Values {
         if( type.equalsIgnoreCase("logico") ) return FALSO;
         if( type.equalsIgnoreCase("caracter") ) return "\" \"";
         if( type.equalsIgnoreCase("texto") ) return "\"\"";
+        if (Keyword.DefineRegisto(type)) return type;
         return "erro";
     }
+    
     //---------------------------------------------------------------------------
     /**
      * Converte um numero para uma string com o inteiro
@@ -97,9 +100,9 @@ public class Values {
      * @param n texto
      * @return verifica se is um inteiro ou um real
      */
-    public static  boolean IsNumber(String n) {
+    public static  boolean IsNumber(Object n) {
         try{
-            double v = Double.parseDouble(n);
+            double v = Double.parseDouble((String)n);
             return true;
         } catch ( Exception e ){
             return false;
@@ -111,10 +114,10 @@ public class Values {
      * @param n text
      * @return verifica se is um numero inteiro
      */
-    public static boolean IsInteger(String n){
-        if( ! IsNumber(n))
+    public static boolean IsInteger(Object n){
+        if( ! IsNumber((String)n))
             return false;
-        return n.indexOf(".") == -1;
+        return ((String) n).indexOf(".") == -1;
     }
     //------------------------------------------------------------------------------
     /**
@@ -122,10 +125,10 @@ public class Values {
      * @param n text
      * @return verifica se is um numero inteiro
      */
-    public static boolean IsReal(String n){
-        if( ! IsNumber(n))
+    public static boolean IsReal(Object n){
+        if( ! IsNumber((String)n))
             return false;
-        return n.indexOf(".") != -1;
+        return ((String)n).indexOf(".") != -1;
     }
     //------------------------------------------------------------------------------
     /**
@@ -133,9 +136,9 @@ public class Values {
      * @param val texto
      * @return verifica se is um valor logico
      */
-    public static boolean IsBoolean(String val){
-        if( val.equalsIgnoreCase(VERDADEIRO) ||
-                val.equalsIgnoreCase(FALSO) )   return true;
+    public static boolean IsBoolean(Object val){
+        if( ((String)val).equalsIgnoreCase(VERDADEIRO) ||
+                ((String)val).equalsIgnoreCase(FALSO) )   return true;
         
         return false;
     }
@@ -144,12 +147,12 @@ public class Values {
      * @return verifica se is uma string
      * @param expr expressao
      */
-    public static boolean IsString(String expr){
-        if( !expr.startsWith("\"") ||  !expr.endsWith("\""))
+    public static boolean IsString(Object expr){
+        if( !((String)expr).startsWith("\"") ||  !((String)expr).endsWith("\"")) 
             return false;
         //contar os "
-        for(int index= 1 ; index < expr.length()-1 ; index++){
-            if(expr.charAt(index)=='"' && expr.charAt(index-1)!='\\' )
+        for(int index= 1 ; index < ((String)expr).length()-1 ; index++){
+            if(((String)expr).charAt(index)=='"' && ((String)expr).charAt(index-1)!='\\' )
                 return false;
         }
         return true;
@@ -159,8 +162,8 @@ public class Values {
      * @return verifica se is uma string
      * @param expr expressao
      */
-    public static boolean IsCharacter(String expr){
-        return IsString(expr) && expr.length()==3;
+    public static boolean IsCharacter(Object expr){
+        return IsString(expr) && ((String)expr).length()==3;
     }
     
     //---------------------------------------------------------------------------
@@ -191,6 +194,10 @@ public class Values {
      */
     public static boolean IsValue(String str){
         return IsString(str) || IsBoolean(str) || IsNumber(str);
+    }
+    
+    public static boolean IsRegisto(String str){
+        return Keyword.DefineRegisto(str);
     }
     
 //---------------------------------------------------------------------------

@@ -47,6 +47,15 @@ public class NodeInstruction {
      * ponteiro par o nodo se falso
      */
     protected   NodeInstruction     ifFalse;
+
+    /**
+     * ponteiro par inicio de procedimento o funçao
+     */
+    public   BloqueSubrutine     subrutine;  //David: Para poder almacenar la direccion de la subrutina que debe ejecutarse
+    /**
+     * ponteiro par inicio de procedimento o funçao
+     */
+    public   String     subrutineParametros;  //David: Para poder almacenar la definicion de los parametros
     
     /**
      * construtor
@@ -64,7 +73,8 @@ public class NodeInstruction {
         this.ifTrue =null;
         this.ifFalse =null;
         this.charNum = charNum;
-
+        this.subrutine = null; //David:
+        this.subrutineParametros = ""; //David:
     }
         
     /**

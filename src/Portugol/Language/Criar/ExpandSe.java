@@ -117,7 +117,7 @@ public class ExpandSe {
 
                 if (In_Space_TRUE == false) //if cambió para SENAO ajustar su conector
                 {
-                    endELSE.SetNext(tmp);       
+                    endELSE.SetNext(endIF);       
                     endELSE.SetLevel(level);
                     endELSE.SetType(Keyword.CONECTOR);                    
                 }

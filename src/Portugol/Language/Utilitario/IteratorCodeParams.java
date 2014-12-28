@@ -20,8 +20,8 @@ public class IteratorCodeParams {
     
     // ignorar o que esta dentro destes simbolos
     // por exemplo as funcoes com os parentesis
-    private  String OPEN_STAT = "{(";
-    private  String CLOSE_STAT = "})";
+    private  String OPEN_STAT = "{([";
+    private  String CLOSE_STAT = "})]";
     
     /**
      * construtor
@@ -120,7 +120,7 @@ public class IteratorCodeParams {
             anterior = ch;
             ch = str.charAt(end);
             // sair se apanhar um separador fora da string e dos parentesis
-            if( isSeparator(ch)  && !isString && parentesis==0)
+            if( (isSeparator(ch) /*|| isBlank(ch)*/) && !isString && parentesis==0) //David: Aqui fue necesario tener en cuenta el espacio, para casos como: "hola"  , a,b,c
                 break;
             //fim e inicio da string
             else if(ch == STR && anterior != '\\' )

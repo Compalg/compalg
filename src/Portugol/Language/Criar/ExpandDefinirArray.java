@@ -2,6 +2,8 @@ package Portugol.Language.Criar;
 
 import Portugol.Language.Analisador.Expressao;
 import Portugol.Language.Analisador.Simbolo;
+import Portugol.Language.Analisador.SimboloDeParametro;
+import Portugol.Language.Analisador.TipoDeParametro;
 import Portugol.Language.Analisador.Variavel;
 import Portugol.Language.Utilitario.IteratorArray;
 import Portugol.Language.Utilitario.IteratorCodeParams;
@@ -46,7 +48,7 @@ public class ExpandDefinirArray {
         // fazer um novo no
         NodeInstruction  newNode = new NodeInstruction(node);
         newNode.SetText(text);
-        Variavel.defineVAR(newNode,memory);
+        Variavel.defineVAR(newNode,memory, new Vector<TipoDeParametro>(), new Vector<SimboloDeParametro>()); //David: En la original de las variables no se tiene conociminedo de parametros de llamadas
         return newNode;
         
     }
@@ -58,7 +60,7 @@ public class ExpandDefinirArray {
             
             //Avaliar a expressao
             // se nao for possivel avaliar provoca erro
-            String result;
+            Object result;
             try {
                 result = Expressao.Evaluate(value,memory);
             } catch( Exception e){
@@ -73,7 +75,7 @@ public class ExpandDefinirArray {
                         value + " = " + result + " NÃO É UMA VARIÁVEL INTEIRA",
                         "REDIFINA O VALOR INDICE");
             
-            if( Integer.parseInt(result) <= 0 )
+            if( Integer.parseInt((String) result) <= 0 )
                   throw new LanguageException(
                         node.GetCharNum(), node.GetText() ,
                         value + " = " + result + " NÃO É UM INDICE VÁLIDO",
@@ -89,7 +91,7 @@ public class ExpandDefinirArray {
             String value = iter.current();
             //Avaliar a expressao
             // se n�o for possivel avaliar provoca erro
-            String result;
+            Object result;
             try {
                 result = Expressao.EvaluateByDefaults(value,memory);
             } catch( Exception e){

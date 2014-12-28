@@ -47,7 +47,7 @@ public class Calculador {
     
      // faz o calculo da expressao
      
-    public String GetResult() throws Exception {
+    public Object GetResult() throws Exception {
         return CalulateValue(inFix);
     }
 //------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ public class Calculador {
 
      // Executa o calculo
   
-   public  static String CalulateValue(String expr) throws Exception{
+   public  static Object CalulateValue(String expr) throws Exception{
          String str = CalulatePosFix(expr);
          // se a expressao for vazia
          // if( str.length() == 0) return expr;
@@ -144,11 +144,10 @@ public class Calculador {
         }
         
         if( result.size() == 1){
-            return (String) result.pop();        
+            return result.pop();        
         }   
         else 
-            throw new Exception(" ERRO 011:\nA EXPRESSÃO ["+ expr + "] ESTÁ MAL CONSTRUÍDA");
-            
+            throw new Exception(" ERRO 011:\nA EXPRESSÃO ["+ expr + "] ESTÁ MAL CONSTRUÍDA");         
     }
     
 }

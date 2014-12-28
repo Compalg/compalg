@@ -1,43 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="8">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="10">
         <file>
-            <url>src/Portugol/Language/Criar/Intermediario.java</url>
-            <bookmark id="7">
+            <url>src/Portugol/Language/Analisador/Registo.java</url>
+            <bookmark id="10">
                 <name/>
-                <line>143</line>
-                <key/>
-            </bookmark>
-            <bookmark id="8">
-                <name/>
-                <line>151</line>
-                <key/>
-            </bookmark>
-            <bookmark id="6">
-                <name/>
-                <line>207</line>
+                <line>15</line>
                 <key/>
             </bookmark>
         </file>
         <file>
-            <url>src/Portugol/Language/Criar/ExpandDefinirVariavel.java</url>
-            <bookmark id="4">
+            <url>src/Editor/GUI/EditorCAlg.java</url>
+            <bookmark id="9">
                 <name/>
-                <line>28</line>
-                <key/>
-            </bookmark>
-            <bookmark id="3">
-                <name/>
-                <line>62</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
-            <url>src/Portugol/Language/Criar/ExpandDefinirSimbol.java</url>
-            <bookmark id="2">
-                <name/>
-                <line>101</line>
+                <line>2204</line>
                 <key/>
             </bookmark>
         </file>
