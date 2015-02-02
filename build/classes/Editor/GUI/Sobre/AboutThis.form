@@ -1,4 +1,4 @@
-<?xml version="1.1" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.2" maxVersion="1.2" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
@@ -11,6 +11,7 @@
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
@@ -21,7 +22,7 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
-    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,-128,0,0,2,103"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,-105,0,0,2,126"/>
   </AuxValues>
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
@@ -46,7 +47,7 @@
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="40" y="260" width="100" height="70"/>
+          <AbsoluteConstraints x="460" y="350" width="100" height="40"/>
         </Constraint>
       </Constraints>
     </Component>
@@ -60,7 +61,7 @@
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="40" y="10" width="540" height="230"/>
+          <AbsoluteConstraints x="20" y="10" width="560" height="330"/>
         </Constraint>
       </Constraints>
 
@@ -68,17 +69,17 @@
       <SubComponents>
         <Component class="javax.swing.JTextPane" name="jTextPane1">
           <Properties>
+            <Property name="editable" type="boolean" value="false"/>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="cc" red="cc" type="rgb"/>
             </Property>
-            <Property name="editable" type="boolean" value="false"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Simplified Arabic Fixed" size="14" style="0"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="66" green="0" red="0" type="rgb"/>
             </Property>
-            <Property name="text" type="java.lang.String" value=".................................................................&#xa;.&#x9;    COMPILADOR DE ALGORITMOS VERS&#xc3;O Beta&#x9;          .&#xa;.................................................................&#xa;&#xa;ESTE SOFTWARE FOI DESENVOLVIDO, PARA SERVIR DE FERRAMENTA DE ES-&#xa;TUDO DA PROGRAMA&#xc7;&#xc3;O.CRIADA EM DEZEMBRO DE 2011, NA FACULDADE DE &#xa;CI&#xca;NCIAS DA UNIVERSIDADE AGOSTINHO NETO, PELO ESTUDANTE AUGUSTO &#xa;MANUEL BILABILA.&#xa;&#xa;O COMPILADOR RECONHECE A LINGUAGEM PORTUGOL, QUE, QUANDO BEM ES-&#xa;CRITA PODE SER CONVERTIDA NA LINGUAGEM C E/OU EM JAVA."/>
+            <Property name="text" type="java.lang.String" value=".................................................................&#xa;.&#x9;    COMPILADOR DE ALGORITMOS VERS&#xc3;O Beta&#x9;          .&#xa;.................................................................&#xa;&#xa;ESTE SOFTWARE FOI DESENVOLVIDO, PARA SERVIR DE FERRAMENTA DE ESTUDO &#xa;DA PROGRAMA&#xc7;&#xc3;O. &#xa;CRIADA EM DEZEMBRO DE 2011 PELO AUTOR AUGUSTO MANUEL BILABILA&#xa;ATUALIZADA EM 2012 POR AUGUSTO MANUEL BILABILA. &#xa;ATUALIZADA EM 2014 POR DAVID SILVA BARRERA. &#xa;&#xa;O COMPILADOR RECONHECE A LINGUAGEM PORTUGOL, QUE, QUANDO BEM ES-&#xa;CRITA PODE SER CONVERTIDA NA LINGUAGEM C E/OU EM JAVA. &#xa;&#xa;DISPON&#xcd;VEL NO GITHUB: https://github.com/Compalg/compalg/&#xa;COMUNIDADE: http://www.compalg.org/&#xa;&#xa;AUGUSTO MANUEL BILABILA (augustobilabila@gmail.com)&#xa;DAVID SILVA BARRERA (dsbarrera@gmail.com)"/>
           </Properties>
         </Component>
       </SubComponents>

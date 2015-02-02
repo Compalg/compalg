@@ -1,10 +1,9 @@
 package Portugol.Language.Analisador;
 
 import Portugol.Language.Calcular.Calculador;
-import Portugol.Language.Criar.BloqueSubrutine;
-import Portugol.Language.Criar.ExpandChamadoFuncao;
 import Portugol.Language.Criar.Intermediario;
 import Portugol.Language.Criar.NodeInstruction;
+import Portugol.Language.Criar.SubrutinePlayer;
 import Portugol.Language.Utilitario.IteratorArray;
 import Portugol.Language.Utilitario.IteratorCodeParams;
 import Portugol.Language.Utilitario.IteratorString;
@@ -16,9 +15,9 @@ import java.util.Vector;
  * @author Augusto Bilabila(2011) Original de Antonio manso(2006)
  */
 public class Variavel {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
-    private static String caracteres_aceites =
-            "abcdefghijklmnopqrstuvxywz"
+    private static String caracteres_aceites = "abcdefghijklmnopqrstuvxywz"
             + "ABCDEFGHIJKLMNOPQRSTUVXYWZ"
             + "._0123456789";
 
@@ -43,7 +42,6 @@ public class Variavel {
             return false;
         }
 
-
         return true;
     }
 
@@ -56,53 +54,53 @@ public class Variavel {
     public static String getErrorName(String nameVar) {
         String name = nameVar.trim();
         if (name.length() == 0) {
-            return " O NOME NÃO PODE SER VAZIO ";
+            return " O nome não pode ser vazio ";
         }
         if (Character.isDigit(name.charAt(0))) {
-            return " O NOME DE UMA VARIÁVEL NÃO PODE COMEÇAR COM UM NÚMERO ";
+            return " O nome de uma variável não pode começar com um número ";
         }
         if (Keyword.IsKeyword(nameVar)) {
-            return name + ", NÃO PODE SER O NOME DE UMA VARIÁVEL, PORQUE É UMA PALAVRA RESERVADA!!! ";
+            return name + ", Não pode ser o nome de uma variável, porque é uma palavra reservada! ";
         }
         if (Calculador.IsCalculus(nameVar)) {
-            return name + " É UM ELEMENTO DE CÁLCULO ";
+            return name + " É um elemento de cálculo ";
         }
 
         if (name.indexOf("=") != -1) {
-            return "O SINAL \"=\" DEVE SER SUBSTITUÍDO POR \"<-\" (SINAL DE ATRIBUÍÇÃO DO PSEUDOCODIGO) ";
+            return "O sinal \"=\" deve ser substituído por \"<-\" (sinal de subtração do pseudocódigo) ";
         }
 
         for (int i = 1; i < name.length(); i++) {
             if (caracteres_aceites.indexOf("" + name.charAt(i)) == -1) {
-                return name + " CONTÉM O CARACTER \"" + name.charAt(i) + "\" NÃO É VÁLIDO ";
+                return name + " Contém o carecter \"" + name.charAt(i) + "\" não é válido";
             }
         }
 
-        return "ERRO NO NOME";
+        return "Erro no nome";
     }
 
     // PARA REGISTO
     public static String getErrorNameRegisto(String nameVar) {
         String nome = nameVar.trim();
         if (nome.length() == 0) {
-            return " O NOME NÃO PODE SER VAZIO ";
+            return " O nome não pode estar vazio ";
         }
         if (Character.isDigit(nome.charAt(0))) {
-            return " O NOME DE UM REGISTO NÃO PODE COMEÇAR COM UM NÚMERO ";
+            return " O nome de um registo não pode começar com um número ";
         }
         if (Keyword.IsKeyword(nameVar)) {
-            return nome + ", NÃO PODE SER O NOME DE UM REGISTO, PORQUE É UMA PALAVRA RESERVADA!!! ";
+            return nome + ", Não pode ser o nome de um REGISTO, porque é uma palavra reservada! Tenta dar um outro nome ";
         }
         if (Calculador.IsCalculus(nameVar)) {
-            return nome + " É UM ELEMENTO DE CÁLCULO ";
+            return nome + " É um elemento de cálculo ";
         }
 
         for (int i = 1; i < nome.length(); i++) {
             if (caracteres_aceites.indexOf("" + nome.charAt(i)) == -1) {
-                return nome + " CONTÉM O CARACTER \"" + nome.charAt(i) + "\" NÃO É VÁLIDO ";
+                return nome + " Contém o carecter \"" + nome.charAt(i) + "\" não é válido ";
             }
         }
-        return "ERRO NO NOME";
+        return "Erro no nome";
     }
 
     public static ParteDeExpresion getVariable(Object elemento, Vector searchMemory) throws LanguageException {
@@ -133,28 +131,15 @@ public class Variavel {
                 posR = name.indexOf(".");
             }
 
-            Vector<BloqueSubrutine> metodos = null;
             SymbolObjeto ObjetoDono = null;
             if (!source.isEmpty()) {
                 ParteDeExpresion Source = getVariable(source, searchMemory, searchMemory);
                 if (Source instanceof SymbolObjeto) {
                     ObjetoDono = (SymbolObjeto) Source;
-
-                    metodos = ObjetoDono.tipoClasseBase.claseOrigen.metodos;
                 }
             }
 
-            BloqueSubrutine rutina = ExpandChamadoFuncao.ExpandCHAMADO(name, metodos);
-            if (Intermediario.console != null //não é expandir senao executar
-                    && ObjetoDono != null && ObjetoDono.Inicializado == false) {
-                throw new LanguageException(
-                        "Não pode utilizar o objeto \" " + ObjetoDono.getName() + " \" antes de ele sere inicializado com o Construtor ", //David: revisar ortografia
-                        "Antes utilice um código similar ao seguinte: \"" + ObjetoDono.getName() + " <- NOVO " + ObjetoDono.tipoClasseBase.Name.toLowerCase() + "( . . . )\"");
-            }
-
-            Vector paramVals = rutina.ObterParametrosValues(chmd, searchMemory);
-            ObjetoDono = ObjetoDono != null ? ObjetoDono : (BloqueSubrutine.InstanciaActual);
-            return rutina.ExecuteSubrutine(paramVals, ObjetoDono);
+            return SubrutinePlayer.Player.SearchAndExecuteSubrutine(ObjetoDono, name, chmd, searchMemory);
         }
         return null;
     }
@@ -216,19 +201,24 @@ public class Variavel {
                             return getVariable(Campo, ((SymbolComposto) v).Campos, dataMemory);
                         }
                         if (v instanceof SymbolObjeto) {
+                            if (Intermediario.console != null //não é expandir senao executar
+                                    && ((SymbolObjeto) v).Inicializado == false) {
+                                throw new LanguageException(
+                                        "Não pode utilizar o objeto \" " + ((SymbolObjeto) v).getName() + " \" antes de ser inicializado com o Construtor ", //David: revisar ortografia
+                                        "Antes utilice um código similar ao seguinte: \"" + ((SymbolObjeto) v).getName() + " <- NOVO " + ((SymbolObjeto) v).tipoClasseBase.Name.toLowerCase() + "( . . . )\"");
+                            }
+
                             if (pa > -1 && pb > -1 && pa < pb) {
                                 return getVariable(Campo, dataMemory/*, ((SymbolObjeto) v).Campos*/);
                             } else {
                                 return getVariable(Campo, ((SymbolObjeto) v).Campos, dataMemory);
                             }
 
-
                         } else {
                             throw new LanguageException(
                                     "Posiblemente esté llamando a un método de un objeto",
                                     "Todavia no es permitido");
                         }
-
 
                     }
                 }
@@ -255,7 +245,7 @@ public class Variavel {
         tok.next();
         String nome = tok.current();
         tok.next();
-        String atribui = tok.current();
+        String atribui = tok.current();//<-
         tok.next();
         String valorUnproc = tok.getUnprocessedString();
 
@@ -274,10 +264,10 @@ public class Variavel {
                 valor = null;
                 Parametro = paramVals.get(pos);
             } else {
-                if (node.EsReferencia && BloqueSubrutine.InstanciaActual != null) {
-                    for (int kk = 0; kk < BloqueSubrutine.InstanciaActual.Campos.size(); kk++) {
-                        if (BloqueSubrutine.InstanciaActual.Campos.get(kk).nameEqual(nome)) {
-                            v = BloqueSubrutine.InstanciaActual.Campos.get(kk);
+                if (node.EsReferencia && SubrutinePlayer.Player.instanciaSubrutineActual != null && SubrutinePlayer.Player.instanciaSubrutineActual.InstanciaDono != null) {
+                    for (int kk = 0; kk < SubrutinePlayer.Player.instanciaSubrutineActual.InstanciaDono.Campos.size(); kk++) {
+                        if (SubrutinePlayer.Player.instanciaSubrutineActual.InstanciaDono.Campos.get(kk).nameEqual(nome)) {
+                            v = SubrutinePlayer.Player.instanciaSubrutineActual.InstanciaDono.Campos.get(kk);
                             break;
                         }
                     }
@@ -289,7 +279,7 @@ public class Variavel {
             throw new LanguageException(
                     node.GetCharNum(), node.GetText(),
                     e.toString(),
-                    "VERIFIQUE A EXPRESSÃO <" + valorUnproc + ">");
+                    "Verifique a expressão <" + valorUnproc + ">");
         }
         if (v == null) {
             if (Simbolo.getType(tipo) == Simbolo.REGISTO) {
@@ -326,23 +316,26 @@ public class Variavel {
             Object result;
             try {
                 result = Expressao.Evaluate(exp, memory);
-            } catch (Exception e) {
+            } catch (LanguageException ex) {
+                if (ex.line > 0 && !ex.codeLine.isEmpty()) {
+                    throw ex;
+                }
                 throw new LanguageException(
                         node.GetCharNum(), node.GetText(),
-                        "O INDICE " + exp + " NÃO É UMA EXPRESSÃO VÁLIDA",
-                        "DEFINA UMA EXPRESSÃO VÁLIDA PARA O INDICE");
+                        "O índice \" + exp + \" não é uma expressão válida: " + ex.getMessage(),
+                        "Defina uma expressão válida para o índice");
             }
             if (!Values.IsInteger(result)) {
                 throw new LanguageException(
                         node.GetCharNum(), node.GetText(),
-                        exp + " = " + result + " NÃO É UMA EXPRESSÃO INTEIRA",
+                        exp + " = " + result + " não é uma expressão inteira",
                         "");
             }
             int number = Integer.parseInt((String) result);
             if (number <= 0) {
                 throw new LanguageException(
                         node.GetCharNum(), node.GetText(),
-                        exp + " = " + result + " NÃO É UM VALOR VÁLIDO", "");
+                        exp + " = " + result + " não é um valor válido", "");
             }
             indexLimits.add(number);
         }
@@ -361,11 +354,18 @@ public class Variavel {
         SymbolArray v = null;
         if (pos > -1) {
             Parametro = paramVals.get(pos);
+            if (Parametro.Value instanceof SymbolArray) {
+                v = new SymbolArray((SymbolArray) Parametro.Value);
+            } else {
+                throw new LanguageException(
+                        "O tipo de dado não coincide",
+                        "Coloque um vetor");
+            }
         } else {
-            if (node.EsReferencia && BloqueSubrutine.InstanciaActual != null) {
-                for (int kk = 0; kk < BloqueSubrutine.InstanciaActual.Campos.size(); kk++) {
-                    if (BloqueSubrutine.InstanciaActual.Campos.get(kk).nameEqual(name)) {
-                        v = (SymbolArray) BloqueSubrutine.InstanciaActual.Campos.get(kk);
+            if (node.EsReferencia && SubrutinePlayer.Player.instanciaSubrutineActual != null && SubrutinePlayer.Player.instanciaSubrutineActual.InstanciaDono != null) {
+                for (int kk = 0; kk < SubrutinePlayer.Player.instanciaSubrutineActual.InstanciaDono.Campos.size(); kk++) {
+                    if (SubrutinePlayer.Player.instanciaSubrutineActual.InstanciaDono.Campos.get(kk).nameEqual(name)) {
+                        v = (SymbolArray) SubrutinePlayer.Player.instanciaSubrutineActual.InstanciaDono.Campos.get(kk);
                         break;
                     }
                 }
@@ -392,8 +392,8 @@ public class Variavel {
                                 //esto no debe pasar
                                 throw new LanguageException(
                                         node.GetCharNum(), node.GetText(),
-                                        "A EXPRESSÃO :" + value + " NÃO POSE SER UM OPERADOR",
-                                        "MUDE A EXPRESSÃO <" + value + ">");
+                                        "A expressão :" + value + " não pode ser um operador",
+                                        "mude a expressão <" + value + ">");
                             } else if (pdexpr instanceof SymbolComposto) {
                                 if (pdexpr instanceof SymbolArray) {
                                     //esto no debe pasar, a menos que SymbolArray esté heredando de SymbolComposto
@@ -404,8 +404,8 @@ public class Variavel {
                                     } else {
                                         throw new LanguageException(
                                                 node.GetCharNum(), node.GetText(),
-                                                "A EXPRESSÃO :" + value + " NÃO É DE TIPO " + ((SymbolComposto) pdexpr).typeLexema,
-                                                "MUDE ESTA EXPRESSÃO <" + value + ">");
+                                                "A expressão :" + value + " não é de tipo " + ((SymbolComposto) pdexpr).typeLexema,
+                                                "Mude esta expressão <" + value + ">");
                                     }
                                 } else if (pdexpr instanceof SymbolObjeto) {
                                     if (((SymbolObjeto) pdexpr).typeLexema.toUpperCase().trim().equals(type.toUpperCase().trim())) {
@@ -413,8 +413,8 @@ public class Variavel {
                                     } else {
                                         throw new LanguageException(
                                                 node.GetCharNum(), node.GetText(),
-                                                "A EXPRESSÃO :" + value + " NÃO É DE TIPO " + ((SymbolObjeto) pdexpr).typeLexema,
-                                                "MUDE ESTA EXPRESSÃO <" + value + ">");
+                                                "A expressão :" + value + " não é de tipo " + ((SymbolObjeto) pdexpr).typeLexema,
+                                                "Mude esta expressão <" + value + ">");
                                     }
 
                                 } else if (pdexpr instanceof Simbolo) {
@@ -423,14 +423,14 @@ public class Variavel {
                                     } else {
                                         throw new LanguageException(
                                                 node.GetCharNum(), node.GetText(),
-                                                "A EXPRESSÃO :" + value + " NÃO É DE TIPO " + ((Simbolo) pdexpr).typeLexema,
-                                                "MUDE ESTA EXPRESSÃO <" + value + ">");
+                                                "Erro na expressão :" + value + " não é de tipo " + ((Simbolo) pdexpr).typeLexema,
+                                                "Analise bem a sua expressão <" + value + ">");
                                     }
                                 } else {
                                     throw new LanguageException(
                                             node.GetCharNum(), node.GetText(),
-                                            "ERRO NA EXPRESSÃO :" + value,
-                                            "VERIFIQUE BEM ESTA EXPRESSÃO <" + value + ">");
+                                            "Erro na expressão :" + value,
+                                            "Analise bem a sua expressão <" + value + ">");
                                 }
                             } else {
                                 result = Expressao.Evaluate(value, memory);
@@ -438,16 +438,16 @@ public class Variavel {
                         } catch (Exception e) {
                             throw new LanguageException(
                                     node.GetCharNum(), node.GetText(),
-                                    "ERRO NA EXPRESSÃO :" + value,
-                                    "VERIFIQUE BEM ESTA EXPRESSÃO <" + value + ">");
+                                    "Erro na expressão :" + value,
+                                    "Analise bem a sua expressão <" + value + ">");
                         }
 
                         //verificar se o resultado da expressao e compativel com a variavel
                         if (!Simbolo.IsCompatible(type, result)) {
                             throw new LanguageException(
                                     node.GetCharNum(), node.GetText(),
-                                    "O valor <" + result + "> NÃO É PERMITIDO PARA A VARIÁVEL " + type,
-                                    " VERIFIQUE BEM ESTA EXPRESSÃO :" + value);
+                                    "O valor <" + result + "> não é permitido para variável " + type,
+                                    " Analise bem a sua expressão :" + value);
                         }
 
                         if (result instanceof Simbolo) //normalizar o resultado
@@ -466,8 +466,8 @@ public class Variavel {
                         if (index > indexLimits.get(0)) {
                             throw new LanguageException(
                                     node.GetCharNum(), node.GetText(),
-                                    valorUnProc + " TEM MAIS QUE " + indexLimits.size() + " ELEMENTOS",
-                                    " DEFINA MENOS ELEMENTOS");
+                                    valorUnProc + " tem mais que " + indexLimits.size() + " elementos",
+                                    " Defina menos elementos");
                         }
                         itercp.next();
                     }
@@ -490,8 +490,8 @@ public class Variavel {
     public static void replaceVariableValue(String varName, Object newValue, Vector memory) throws LanguageException {
         ParteDeExpresion pde = Variavel.getVariable(varName.trim(), memory);
         if (pde == null) {
-            throw new LanguageException(0, varName, " A VARIÁVEL \"" + varName + "\" NÃO ESTÁ DEFINIDA ",
-                    " POR FAVOR, VERIFIQUE O NOME DA VARIÁVEL");//David:Revisar
+            throw new LanguageException(0, varName, " A variável \"" + varName + "\" NÃO ESTÁ DEFINIDA ",
+                    " Verifique o nome da variável");//David:Revisar
         }
 
         if (pde instanceof SymbolArray) {
@@ -503,7 +503,7 @@ public class Variavel {
             } else {
                 throw new LanguageException(0, varName,
                         "O vetor " + varName + " só pode recever valores do tipo " + pde.TextoOrigen,
-                        "Mude a assinação");//David:Revisar
+                        "Mude a declaração");//David:Revisar
             }
         }
 
@@ -514,7 +514,7 @@ public class Variavel {
             } else {
                 throw new LanguageException(0, varName,
                         "O registo " + varName + " só pode recever valores do tipo " + pde.TextoOrigen,
-                        "Mude a assinação");//David:Revisar
+                        "Mude a declaração");//David:Revisar
             }
         }
 

@@ -10,6 +10,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 public class Expressao {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     static public String ErroDeCalculo = "ERRO DE CALCULO";
 
@@ -33,7 +34,7 @@ public class Expressao {
             } else if (CurrentElem != null && CurrentElem instanceof String && CurrentElem.equals(")")) {
                 if (pilha.isEmpty()) {
                     throw new LanguageException(
-                            "Os parêntesis não estão balanceados na expressão",
+                            "Os parêntesis não estão bem colocados na expressão",
                             "Verifique os parêntesis");
                 }
                 Vector e = (Vector) pilha.pop();
@@ -77,8 +78,8 @@ public class Expressao {
                     //David: Não é permitido utilizar um campo na mesma chamada á função
                     //throw new Exception("()."); //David: revisar ortografia
                     throw new LanguageException(
-                            "Não é permitido utilizar um campo na mesma chamada á função. \nAssine numa variável o resultado da função e depois utilize o campo desejado",
-                            ""); //David: revisar ortografia
+                            "Não é permitido utilizar um campo na mesma chamada da função. \nGuarde o resultado da função numa variável e depois utilize o campo desejado",
+                            "Em caso de dúvida, consulte a documentação"); //David: revisar ortografia
 
                 }
                 String s = (String) newExpr.remove(newExpr.size() - 1);
@@ -217,10 +218,6 @@ public class Expressao {
      * @param memory
      * @return
      */
-    public static Object Evaluate(Vector expression, Vector memory) throws LanguageException {
-        return Evaluate(expression, memory, false);
-    }
-
     public static Object Evaluate(String expression, Vector memory) throws LanguageException {
         return Evaluate(ExpresionStringToVector(expression), memory, false);
     }

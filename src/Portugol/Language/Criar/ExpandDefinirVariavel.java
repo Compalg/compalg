@@ -13,6 +13,7 @@ import java.util.Vector;
  * @author Augusto Bilabila original de Antonio manso
  */
 public class ExpandDefinirVariavel {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     //---------------------------------------------------------------------------------------------------
     //---------------------------------------------------------------------------------------------------
 

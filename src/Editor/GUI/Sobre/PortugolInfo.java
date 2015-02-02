@@ -3,13 +3,14 @@ package Editor.GUI.Sobre;
 import Editor.GUI.EditorCAlg;
 
 public class PortugolInfo {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     
     public PortugolInfo() {
     }
     public static String getInformation(){
         StringBuffer str = new StringBuffer();
         
-            str.append("\n\n\tTITULO              : " + EditorCAlg.TITLE);
+            str.append("\n\n\tTÍTULO              : " + EditorCAlg.TITLE);
             str.append("\n\tDATA DE ACTUALIZAÇÃO  : " + EditorCAlg.DATE );            
             str.append("\n");
             str.append("\n\tUTILIZADOR          : " + System.getProperty("user.name"));

@@ -1,5 +1,6 @@
 package Portugol.Language.Analisador;
 
+import static Portugol.Language.Analisador.Simbolo.SimboloIcon;
 import Portugol.Language.Calcular.Calculador;
 import Portugol.Language.Criar.ExpandDefinirSimbol;
 import Portugol.Language.Criar.Intermediario;
@@ -9,10 +10,13 @@ import Portugol.Language.Utilitario.IteratorCodeParams;
 import Portugol.Language.Utilitario.LanguageException;
 import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
+import javax.swing.Icon;
 
 public class SymbolComposto extends Simbolo {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
+    static public Icon SymbolCompostoIcon;
     
-    Vector<Simbolo> Campos;
+    public Vector<Simbolo> Campos;
     TipoRegisto tipoRegistoBase;
     
     public SymbolComposto(String modify, String type, String name, /*String index,*/ Object valor, int level, String origTxt)
@@ -162,4 +166,8 @@ public class SymbolComposto extends Simbolo {
             return false;
         }
     }
+    
+    public Icon getIcon(){
+        return SymbolCompostoIcon;
+    }    
 }

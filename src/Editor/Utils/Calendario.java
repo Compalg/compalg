@@ -13,9 +13,10 @@ import java.util.Calendar;
 public class Calendario {
 
     String atual = "";
-
+    int dia;
     public Calendario() {
         atual = "";
+        dia = 1;
     }
 
     private String horaAtual(String h) {
@@ -80,11 +81,14 @@ public class Calendario {
 
         }
         atual = " --- " + now.get(Calendar.DATE) + " de " + me + " de " + now.get(Calendar.YEAR) + " | " + horaAtual("" + now.getTime()) + " --- ";
+        dia = now.get(Calendar.DATE);
         return atual;
     }
 
-    public String dia() {
+    public int dia() {
         dataAtual();
-        return (atual.substring(0, (atual.indexOf("d")))).trim();
+        return dia;
     }
+    
+    
 }

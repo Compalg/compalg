@@ -8,8 +8,10 @@ import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 
 public class AlgoSyntaxHighlight extends DefaultStyledDocument {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     public static Color defaultBackGround = Color.WHITE;
+    public boolean esDebug = true;
 
     /**
      * Creates a new instance of AlgoSyntaxHighlight

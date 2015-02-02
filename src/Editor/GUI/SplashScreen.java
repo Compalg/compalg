@@ -15,6 +15,7 @@ import javax.swing.JWindow;
 import javax.swing.border.Border;
 /** Splashscreen do programa */
 public class SplashScreen extends JWindow {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
   /**
 	 * Classe da telinha do inicio do programa
 	 */

@@ -3,6 +3,7 @@ package Portugol.Language.Calcular;
 import java.util.Vector;
 
 public abstract class AbstractCalculus {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     /**
      * Prioridade dos operadores Logicos

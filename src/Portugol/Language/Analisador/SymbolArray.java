@@ -1,17 +1,17 @@
 package Portugol.Language.Analisador;
 
 import static Portugol.Language.Analisador.Simbolo.REGISTO;
-import Portugol.Language.Calcular.Aritmeticos;
 import Portugol.Language.Calcular.Calculador;
-import Portugol.Language.Criar.BloqueSubrutine;
 import Portugol.Language.Utilitario.IteratorArray;
-import Portugol.Language.Utilitario.IteratorCodeParams;
 import Portugol.Language.Utilitario.LanguageException;
 import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
+import javax.swing.Icon;
 
 public class SymbolArray extends Simbolo {
 
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
+    static public Icon SymbolArrayIcon;
     /**
      * Creates a new instance of Array
      */
@@ -59,7 +59,7 @@ public class SymbolArray extends Simbolo {
 
     public void copyFrom(SymbolArray arreglo) throws LanguageException {
         if (!this.TextoOrigen.equals(arreglo.TextoOrigen)) {
-            throw new LanguageException("Os vetores não são equivalentes", "Mude a declaração o el parâmetro de chamada");//David:Revisar
+            throw new LanguageException("Os vectores não são equivalentes", "Mude a declaração, no parâmetro de chamada");//David:Revisar
         }
         dataValues.clear();
         for (int i = 0; i < arreglo.dataValues.size(); i++) {
@@ -100,8 +100,8 @@ public class SymbolArray extends Simbolo {
                 nome += Integer.parseInt((String) value) + "]";
             } else if (value instanceof Simbolo) {
                 if (!((Simbolo) value).isNumber()) {
-                    throw new LanguageException("O SIMBOLO " + varName + " TEM DE SER UM NÚMERO",
-                            " ALTERE O SIMBOLO PARA NÚMERO");
+                    throw new LanguageException("O símbolo " + varName + " tem de ser um número",
+                            " Tente alterar o símbolo para um tipo numérico");
                 }
 
                 nome += ((Integer) ((Simbolo) value).getValue()).toString() + "]";
@@ -115,7 +115,7 @@ public class SymbolArray extends Simbolo {
             //this.currentIndex = -1;
             throw new LanguageException(
                     e.getMessage(),
-                    " ALTERE O SIMBOLO PARA NÚMERO");
+                    " Tente alterar o símbolo para número");
 
         }
 
@@ -124,10 +124,11 @@ public class SymbolArray extends Simbolo {
 
     public void setValue(Object val) throws LanguageException {
         if (this.isConst) {
-            throw new LanguageException("O SIMBOLO " + this.name + " É UMA CONSTANTE, POR ISSO, NÃO PODE RECEBER VALOR",
-                    " ALTERE O SIMBOLO PARA VARIÁVEL, SE FOR O TEU OBJECTIVO");
+            throw new LanguageException("O símbolo " + this.name + " é uma constante, por isso, não pode receber valor",
+                    " Altere o símbolo para variável normal");
         }
         Simbolo v = getNormalizedValue((String) val);
+        v.setName(new Integer(currentIndex).toString());
         dataValues.set(currentIndex, v);
     }
 
@@ -164,7 +165,7 @@ public class SymbolArray extends Simbolo {
         int index = 0;
         for (int i = 0; i < values.size(); i++) {
             Object value = values.get(i);
-            if (type == Simbolo.REGISTO && value instanceof String && typeLexema.equals((String) value)) {
+            if ((type == Simbolo.REGISTO || type == Simbolo.CLASSE) && value instanceof String && typeLexema.equals((String) value)) {
                 break;//David: 
             }
             if (value instanceof SymbolComposto) {
@@ -178,12 +179,11 @@ public class SymbolArray extends Simbolo {
             } else {
                 dataValues.add(getNormalizedValue((String) value));
             }
+            dataValues.get(index).setName(new Integer(index).toString());
             index++;
         }
         Object defValue = Values.getDefault(typeLexema);
-        for (int i = index;
-                i < numElements;
-                i++) {
+        for (int i = index; i < numElements; i++) {
             if (type == REGISTO) {
                 dataValues.add(new SymbolComposto("", typeLexema + " ", " nao_nome", typeLexema + "", level, (typeLexema + " nao_nome <- " + typeLexema)));
             } else if (type == CLASSE) {
@@ -191,6 +191,7 @@ public class SymbolArray extends Simbolo {
             } else {
                 dataValues.add(new Simbolo("", typeLexema + " ", " nao_nome", defValue, level, (typeLexema + " nao_nome")));
             }
+            dataValues.get(i).setName(new Integer(i).toString());
         }
     }
 //////////////////////////////////////////////////////////////////////////////
@@ -231,6 +232,7 @@ public class SymbolArray extends Simbolo {
         // causa excepcoes se houver erro em value e normaliza o valor
         Simbolo v = getNormalizedValue(value);//David: Aqui pode ficar asi direito
         int index = getFlatIndex(var);
+        v.setName(new Integer(index).toString());
         dataValues.set(index, v); //David: Aqui pode ficar asi direito
     }
     //////////////////////////////////////////////////////////////////////////////
@@ -337,5 +339,9 @@ public class SymbolArray extends Simbolo {
         } else {
             return false;
         }
+    }
+
+    public Icon getIcon() {
+        return SymbolArrayIcon;
     }
 }

@@ -1,35 +1,15 @@
 package Portugol.Language.Criar;
 
-import Editor.Utils.FileManager;
-import Portugol.Language.Analisador.Expressao;
-import Portugol.Language.Consola.ConsoleIO;
 import Portugol.Language.Analisador.Keyword;
-import Portugol.Language.Analisador.Simbolo;
-import Portugol.Language.Analisador.SymbolArray;
-import Portugol.Language.Analisador.Variavel;
-import Portugol.Language.Calcular.Ficheiro;
-import Portugol.Language.Utilitario.CodeLine;
-import Portugol.Language.Utilitario.IteratorCodeParams;
 import Portugol.Language.Utilitario.LanguageException;
-import Portugol.Language.Utilitario.Values;
-import java.util.StringTokenizer;
 import java.util.Vector;
-import Portugol.Language.Calcular.Procedimento;
-import Portugol.Language.Calcular.Funcao;
-import Portugol.Language.Criar.ExpandEnquanto;
-import Portugol.Language.Criar.ExpandSe;
-import Portugol.Language.Criar.NodeInstruction;
-import Portugol.Language.Utilitario.IteratorCodeParams;
-import Portugol.Language.Utilitario.LanguageException;
-import Portugol.Language.Utilitario.Values;
-import javax.swing.JOptionPane;
 
 /**
  * @author Augusto Bilabila original de Antonio manso
  */
 public class BloqueClasse extends Bloque{
 
-    public static String VERSION = "Versão:1.0 \t(c) Augusto Bilabila";
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     public Vector<BloqueSubrutine> metodos;
     public BloqueSubrutine Construtor;

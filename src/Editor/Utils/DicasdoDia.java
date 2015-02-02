@@ -122,7 +122,7 @@ package Editor.Utils;
     
     public String dicaDia(){
         calend = new Calendario();
-        String dica=Dicas[Integer.parseInt(calend.dia())-1];
+        String dica=Dicas[calend.dia()-1];
        
         return dica;
     }

@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 
 
 public class Message {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     
     private static final String title =  "CompAlg 1.0" ;
     private static ImageIcon icoBug = new javax.swing.ImageIcon("Bug-32.ico");     

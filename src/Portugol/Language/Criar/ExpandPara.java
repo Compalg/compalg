@@ -9,6 +9,7 @@ import Portugol.Language.Utilitario.LanguageException;
 import java.util.Vector;
 
 public class ExpandPara {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
 //-------------------------------------------------------------------------------------
 //------------                                             ----------------------------

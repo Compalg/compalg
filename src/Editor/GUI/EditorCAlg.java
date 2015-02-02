@@ -14,9 +14,16 @@ import Portugol.Language.Consola.ConsoleIO;
 import Portugol.Language.Criar.Intermediario;
 import Portugol.Language.Criar.NodeInstruction;
 import Portugol.Language.Analisador.Keyword;
+import Portugol.Language.Analisador.Simbolo;
+import Portugol.Language.Analisador.SymbolArray;
+import Portugol.Language.Analisador.SymbolComposto;
+import Portugol.Language.Analisador.SymbolObjeto;
 import Portugol.Language.Criar.BloqueClasse;
 import Portugol.Language.Criar.BloqueSubrutine;
+import Portugol.Language.Criar.InstanciaSubrutine;
+import Portugol.Language.Criar.SubrutinePlayer;
 import Portugol.Language.Utilitario.LanguageException;
+import Portugol.Language.Utilitario.RunListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -33,6 +40,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -51,15 +59,16 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.Element;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicTreeUI;
 
 /**
  * @author Augusto Bilabila(2011-2012)
  */
-public class EditorCAlg extends javax.swing.JFrame implements Runnable {
+public class EditorCAlg extends javax.swing.JFrame implements Runnable, RunListener {
 
     public static String TITLE = "Compilador de Algoritmos";
-    public static String DATE = "11-03-2014";
-    public static String VERSION = "Versão:1.2 \t(c)Augusto Bilabila";
+    public static String DATE = "22-01-2015";
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     //texto modificado
     private boolean textChanged = false;
     private static JFrame frameBusca = null;
@@ -87,8 +96,9 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     //public RedoAction redoAction;
     //---------------------------- EXecucao do programa ---------
     private Thread autoExecute = null;
-    private NodeInstruction instruction;
-    private BloqueSubrutine prog;
+    private NodeInstruction currentDebugInstruction;
+    private BloqueSubrutine bloque;
+    //private SubrutinePlayer Player;
     private Intermediario intermediario;
     //-----------------------------------------------------------
     private UIManager.LookAndFeelInfo[] look;
@@ -133,13 +143,27 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     DicasdoDia dica;
     private String descAlgo = "";
     FormPropriedadeAlgol objeto_propriedade;
+    private int ProgState;
 
     public EditorCAlg() {
         initComponents();
         initMyComponents();
         // ler o ficheiro por defeito
-        this.LerFicheiro(fileManager.getFileName());
+        //this.LerFicheiro(fileManager.getFileName());        
 
+       
+        InstanciaSubrutine.ClassSubrutineIcon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+                getClass().getResource("ClassSubrutineIcon.png")));
+        InstanciaSubrutine.GlobalSubrutineIcon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+                getClass().getResource("GlobalSubrutineIcon.png")));
+        SymbolObjeto.SymbolObjetoIcon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+                getClass().getResource("SymbolObjetoIcon.png")));
+        SymbolComposto.SymbolCompostoIcon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+                getClass().getResource("SymbolCompostoIcon.png")));
+        SymbolArray.SymbolArrayIcon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+                getClass().getResource("SymbolArrayIcon.png")));
+        Simbolo.SimboloIcon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+                getClass().getResource("SimboloIcon.png")));        
     }
 
     public EditorCAlg(String fileName) {
@@ -151,6 +175,13 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     }
 
     private void initMyComponents() {
+        ProgState = -1;
+        new SubrutinePlayer(this); //Cria o player e assina o adapter
+
+        btConverteC.setVisible(false);
+        btConverteJava.setVisible(false);
+        btEmail.setVisible(false);
+
         //maximizar a janela
         this.setExtendedState(MAXIMIZED_BOTH);
         //---------------- consola ------------------------
@@ -195,6 +226,8 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
 
         TextPaneCode.setText(descAlgo);
 
+        ButtonProgramaRunOneStep.setVisible(false);
+        ButtonProgramaParar.setVisible(false);
 
         TextPaneCode.addMouseListener(
                 new MouseAdapter() {
@@ -530,7 +563,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         jPopupMenu1.add(propriedade);
 
         // fim menu
-
         // coloca uma figura na barra de título da janela  
         URL url = this.getClass().getResource("logoCompAlg48.png");
         Image imagemTitulo = Toolkit.getDefaultToolkit().getImage(url);
@@ -602,15 +634,22 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     }
 
     public void SelectErrorLine(int numChar) {
+        txtCode.esDebug = false;
         txtCode.selectErrorLine(numChar);
         TextPaneCode.setCaretPosition(numChar);
     }
 
-    public void SelectCodeLine(int numChar) {
-        txtCode.selectCodeLine(numChar);
+    public void SelectDebugLine(int numChar) {
+        txtCode.esDebug = true;
+        txtCode.selectErrorLine(numChar);
         TextPaneCode.setCaretPosition(numChar);
+        txtCode.esDebug = false;
     }
 
+//    public void SelectCodeLine(int numChar) {
+//        txtCode.selectCodeLine(numChar);
+//        TextPaneCode.setCaretPosition(numChar);
+//    }
     public void DeSelectLine(int numChar) {
         txtCode.deSelectCodeLine(numChar);
     }
@@ -658,12 +697,14 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         jLabel3 = new javax.swing.JLabel();
         ButtonProgramaCorrer = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        ButtonProgramaDebug = new javax.swing.JButton();
+        ButtonProgramaRunOneStep = new javax.swing.JButton();
         ButtonProgramaParar = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         jToolBarConversao = new javax.swing.JToolBar();
-        jButton1 = new javax.swing.JButton();
+        btConverteC = new javax.swing.JButton();
         jLabel16 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        btConverteJava = new javax.swing.JButton();
         jLabel15 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
@@ -673,13 +714,14 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         jLabel17 = new javax.swing.JLabel();
         jButtonSairToobar = new javax.swing.JButton();
         jSplitPane2 = new javax.swing.JSplitPane();
-        scrollCodeEditor = new javax.swing.JScrollPane();
-        TextPaneCode = new javax.swing.JTextPane();
         tpUnderCodeEditor = new javax.swing.JTabbedPane();
         spOutput = new javax.swing.JScrollPane();
         scrollMonitor = new javax.swing.JScrollPane();
         spInfo = new javax.swing.JScrollPane();
         scrollInfo = new javax.swing.JScrollPane();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        scrollCodeEditor = new javax.swing.JScrollPane();
+        TextPaneCode = new javax.swing.JTextPane();
         jMenuBar2 = new javax.swing.JMenuBar();
         MenuFicheiro1 = new javax.swing.JMenu();
         MenuFicheiroNovo1 = new javax.swing.JMenuItem();
@@ -731,7 +773,7 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         jPopupMenu1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 51, 255)));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-        setTitle("CompAlg - Versão 1.2 (03/14)");
+        setTitle("CompAlg - Versão 2.0 (01/2015)");
 
         ToolBarPrincipal.setBackground(new java.awt.Color(255, 255, 255));
         ToolBarPrincipal.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -747,7 +789,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonFicheiroNovo.setBackground(new java.awt.Color(255, 255, 255));
         ButtonFicheiroNovo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/novo (2).png"))); // NOI18N
         ButtonFicheiroNovo.setToolTipText("Novo");
-        ButtonFicheiroNovo.setBorder(null);
         ButtonFicheiroNovo.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonFicheiroNovo.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonFicheiroNovo.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -764,7 +805,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonFicheiroAbrir.setBackground(new java.awt.Color(255, 255, 255));
         ButtonFicheiroAbrir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/abrir.png"))); // NOI18N
         ButtonFicheiroAbrir.setToolTipText("Abrir");
-        ButtonFicheiroAbrir.setBorder(null);
         ButtonFicheiroAbrir.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonFicheiroAbrir.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonFicheiroAbrir.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -781,7 +821,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonFicheiroGuardar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonFicheiroGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/salvar.png"))); // NOI18N
         ButtonFicheiroGuardar.setToolTipText("Guardar");
-        ButtonFicheiroGuardar.setBorder(null);
         ButtonFicheiroGuardar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonFicheiroGuardar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonFicheiroGuardar.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -798,14 +837,13 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ToolBarPrincipal.add(ToolBarFicheiro);
 
         TooBarEditar.setBackground(new java.awt.Color(255, 255, 255));
-        TooBarEditar.setMaximumSize(new java.awt.Dimension(290, 40));
-        TooBarEditar.setMinimumSize(new java.awt.Dimension(290, 40));
-        TooBarEditar.setPreferredSize(new java.awt.Dimension(290, 45));
+        TooBarEditar.setMaximumSize(new java.awt.Dimension(260, 45));
+        TooBarEditar.setMinimumSize(new java.awt.Dimension(260, 45));
+        TooBarEditar.setPreferredSize(new java.awt.Dimension(260, 45));
 
         ButtonEditarReformatar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonEditarReformatar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/corretor.png"))); // NOI18N
         ButtonEditarReformatar.setToolTipText("Correção automática do código");
-        ButtonEditarReformatar.setBorder(null);
         ButtonEditarReformatar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonEditarReformatar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonEditarReformatar.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -822,7 +860,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonEditarRecuar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonEditarRecuar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/left_32.png"))); // NOI18N
         ButtonEditarRecuar.setToolTipText("Anterior");
-        ButtonEditarRecuar.setBorder(null);
         ButtonEditarRecuar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonEditarRecuar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonEditarRecuar.setName(""); // NOI18N
@@ -841,7 +878,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonEditarAvancar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonEditarAvancar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/right_32.png"))); // NOI18N
         ButtonEditarAvancar.setToolTipText("Posterior");
-        ButtonEditarAvancar.setBorder(null);
         ButtonEditarAvancar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonEditarAvancar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonEditarAvancar.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -859,7 +895,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonEditarCopiar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonEditarCopiar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/copiar.png"))); // NOI18N
         ButtonEditarCopiar.setToolTipText("Copiar");
-        ButtonEditarCopiar.setBorder(null);
         ButtonEditarCopiar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonEditarCopiar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonEditarCopiar.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -876,7 +911,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonEditarColar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonEditarColar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/colar.png"))); // NOI18N
         ButtonEditarColar.setToolTipText("Colar");
-        ButtonEditarColar.setBorder(null);
         ButtonEditarColar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonEditarColar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonEditarColar.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -893,7 +927,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonEditarCortar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonEditarCortar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/cut.png"))); // NOI18N
         ButtonEditarCortar.setToolTipText("Cortar");
-        ButtonEditarCortar.setBorder(null);
         ButtonEditarCortar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonEditarCortar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonEditarCortar.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -910,15 +943,14 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ToolBarPrincipal.add(TooBarEditar);
 
         ToolBarPrograma.setBackground(new java.awt.Color(255, 255, 255));
-        ToolBarPrograma.setMaximumSize(new java.awt.Dimension(190, 40));
-        ToolBarPrograma.setMinimumSize(new java.awt.Dimension(190, 40));
-        ToolBarPrograma.setPreferredSize(new java.awt.Dimension(190, 45));
+        ToolBarPrograma.setMaximumSize(new java.awt.Dimension(220, 40));
+        ToolBarPrograma.setMinimumSize(new java.awt.Dimension(220, 40));
+        ToolBarPrograma.setPreferredSize(new java.awt.Dimension(220, 40));
         ToolBarPrograma.add(jLabel6);
 
         ButtonProgramaVerificar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonProgramaVerificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/Compile.png"))); // NOI18N
         ButtonProgramaVerificar.setToolTipText("Compilar o algoritmo");
-        ButtonProgramaVerificar.setBorder(null);
         ButtonProgramaVerificar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonProgramaVerificar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonProgramaVerificar.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -935,7 +967,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         ButtonProgramaCorrer.setBackground(new java.awt.Color(255, 255, 255));
         ButtonProgramaCorrer.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/start.png"))); // NOI18N
         ButtonProgramaCorrer.setToolTipText("Compila e Executar o algoritmo");
-        ButtonProgramaCorrer.setBorder(null);
         ButtonProgramaCorrer.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonProgramaCorrer.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonProgramaCorrer.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -949,10 +980,34 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         jLabel4.setText("  ");
         ToolBarPrograma.add(jLabel4);
 
+        ButtonProgramaDebug.setBackground(new java.awt.Color(255, 255, 255));
+        ButtonProgramaDebug.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/Debug.png"))); // NOI18N
+        ButtonProgramaDebug.setToolTipText("Executar passo a passo");
+        ButtonProgramaDebug.setFocusable(false);
+        ButtonProgramaDebug.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        ButtonProgramaDebug.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        ButtonProgramaDebug.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonProgramaDebugActionPerformed(evt);
+            }
+        });
+        ToolBarPrograma.add(ButtonProgramaDebug);
+
+        ButtonProgramaRunOneStep.setBackground(new java.awt.Color(250, 250, 250));
+        ButtonProgramaRunOneStep.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/RunOneStep.png"))); // NOI18N
+        ButtonProgramaRunOneStep.setFocusable(false);
+        ButtonProgramaRunOneStep.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        ButtonProgramaRunOneStep.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        ButtonProgramaRunOneStep.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonProgramaRunOneStepActionPerformed(evt);
+            }
+        });
+        ToolBarPrograma.add(ButtonProgramaRunOneStep);
+
         ButtonProgramaParar.setBackground(new java.awt.Color(255, 255, 255));
         ButtonProgramaParar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/stop.jpg"))); // NOI18N
         ButtonProgramaParar.setToolTipText("Parar o algoritmo");
-        ButtonProgramaParar.setBorder(null);
         ButtonProgramaParar.setMaximumSize(new java.awt.Dimension(33, 36));
         ButtonProgramaParar.setMinimumSize(new java.awt.Dimension(33, 36));
         ButtonProgramaParar.setPreferredSize(new java.awt.Dimension(33, 36));
@@ -975,43 +1030,41 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         jToolBarConversao.setName(""); // NOI18N
         jToolBarConversao.setPreferredSize(new java.awt.Dimension(370, 45));
 
-        jButton1.setBackground(new java.awt.Color(255, 255, 255));
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/C.png"))); // NOI18N
-        jButton1.setToolTipText("Converter na Linguagem C");
-        jButton1.setBorder(null);
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setMaximumSize(new java.awt.Dimension(33, 36));
-        jButton1.setMinimumSize(new java.awt.Dimension(33, 36));
-        jButton1.setPreferredSize(new java.awt.Dimension(33, 36));
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btConverteC.setBackground(new java.awt.Color(255, 255, 255));
+        btConverteC.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/C.png"))); // NOI18N
+        btConverteC.setToolTipText("Converter na Linguagem C");
+        btConverteC.setFocusable(false);
+        btConverteC.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btConverteC.setMaximumSize(new java.awt.Dimension(33, 36));
+        btConverteC.setMinimumSize(new java.awt.Dimension(33, 36));
+        btConverteC.setPreferredSize(new java.awt.Dimension(33, 36));
+        btConverteC.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btConverteC.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btConverteCActionPerformed(evt);
             }
         });
-        jToolBarConversao.add(jButton1);
-        jButton1.getAccessibleContext().setAccessibleParent(jToolBarConversao);
+        jToolBarConversao.add(btConverteC);
+        btConverteC.getAccessibleContext().setAccessibleParent(jToolBarConversao);
 
         jLabel16.setText(" ");
         jToolBarConversao.add(jLabel16);
 
-        jButton2.setBackground(new java.awt.Color(255, 255, 255));
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/Java-icon.png"))); // NOI18N
-        jButton2.setToolTipText("Converter na Linguagem JAVA");
-        jButton2.setBorder(null);
-        jButton2.setFocusable(false);
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setMaximumSize(new java.awt.Dimension(33, 36));
-        jButton2.setMinimumSize(new java.awt.Dimension(33, 36));
-        jButton2.setPreferredSize(new java.awt.Dimension(33, 36));
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btConverteJava.setBackground(new java.awt.Color(255, 255, 255));
+        btConverteJava.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/Java-icon.png"))); // NOI18N
+        btConverteJava.setToolTipText("Converter na Linguagem JAVA");
+        btConverteJava.setFocusable(false);
+        btConverteJava.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btConverteJava.setMaximumSize(new java.awt.Dimension(33, 36));
+        btConverteJava.setMinimumSize(new java.awt.Dimension(33, 36));
+        btConverteJava.setPreferredSize(new java.awt.Dimension(33, 36));
+        btConverteJava.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btConverteJava.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btConverteJavaActionPerformed(evt);
             }
         });
-        jToolBarConversao.add(jButton2);
+        jToolBarConversao.add(btConverteJava);
 
         jLabel15.setText("     ");
         jToolBarConversao.add(jLabel15);
@@ -1098,27 +1151,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         jSplitPane2.setMinimumSize(new java.awt.Dimension(402, 280));
         jSplitPane2.setPreferredSize(new java.awt.Dimension(409, 202));
 
-        scrollCodeEditor.setMinimumSize(new java.awt.Dimension(400, 300));
-        scrollCodeEditor.setPreferredSize(new java.awt.Dimension(400, 900));
-
-        TextPaneCode.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 180, 209), 2));
-        TextPaneCode.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
-        TextPaneCode.setToolTipText("Área de densenvolvimento de Algoritmo");
-        TextPaneCode.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        TextPaneCode.setMinimumSize(new java.awt.Dimension(4, 280));
-        TextPaneCode.setPreferredSize(new java.awt.Dimension(4, 280));
-        TextPaneCode.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                TextPaneCodeKeyPressed(evt);
-            }
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                TextPaneCodeKeyTyped(evt);
-            }
-        });
-        scrollCodeEditor.setViewportView(TextPaneCode);
-
-        jSplitPane2.setTopComponent(scrollCodeEditor);
-
         tpUnderCodeEditor.setBackground(new java.awt.Color(102, 102, 102));
         tpUnderCodeEditor.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(185, 209, 234)));
         tpUnderCodeEditor.setForeground(new java.awt.Color(255, 255, 255));
@@ -1155,6 +1187,32 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         tpUnderCodeEditor.addTab("Informação", new javax.swing.ImageIcon(getClass().getResource("/Icons/toolbar/info.png")), spInfo, "Esta \"tab\" apresenta informação da execução do compilador."); // NOI18N
 
         jSplitPane2.setBottomComponent(tpUnderCodeEditor);
+
+        jSplitPane1.setAutoscrolls(true);
+        jSplitPane1.setLastDividerLocation(-1);
+
+        scrollCodeEditor.setMinimumSize(new java.awt.Dimension(400, 300));
+        scrollCodeEditor.setPreferredSize(new java.awt.Dimension(400, 900));
+
+        TextPaneCode.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 180, 209), 2));
+        TextPaneCode.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
+        TextPaneCode.setToolTipText("Área de densenvolvimento de Algoritmo");
+        TextPaneCode.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        TextPaneCode.setMinimumSize(new java.awt.Dimension(4, 280));
+        TextPaneCode.setPreferredSize(new java.awt.Dimension(4, 280));
+        TextPaneCode.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                TextPaneCodeKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                TextPaneCodeKeyTyped(evt);
+            }
+        });
+        scrollCodeEditor.setViewportView(TextPaneCode);
+
+        jSplitPane1.setLeftComponent(scrollCodeEditor);
+
+        jSplitPane2.setLeftComponent(jSplitPane1);
 
         getContentPane().add(jSplitPane2, java.awt.BorderLayout.CENTER);
 
@@ -1600,10 +1658,16 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_MenuAjudaAcercaActionPerformed
 
     private void MenuProgramaPararActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuProgramaPararActionPerformed
-
+        ButtonProgramaParar.setVisible(false);
+        ButtonProgramaRunOneStep.setVisible(false);
+        ButtonProgramaDebug.setVisible(true);
+        ButtonProgramaDebug.setEnabled(true);
+        ButtonProgramaVerificar.setEnabled(true);
+        jSplitPane1.getBottomComponent().setVisible(false);
+        ProgState = -1;
         autoExecute = null;
-        if (instruction != null) {
-            DeSelectLine(instruction.GetCharNum());
+        if (currentDebugInstruction != null) {
+            DeSelectLine(currentDebugInstruction.GetCharNum());
         }
         this.tpUnderCodeEditor.setSelectedIndex(1);
         info.write("\n" + System.getProperty("user.name") + ", VOCÊ PAROU O ALGORITMO...");
@@ -1615,11 +1679,41 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_ButtonProgramaPararActionPerformed
 
     private void ButtonProgramaCorrerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonProgramaCorrerActionPerformed
+        if (ProgState == SubrutinePlayer.ProgStateDEBUG) {
+            ButtonProgramaParar.setVisible(false);
+            ButtonProgramaRunOneStep.setVisible(false);
+            ButtonProgramaDebug.setVisible(true);
+            ButtonProgramaDebug.setEnabled(true);
+            ButtonProgramaVerificar.setEnabled(true);
+            if (currentDebugInstruction != null) {
+                DeSelectLine(currentDebugInstruction.GetCharNum());
+            }
+
+            SubrutinePlayer.Player.RunState = SubrutinePlayer.ProgStateRUN;
+            SubrutinePlayer.Player.ResumePlay();
+            return;
+        } else if (ProgState == SubrutinePlayer.ProgStateRUN) {
+            return;
+        }
+        ProgState = SubrutinePlayer.ProgStateRUN;
         MenuAlgoritmoCorrerActionPerformed(evt);
     }//GEN-LAST:event_ButtonProgramaCorrerActionPerformed
 
     private void MenuAlgoritmoCorrerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuAlgoritmoCorrerActionPerformed
-
+        if (ProgState == SubrutinePlayer.ProgStateDEBUG) {
+            ButtonProgramaRunOneStep.setVisible(true);
+            ButtonProgramaDebug.setEnabled(false);
+        } else if (ProgState == SubrutinePlayer.ProgStateRUN) {
+            ButtonProgramaRunOneStep.setVisible(false);
+            ButtonProgramaDebug.setVisible(false);
+        } else {
+            ButtonProgramaParar.setVisible(false);
+            ButtonProgramaRunOneStep.setVisible(false);
+            ButtonProgramaDebug.setVisible(true);
+            return;
+        }
+        ButtonProgramaParar.setVisible(true);
+        ButtonProgramaVerificar.setEnabled(false);
         MenuEditarReformatarActionPerformed(null);
 
         NodeInstruction instruction = null;
@@ -1632,12 +1726,17 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         //verificar o programa e construir o fluxograma
         MenuAlgoritmoVerificarActionPerformed(null);
 
-        if (prog == null) {
+        if (bloque == null) {
             return;
         }
-        instruction = prog.getStartNode();
+        instruction = bloque.getStartNode();
         //------------------- fazer uma thread -------------------------
         if (instruction == null) {
+            ButtonProgramaParar.setVisible(false);
+            ButtonProgramaRunOneStep.setVisible(false);
+            ButtonProgramaDebug.setVisible(true);
+            ButtonProgramaDebug.setEnabled(true);
+            ButtonProgramaVerificar.setEnabled(true);
             return;
         }
 
@@ -1846,7 +1945,7 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         buscaPalavra();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btConverteCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btConverteCActionPerformed
         veriricarAlgoritmo();
 
         progC.construirC(); // constroi o programa C
@@ -1860,7 +1959,7 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         });
         dialog.setVisible(true);
 
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btConverteCActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
@@ -1881,7 +1980,7 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         TextPaneCode.selectAll();
     }//GEN-LAST:event_MenuSelecionarTudoActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void btConverteJavaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btConverteJavaActionPerformed
         // TODO add your handling code here:
         veriricarAlgoritmo();
 
@@ -1897,7 +1996,7 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         dialog.setVisible(true);
 
         //JOptionPane.showMessageDialog(null, progJava.getProgramaJava());
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_btConverteJavaActionPerformed
 
     private void btEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btEmailActionPerformed
         codigo = TextPaneCode.getText();
@@ -1931,6 +2030,16 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
         jMenuItem3ActionPerformed(null); // executa o form de ajuda
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void ButtonProgramaDebugActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonProgramaDebugActionPerformed
+        // TODO add your handling code here:
+        ProgState = SubrutinePlayer.ProgStateDEBUG;
+        MenuAlgoritmoCorrerActionPerformed(evt);
+    }//GEN-LAST:event_ButtonProgramaDebugActionPerformed
+
+    private void ButtonProgramaRunOneStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonProgramaRunOneStepActionPerformed
+        SubrutinePlayer.Player.ResumePlay();
+    }//GEN-LAST:event_ButtonProgramaRunOneStepActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1952,7 +2061,9 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     private javax.swing.JButton ButtonFicheiroGuardar;
     private javax.swing.JButton ButtonFicheiroNovo;
     private javax.swing.JButton ButtonProgramaCorrer;
+    private javax.swing.JButton ButtonProgramaDebug;
     private javax.swing.JButton ButtonProgramaParar;
+    private javax.swing.JButton ButtonProgramaRunOneStep;
     private javax.swing.JButton ButtonProgramaVerificar;
     private javax.swing.JMenu MenuAjuda;
     private javax.swing.JMenuItem MenuAjudaAcerca;
@@ -1985,10 +2096,10 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     private javax.swing.JToolBar ToolBarFicheiro;
     private javax.swing.JToolBar ToolBarPrincipal;
     private javax.swing.JToolBar ToolBarPrograma;
+    private javax.swing.JButton btConverteC;
+    private javax.swing.JButton btConverteJava;
     private javax.swing.JButton btDica;
     private javax.swing.JButton btEmail;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButtonSairToobar;
     private javax.swing.JLabel jLabel1;
@@ -2022,6 +2133,7 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JToolBar jToolBarConversao;
     private javax.swing.JMenuItem menuExemploAlgoritmo;
@@ -2143,11 +2255,10 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
             info.write("\n\nA compilar o algoritmo...");
 
             Intermediario.console = null; //David: Isto é preciso, não tirar
-            BloqueSubrutine.InstanciaActual = null;
-            BloqueClasse.ClaseActualParaExpandir = null;            
-            
+            BloqueClasse.ClaseActualParaExpandir = null;
+
             intermediario = new Intermediario(TextPaneCode.getText());
-            prog = intermediario.getInicio();
+            bloque = intermediario.getInicio();
             info.write("\nO algoritmo não tem erros da compilação...\n");
             progJava = new construirProgramaJava(TextPaneCode.getText());
             progC = new construirProgramaC(TextPaneCode.getText());
@@ -2159,12 +2270,14 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
                     + "  INSTRUÇÃO:\n\t" + e.codeLine + "\n"
                     + "  ERRO:\n\t" + e.error + "\n"
                     + "  SOLUÇÃO:\n\t" + e.solution + "\n");
-            prog = null;
+            bloque = null;
+            ProgState = -1;
         }
     }
 
 ///////////////////////////////////////////////////////////////////////////////
     public void run() {
+
         try {
             //this.MenuFicheiroGuardarActionPerformed(null);
             console.Clear();
@@ -2173,30 +2286,55 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
 
             Intermediario.console = console; //David: Isto é preciso, não tirar
             //prog = intermediario.getInicio();
-            instruction = prog.getStartNode();
+            currentDebugInstruction = null;
 
             //David: Ejecutar el llamado a la instruccion falsa temporal
             info.write("\nO Algoritmo está sendo executado. . . ");
-            prog.ExecuteSubrutine(new Vector<String>(), null);
-
+            SubrutinePlayer.Player.RunState = ProgState;
+            SubrutinePlayer.Player.LimparPilhaExecucao();
+            SubrutinePlayer.Player.ExecuteSubrutine(bloque, new Vector<String>(), null);
             Intermediario.console = null; //David: Isto é preciso, não tirar
-            BloqueSubrutine.InstanciaActual = null;
-            BloqueClasse.ClaseActualParaExpandir = null;            
+            BloqueClasse.ClaseActualParaExpandir = null;
 
             calend = new Calendario();
             info.write("\nO programa terminou com sucesso... ");
             info.write("\n" + calend.dataAtual());
         } catch (LanguageException e) {
-            SelectErrorLine(e.line == 0 ? instruction.GetCharNum() : e.line);
+            SelectErrorLine(e.line);
             Message.ExecutionError("ERRO DE EXECUÇÃO", e);
             info.write("\n\n---------------------\nERRO DE EXECUÇÃO: \n"
                     //+ "  LINHA:\n\t" + (e.line == 0 ? instruction.GetCharNum() : e.line) + "\n" //DAVID: o valor da linha não é real
                     + "  INSTRUÇÃO:\n\t" + e.codeLine + "\n"
                     + "  ERRO:\n\t" + e.error + "\n"
                     + "  SOLUÇÃO:\n\t" + e.solution + "\n");
-            prog = null;
+            bloque = null;
+        } catch (InterruptedException e) {
+            bloque = null;
         }
         autoExecute = null;
+        ButtonProgramaParar.setVisible(false);
+        ButtonProgramaRunOneStep.setVisible(false);
+        ButtonProgramaDebug.setVisible(true);
+        ButtonProgramaDebug.setEnabled(true);
+        ButtonProgramaVerificar.setEnabled(true);
+        jSplitPane1.getBottomComponent().setVisible(false);
+        ProgState = -1;
+    }
+
+    public void RunPerformed(InstanciaSubrutine prog) {
+        JTreeTable treeTable = new JTreeTable(new SymbolsModel(prog));
+        jSplitPane1.setBottomComponent(treeTable);
+        jSplitPane1.setDividerLocation(800);
+        if (prog != null && prog.NodeActual != null && prog.NodeActual.EsReferencia == false) {
+            SelectDebugLine(prog.NodeActual.GetCharNum());
+            currentDebugInstruction = prog.NodeActual;
+        }
+        if (prog != null && prog.NodePrevio != null && prog.NodePrevio.EsReferencia == false) {
+            DeSelectLine(prog.NodePrevio.GetCharNum());
+        }
+    }
+
+    public void ExecutarDebug() {
     }
 
     public void confirmarSaidaNoAlgoritmo() {
@@ -2216,7 +2354,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
                 this.dispose();
                 System.exit(0);
             }
-
 
             if (action == JOptionPane.NO_OPTION) {
                 //guardar as propriedades
@@ -2254,7 +2391,8 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
     //------------------------Mudar a component ------------------------------
 
     public void setScrolEditorTexto(JScrollPane scroll) {
-        jSplitPane2.setTopComponent(scroll);
+        jSplitPane1.setTopComponent(scroll);
+        jSplitPane1.getRightComponent().setVisible(false);
     }
 
     //------------------------Mudar a component ------------------------------
@@ -2385,7 +2523,6 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
             verificaDesdeInicio = true;
             Lexcontainer = frameBusca.getContentPane();
 
-
             JPanel painel_head = new JPanel();
             painel_head.setLayout(new FlowLayout());
             painel_head.setBackground(Color.DARK_GRAY);
@@ -2394,12 +2531,10 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
             painel_head.add(lb);
             painel_head.add(texto_busca); //153,180,209
 
-
             JPanel painel_body = new JPanel();
             painel_body.setLayout(new BorderLayout());
             painel_body.add(desdeAgora, BorderLayout.NORTH);
             painel_body.add(desdeInicio, BorderLayout.SOUTH);
-
 
             JPanel painel_butao = new JPanel();
             painel_butao.setLayout(new BorderLayout());
@@ -2550,10 +2685,14 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
 
         //David:inicio
         descAlgo = ""
-                //+  "/*ALGORITMO: \"Nome do algoritmo\""
-                //+ "\n--AUTOR: "+System.getProperty("user.name")+""
-                //+ "\n--DATA E HORA:"+calend.dataAtual()
-                //+ " */ \n"
+                //+ não utilizar, da erro com o depurador. David ->//"/*ALGORITMO: \"Nome do algoritmo\""
+                //+ não utilizar, da erro com o depurador. David -->//"\n--AUTOR: "+System.getProperty("user.name")+""
+                //+ não utilizar, da erro com o depurador. David --->//"\n--DATA E HORA:"+calend.dataAtual()
+                //+ não utilizar, da erro com o depurador. David ---->//" */ \n"
+                //+ "classe pessoa\n"
+                //+ "   literal nome\n"
+                //+ "   inteiro idade\n"
+                //+ "fimclasse\n"
                 //+ "procedimento idade(inteiro a[3])  \n"
                 //+ "  mostre \"idade \\n\"\n"
                 //+ "   inteiro a\n"
@@ -2561,19 +2700,10 @@ public class EditorCAlg extends javax.swing.JFrame implements Runnable {
                 //+ "   a[0] <- 10 \n"
                 //+ "  escreva a[0]+a[1]+a[2]\n"
                 //+ "fimprocedimento\n"
-                + "classe pessoa\n"
-                + "   literal nome\n"
-                + "   inteiro idade\n"
-                + "fimclasse\n"
-                + "\n"
+                //+ "\n"
                 + "inicio\n"
-                + "  escreva \"Codigo principal \\n\"\n"
-                + "   pessoa b\n"
-                + "   b.nome <- \"David\"\n"
-                + "   b.idade <- 34\n"
-                + "  escreva b.idade\n"
+                + "  //Instruções\n"
                 + "fimalgoritmo \n";
-
     }
 //----------------------AVANCAR E RETROCEDER ---------------------------------
     Botoes_nav obj_RA;

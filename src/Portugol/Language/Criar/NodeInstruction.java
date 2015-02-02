@@ -5,6 +5,7 @@ import Portugol.Language.Utilitario.CodeLine;
 //import VisualFluxogram.Patterns.Forma; // Uso para o fluxograma
 
 public class NodeInstruction {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     //posicao no editor texto
     /**
      */

@@ -7,6 +7,7 @@ import Portugol.Language.Utilitario.LanguageException;
 import java.util.Vector;
 
 public class ExpandEnquanto {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     /**
      * Creates a new instance of ExpandEnquanto

@@ -7,6 +7,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class ExpandEscolhe {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 

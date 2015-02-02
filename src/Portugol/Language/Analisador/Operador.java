@@ -5,6 +5,7 @@ import Portugol.Language.Utilitario.Values;
 import javax.swing.JOptionPane;
 
 public class Operador extends ParteDeExpresion {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     public final static int DESCONHECIDO = -1;
     public final static int ARITMETICO = 0;
@@ -24,7 +25,7 @@ public class Operador extends ParteDeExpresion {
         }
 
         if (!(origen instanceof Operador)) {
-            throw new LanguageException("Tipo de objeto não é correto", "Mude o tipo de parâmetro na chamada");//David:Revisar
+            throw new LanguageException("O tipo do objecto, não está correto", "Mude o tipo de parâmetro na chamada");//David:Revisar
         }
 
         TextoOrigen = origen.TextoOrigen;

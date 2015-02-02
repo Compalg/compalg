@@ -10,6 +10,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 
 public class ExpandSe {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 //------------                                             ----------------------------

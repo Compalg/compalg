@@ -2,11 +2,10 @@ package Editor.GUI.CodeDocument;
 
 import Portugol.Language.Criar.NodeInstruction;
 import Portugol.Language.Analisador.Keyword;
-import Portugol.Language.Utilitario.CodeLine;
 import java.util.StringTokenizer;
-import javax.swing.JOptionPane;
 
 public class BeautifyCode {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     protected static boolean isComented = false;
     public static String TAB_SPACES = "    ";

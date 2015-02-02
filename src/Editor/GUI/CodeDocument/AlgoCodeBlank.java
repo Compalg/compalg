@@ -8,6 +8,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 public class AlgoCodeBlank extends AlgoSyntaxHighlight {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     
      private SimpleAttributeSet normal;   // normal
      private Color backGround = defaultBackGround;

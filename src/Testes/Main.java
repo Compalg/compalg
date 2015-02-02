@@ -54,12 +54,12 @@ public class Main {
 
         frmain.setVisible(true);
         //David: rehabilitar  Dica        
-//        dica = new DicasdoDia();
-//        for (long i = 0; i < 555555555; i++) {
-//            for (long j = 0; j < 5; j++) {
-//            }
-//        }
-        //JOptionPane.showMessageDialog(null, dica.dicaDia(), "Dica do dia...", 1);
+        dica = new DicasdoDia();
+        for (long i = 0; i < 555555555; i++) {
+            for (long j = 0; j < 5; j++) {
+            }
+        }
+        JOptionPane.showMessageDialog(null, dica.dicaDia(), "Dica do dia...", 1);
         
         //David: Para testar todas as expressoes
 //        try {

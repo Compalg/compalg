@@ -1,5 +1,6 @@
 package Portugol.Language.Analisador;
 
+import static Portugol.Language.Analisador.Simbolo.SimboloIcon;
 import Portugol.Language.Calcular.Calculador;
 import Portugol.Language.Criar.BloqueSubrutine;
 import Portugol.Language.Criar.ExpandDefinirSimbol;
@@ -10,12 +11,15 @@ import Portugol.Language.Utilitario.IteratorCodeParams;
 import Portugol.Language.Utilitario.LanguageException;
 import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
+import javax.swing.Icon;
 
 public class SymbolObjeto extends Simbolo {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
-    Vector<Simbolo> Campos;
+    public Vector<Simbolo> Campos;
     public TipoClasse tipoClasseBase;
     public boolean Inicializado;
+    static public Icon SymbolObjetoIcon;
 
     public SymbolObjeto(String modify, String type, String name, /*String index,*/ Object valor, int level, String origTxt)
             throws LanguageException {
@@ -85,6 +89,8 @@ public class SymbolObjeto extends Simbolo {
                 Campos.add(new SymbolArray((SymbolArray) objecto.Campos.get(i)));
             } else if (objecto.Campos.get(i) instanceof SymbolObjeto) {
                 Campos.add(new SymbolObjeto((SymbolObjeto) objecto.Campos.get(i)));
+            } else if (objecto.Campos.get(i) instanceof SymbolComposto) {
+                Campos.add(new SymbolComposto((SymbolComposto) objecto.Campos.get(i)));
             } else {
                 Campos.add(new Simbolo(objecto.Campos.get(i)));
             }
@@ -168,4 +174,9 @@ public class SymbolObjeto extends Simbolo {
             return false;
         }
     }
+    
+    public Icon getIcon(){
+        return SymbolObjetoIcon;
+    }
+    
 }

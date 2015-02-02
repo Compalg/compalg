@@ -2,6 +2,7 @@
 package Portugol.Language.Utilitario;
 
 public class LanguageException extends Exception {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     
     /**
      * numero da linha

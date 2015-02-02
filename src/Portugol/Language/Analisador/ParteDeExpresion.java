@@ -5,6 +5,7 @@ import Portugol.Language.Utilitario.Values;
 import javax.swing.JOptionPane;
 
 public class ParteDeExpresion {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     String TextoOrigen;    
 
     public ParteDeExpresion(String origTxt)

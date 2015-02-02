@@ -17,11 +17,12 @@ import java.util.Stack;
 import java.util.Vector;
 
 public class ExpandFluxogram {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     public static void ExpandSubrutine(BloqueSubrutine rutina) throws LanguageException {
 
         NodeInstruction pt = rutina.getStartNode();
-        Vector memory = rutina.memory;
+        Vector memory = new Vector();//rutina.memory;
         Stack stack = new Stack();
 
         while (pt != null) {
@@ -69,9 +70,9 @@ public class ExpandFluxogram {
                             " ESCREVA A INSTRUÇÃO FIM" + n.GetTextKey() + " E NÃO \"" + pt.GetText() + "\"");
                 }
 
-                rutina.cleanMemory(stack.size(), memory);
+                cleanMemory(stack.size(), memory);
             } else if (pt.GetType() == Keyword.CASO || pt.GetType() == Keyword.DEFEITO) {
-                rutina.cleanMemory(stack.size(), memory);
+                cleanMemory(stack.size(), memory);
             } // --------------------- Fazer os IFS ----------------------------
             else if (pt.GetType() == Keyword.FIMSE) {
                 if (stack.isEmpty()) {
@@ -90,7 +91,7 @@ public class ExpandFluxogram {
                             " ESCREVA A INSTRUÇÃO FIM" + n.GetTextKey() + " E NÃO \"" + pt.GetText() + "\"");
                 }
 
-                rutina.cleanMemory(stack.size() + 1, memory);
+                cleanMemory(stack.size() + 1, memory);
                 ExpandSe.ExpandIF(n, stack.size(), memory);
             } // --------------------- Fazer os WHILE ----------------------------
             else if (pt.GetType() == Keyword.FIMENQUANTO) {
@@ -130,7 +131,7 @@ public class ExpandFluxogram {
                 }
 
                 ExpandFazEnquanto.ExpandDoWhile(n, pt, stack.size(), memory);
-                rutina.cleanMemory(stack.size() + 1, memory);
+                cleanMemory(stack.size() + 1, memory);
             } //------------------------- fazer os REPETE -------------------------
             else if (pt.GetType() == Keyword.ATE) {
                 if (stack.isEmpty()) {
@@ -149,7 +150,7 @@ public class ExpandFluxogram {
                 }
 
                 ExpandRepeteAte.ExpandRepeat(n, pt, stack.size(), memory);
-                rutina.cleanMemory(stack.size() + 1, memory);
+                cleanMemory(stack.size() + 1, memory);
             } //--------------------------  Fazer os FOR -----------------------
             else if (pt.GetType() == Keyword.FIMPARA) {
                 if (stack.isEmpty()) {
@@ -169,7 +170,7 @@ public class ExpandFluxogram {
                 }
 
                 ExpandPara.ExpandFOR(n, stack.size(), memory);
-                rutina.cleanMemory(stack.size() + 1, memory);
+                cleanMemory(stack.size() + 1, memory);
             } // --------------------- Criar os CASOS ------------------------
             else if (pt.GetType() == Keyword.FIMESCOLHE) {
                 if (stack.isEmpty()) {
@@ -189,7 +190,7 @@ public class ExpandFluxogram {
                 }
                 //FAZER O ESCOLHA                
                 pt = ExpandEscolhe.ExpandSWITCH(n, stack.size(), memory);
-                rutina.cleanMemory(stack.size() + 1, memory);
+                cleanMemory(stack.size() + 1, memory);
             } else if (pt.GetType() == Keyword.PROCEDIMENTO || pt.GetType() == Keyword.FUNCAO || pt.GetType() == Keyword.CONSTRUTOR) {
                 ExpandProcedimento.ExpandSUBRUTINA(rutina, pt, stack.size(), memory);
             } else if (pt.GetType() == Keyword.CHAMADOPROCEDIMENTO) {
@@ -247,7 +248,7 @@ public class ExpandFluxogram {
                     TipoRegisto tmp = (TipoRegisto) Intermediario.tiposRegistos.get(i);
                     if (tmp.Name.equals(name)) {
                         throw new LanguageException(
-                                "Já existe un registo com esse nome",
+                                "Já existe um registo com esse nome",
                                 "Mude o nome do registo"); //David: Revisar ortografia                        
                     }
                 }
@@ -256,7 +257,7 @@ public class ExpandFluxogram {
             } else {
                 throw new LanguageException(
                         "Uma declaração de tipo de dado registo só pode ter declaraçoes de variaveis",
-                        "Tire esta instrucção"); //David: Revisar ortografia
+                        "Retire esta instrucção"); //David: Revisar ortografia
             }
 
             pt = pt.GetNext();
@@ -485,4 +486,16 @@ public class ExpandFluxogram {
         }
         return elem + " ";
     }
+    protected static void cleanMemory(int level, Vector memory) {//sbr
+        for (int index = memory.size() - 1; index >= 0; index--) {
+            Simbolo v = (Simbolo) memory.get(index);
+            //elimina as variaveis superiores ou iguais ao nivel
+            if (v.getLevel() >= level) {
+                memory.remove(index);
+            } else {
+                break;
+            }
+        }
+    }
+    
 }

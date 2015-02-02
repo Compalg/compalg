@@ -2,9 +2,12 @@ package Portugol.Language.Analisador;
 
 import Portugol.Language.Utilitario.LanguageException;
 import Portugol.Language.Utilitario.Values;
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
 
 public class Simbolo extends ParteDeExpresion {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
+    static public Icon SimboloIcon;
 
     /**
      * tipo Vazio
@@ -205,8 +208,8 @@ public class Simbolo extends ParteDeExpresion {
     //------------------------------------------------------------------------
     public void setValue(Object val) throws LanguageException {
         if (this.isConst) {
-            throw new LanguageException("ESTE SÍMBOLO " + this.name + " É UMA CONSTANTE, NÃO PODE RECEBER VALORES",
-                    " ALTERE O SIMBOLO PARA VARIAVEL");
+            throw new LanguageException("Este símbolo " + this.name + " é uma constante, não pode receber valores",
+                    " Tente alterar o símbolo");
         }
         if (val instanceof String && type != TEXTO && type != CARACTER && type != LOGICO) {
             value = getNormalizedValue((String) val).getValue(); //David: aqui debe ficar mesmo asi
@@ -229,39 +232,32 @@ public class Simbolo extends ParteDeExpresion {
         }
     }
 
-//    public void setValue(String val) throws LanguageException {
-//        if (this.isConst) {
-//            throw new LanguageException("ESTE SÍMBOLO " + this.name + " É UMA CONSTANTE, NÃO PODE RECEBER VALORES",
-//                    " ALTERE O SIMBOLO PARA VARIAVEL");
-//        }
-//        value = getNormalizedValue(val).getValue(); //David: aqui debe ficar mesmo asi
-//    }
     protected Simbolo getNormalizedValue(String val) throws LanguageException {
         val = val.trim();
 
         if (type == TEXTO) {
             if (val.length() < 2 || !Values.IsString(val)) {
                 throw new LanguageException(
-                        0, "", name + " É UMA VARIÁVEL DO TIPO STRING", "\"" + val + "\" NÃO É UM TEXTO");
+                        0, "", name + " é uma variável do tipo LITERAL/STRING", "\"" + val + "\" não é um texto");
             }
             return new Simbolo("", typeLexema, "", new String(val), 0, (typeLexema + " nao_nome"));
         } else if (type == CARACTER) {
 
             if (!Values.IsString(val) || val.length() != 3) {
                 throw new LanguageException(
-                        0, "", name + " É UMA VARIÁVEL DO TIPO CARACTER", "\"" + val + "\" NÃO É UM CARACTER");
+                        0, "", name + " é uma variável do tipo CARACTER", "\"" + val + "\" não é um caracter");
             }
             return new Simbolo("", typeLexema, "", new String(val), 0, (typeLexema + " nao_nome"));
         } else if (type == LOGICO) {
             if (!Values.IsBoolean(val)) {
                 throw new LanguageException(
-                        0, "", name + " É UMA VARIÁVEL DO TIPO LOGICO", "\"" + val + "\"  NÃO É UM VALOR LÓGICO VÁLIDO");
+                        0, "", name + " é uma variável do tipo LOGICO", "\"" + val + "\"  não é um valor lógico válido");
             }
             return new Simbolo("", typeLexema, "", new String(val.toUpperCase()), 0, (typeLexema + " nao_nome"));
         } else if (type == REAL) {
             if (!Values.IsNumber(val)) {
                 throw new LanguageException(
-                        0, "", name + " É UMA VARIÁVEL DO TIPO REAL", "\"" + val + "\"  NÃO É UM NÚMERO REAL VÁLIDO");
+                        0, "", name + " é uma variável do tipo REAL", "\"" + val + "\"  não é um valor real válido");
             }
 
             double d = Values.StringToDouble(val);
@@ -269,21 +265,21 @@ public class Simbolo extends ParteDeExpresion {
         } else if (type == INTEIRO) {
             if (!Values.IsValue(val)) {
                 throw new LanguageException(
-                        0, "", name + " É UMA VARIÁVEL DO TIPO INTEIRO", "\"" + val + "\" NÃO É UM NÚMERO INTEIRO VÁLIDO");
+                        0, "", name + " é uma variável do tipo INTEIRO", "\"" + val + "\" não é um valor inteiro válido");
             }
             int i = Values.StringToInteger(val);
             return new Simbolo("", typeLexema, "", new Integer(i), 0, (typeLexema + " nao_nome"));
         } else if (type == REGISTO) {
             if (!Values.IsRegisto(val)) {
                 throw new LanguageException(
-                        0, "", name + " É UMA VARIÁVEL DO TIPO REGISTO", "\"" + val + "\" NÃO É UM REGISTO VÁLIDO");
+                        0, "", name + " é uma variável do tipo REGISTO", "\"" + val + "\" não é um registo válido");
             }
 
             return new SymbolComposto("", typeLexema, "", typeLexema, 0, (typeLexema + " nao_nome"));
         } else if (type == CLASSE) {
             if (!Values.IsRegisto(val)) {
                 throw new LanguageException(
-                        0, "", name + " É UMA VARIÁVEL DO TIPO CLASSE", "\"" + val + "\" NÃO É UMA CLASSE VÁLIDA");
+                        0, "", name + " é uma variável do tipo CLASSE", "\"" + val + "\" não é uma classe válida");
             }
 
             return new SymbolObjeto("", typeLexema, "", typeLexema, 0, (typeLexema + " nao_nome"));
@@ -490,4 +486,9 @@ public class Simbolo extends ParteDeExpresion {
             return false;
         }
     }
+    
+    public Icon getIcon(){
+        return SimboloIcon;
+    }
+            
 }

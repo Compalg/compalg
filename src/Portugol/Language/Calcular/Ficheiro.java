@@ -14,6 +14,7 @@ import java.util.Vector;
  * @author hp
  */
 public class Ficheiro {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     String programa="";
     
     public Ficheiro(String prog) {

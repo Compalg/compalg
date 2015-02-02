@@ -3,7 +3,8 @@
 import java.util.Vector;
     
 public class Functions  extends AbstractCalculus{
-     
+     public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
+    
     private FuncoesMatematicas math = new FuncoesMatematicas();
     private FuncaoTexto txt = new FuncaoTexto();
     

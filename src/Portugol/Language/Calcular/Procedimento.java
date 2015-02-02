@@ -13,6 +13,7 @@ import java.util.Vector;
  * @author Augusto Bilabila 05-02-2012
  */
 public class Procedimento {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     private String algol = "", Novoalgol = "";
     Vector acumulaProced = new Vector();

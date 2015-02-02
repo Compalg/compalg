@@ -16,7 +16,8 @@ import javax.swing.JOptionPane;
  * @author Augusto Bilabila 08-02-2012
  */
 public class Funcao {
-    
+     public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
+   
     private String algol="",Novoalgol="";
     Vector acumulafuncao = new Vector();
     Vector acumulaTipofuncao = new Vector();

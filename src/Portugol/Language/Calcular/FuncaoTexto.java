@@ -8,6 +8,7 @@ import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
 
 public class FuncaoTexto extends AbstractCalculus {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     private static String functions1 = " COMPRIMENTO ";
     private static String functions2 = " LETRA ";

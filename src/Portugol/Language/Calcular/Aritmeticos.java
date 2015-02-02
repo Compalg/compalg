@@ -9,6 +9,7 @@ import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
 
 public class Aritmeticos extends AbstractCalculus {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     private static String operBin = " + - * / % ^ mod div ";
     static public String ErroDivPorZero = "DIVISAO POR ZERO";

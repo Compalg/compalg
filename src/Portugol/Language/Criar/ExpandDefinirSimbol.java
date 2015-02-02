@@ -9,9 +9,9 @@ import Portugol.Language.Utilitario.LanguageException;
 import Portugol.Language.Utilitario.TrataDefLiteral;
 import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
-import javax.swing.JOptionPane;
 
 public class ExpandDefinirSimbol {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     private static int SIMPLES = 0;
     private static int ARRAY = 1;

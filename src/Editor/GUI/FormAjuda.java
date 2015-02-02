@@ -16,6 +16,7 @@ import java.net.URL;
  * @author Augusto Bilabila
  */
 public class FormAjuda extends javax.swing.JFrame {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
      private WWWHelpText ajudaLinguagem;
      
     /** Creates new form FormAjuda */

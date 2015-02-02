@@ -17,6 +17,7 @@ import java.util.Vector;
  * @author bila
  */
 public class ExpandDefinirArray {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     
     public static NodeInstruction Define(String alter , String type , String name , String value, NodeInstruction node, Vector memory)
     throws LanguageException{

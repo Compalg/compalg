@@ -8,6 +8,7 @@ import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
 
 public class FuncoesMatematicas extends AbstractCalculus {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     private static String functions0 = " ALEATORIO ";
     private static String functions1 = " SENO COSENO TANGENTE COTANGENTE "

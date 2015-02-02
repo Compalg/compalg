@@ -8,6 +8,7 @@ import Portugol.Language.Utilitario.LanguageException;
  * @author Augusto Bilabila
  */
 public class Keyword {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     public static final int DESCONHECIDO = 0;
     public static final int INICIO = 1;

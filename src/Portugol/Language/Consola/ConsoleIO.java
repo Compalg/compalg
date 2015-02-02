@@ -14,7 +14,7 @@ public class ConsoleIO extends JTextArea {
     /**
      * versao do teclado
      */
-    public static String VERSION = "Versão:1.0 \t(c)Augusto Bilabila";
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila & David Silva Barrera";
     
     /**
      * contrutor

@@ -1,22 +1,11 @@
 package Portugol.Language.Criar;
 
 import Portugol.Language.Analisador.Expressao;
-import Portugol.Language.Analisador.Keyword;
-import Portugol.Language.Analisador.Simbolo;
-import Portugol.Language.Analisador.Variavel;
 import Portugol.Language.Utilitario.LanguageException;
 import java.util.Vector;
-import javax.swing.JOptionPane;
 
 public class ExpandChamadoProcedimento {
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-//------------                                             ----------------------------
-//------------    I N S T R U C A O    S E                ----------------------------
-//------------                                              ---------------------------
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     /**
      * expande o ciclo
      *
@@ -33,8 +22,8 @@ public class ExpandChamadoProcedimento {
         if (endExp <= 0) {
             throw new LanguageException(
                     begin.GetCharNum(), begin.GetText(),
-                    "Chamado não ten parêntese aberto", //David: revisar ortografia
-                    "Coloque o parêntese depois do chamado ao procedimento");
+                    "A Chamado não tem parêntese aberto", //David: revisar ortografia
+                    "Coloque o parêntese \"(\" depois do chamado ao procedimento");
         }
 
         try {

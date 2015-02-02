@@ -10,13 +10,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 
 public class ExpandProcedimento {
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-//------------                                             ----------------------------
-//------------    I N S T R U C A O    S E                ----------------------------
-//------------                                              ---------------------------
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     /**
      * expande o ciclo
@@ -37,32 +31,32 @@ public class ExpandProcedimento {
         if (endExp < 0) {
             throw new LanguageException(
                     begin.GetCharNum(), begin.GetText(),
-                    "Chamado não ten parêntese aberto", //David: revisar ortografia
-                    "Coloque o parêntese depois do chamado ao procedimento");
+                    "A Chamada não tem parêntese aberto", //David: revisar ortografia
+                    "Coloque o parêntese \"(\" depois da chamada do procedimento");
         }
 
         // SE ocupa dois caracteres
         String nome_proced = begin.GetText().substring(0, endExp).trim();
-        if (nome_proced.toUpperCase().startsWith("PROCEDIMENTO")) {
+        if (nome_proced.toUpperCase().startsWith(Keyword.GetTextKey(Keyword.PROCEDIMENTO))) {
             rutina.type = Bloque.PROCEDIMENTO;
-            rutina.Nome = nome_proced.toUpperCase().replace("PROCEDIMENTO ", "").trim();
+            rutina.Nome = nome_proced.substring((Keyword.GetTextKey(Keyword.PROCEDIMENTO)+" ").length()).trim();// toUpperCase().replace("PROCEDIMENTO ", "").trim();
             rutina.TipoRetorno = "";
-        } else if (nome_proced.toUpperCase().startsWith("CONSTRUTOR")) {
+        } else if (nome_proced.toUpperCase().startsWith(Keyword.GetTextKey(Keyword.CONSTRUTOR))) {
             rutina.type = Bloque.CONSTRUTOR;
-            rutina.Nome = nome_proced.toUpperCase().replace("CONSTRUTOR ", "").trim();
+            rutina.Nome = nome_proced.substring((Keyword.GetTextKey(Keyword.CONSTRUTOR)+" ").length()).trim();// toUpperCase().replace("CONSTRUTOR ", "").trim();
             rutina.TipoRetorno = rutina.Nome;
-        } else if (nome_proced.toUpperCase().startsWith("FUNCAO")) {
-            nome_proced = nome_proced.toUpperCase().replace("FUNCAO ", "").trim();
+        } else if (nome_proced.toUpperCase().startsWith(Keyword.GetTextKey(Keyword.FUNCAO))) {
+            rutina.type = Bloque.FUNCAO;
+            nome_proced = nome_proced.substring((Keyword.GetTextKey(Keyword.FUNCAO)+" ").length()).trim();// toUpperCase().replace("FUNCAO ", "").trim();
             int beg = nome_proced.length() - 1;
             while (beg > 0 && nome_proced.charAt(beg) != ' ') {
                 beg--;
             }
-            rutina.type = Bloque.FUNCAO;
             rutina.Nome = nome_proced.substring(beg, nome_proced.length()).trim();
             rutina.TipoRetorno = nome_proced.substring(0, beg).trim();
         } else {
             throw new LanguageException(
-                    "Ten que utilizar PROCEDIMENTO, FUNCAO ou CONSTRUTOR",
+                    "Deve que utilizar PROCEDIMENTO, FUNCAO ou CONSTRUTOR",
                     "Mude a declaração"); //David: revisar ortografia
         }
 
@@ -97,7 +91,7 @@ public class ExpandProcedimento {
                 if (str.trim().length() > 0 && tempStr.trim().isEmpty()) {
                     throw new LanguageException(
                             begin.GetCharNum(), begin.GetText(),
-                            "O parâmetro " + Integer.toString(contarParamProcesado) + " ficó vazio",
+                            "O parâmetro " + Integer.toString(contarParamProcesado) + " ficou vazio",
                             "Tire uma vírgula o complete o código"); //David:Revisar ortografia
                 }
                 AddParameter(rutina, begin, tempStr);
@@ -116,7 +110,7 @@ public class ExpandProcedimento {
         if (fullStr.trim().length() > 0 && tempStr.trim().isEmpty()) {
             throw new LanguageException(
                     begin.GetCharNum(), begin.GetText(),
-                    "O parâmetro " + Integer.toString(contarParamProcesado) + " ficó vazio",
+                    "O parâmetro " + Integer.toString(contarParamProcesado) + " ficou vazio",
                     "Tire uma vírgula o complete o código"); //David:Revisar ortografia
         }
         AddParameter(rutina, begin, tempStr);
@@ -260,7 +254,7 @@ public class ExpandProcedimento {
             tipoParam.Name = tempStr.substring(beg, tempStr.length()).trim();
             tipoParam.PorValor = CantAmpersands == 0;
             tipoParam.Tipo = TipoDato;
-            rutina.parametros.add(tipoParam);
+            rutina.parametrosDefinition.add(tipoParam);
         }
     }
 }

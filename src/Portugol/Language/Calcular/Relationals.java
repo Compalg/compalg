@@ -8,6 +8,7 @@ import Portugol.Language.Utilitario.Values;
 import java.util.Vector;
 
 public class Relationals extends AbstractCalculus {
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
 
     private static String relationals = " > >= < <= ";
     private static String equalsOper = " = =/= <> "; //David: acrecentado o operador <>

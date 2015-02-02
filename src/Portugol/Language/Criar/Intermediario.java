@@ -7,16 +7,13 @@ import Portugol.Language.Consola.ConsoleIO;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import Portugol.Language.Utilitario.LanguageException;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 /**
  * @author Augusto Bilabila original de Antonio manso
  */
 public class Intermediario {
 
-    public static String VERSION = "Versão:1.0 \t(c) Augusto Bilabila";
+    public static String VERSION = "Versão:2.0 \t(c)Augusto Bilabila e David Silva Barrera";
     static public Vector<BloqueSubrutine> subrutinas;
     static public Vector tiposRegistos = new Vector();
     static public Vector<TipoClasse> tiposClasses = new Vector();

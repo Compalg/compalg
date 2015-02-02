@@ -13,7 +13,7 @@ import javax.swing.JViewport;
 import javax.swing.border.AbstractBorder;
 
  	public class LinhaEditor extends AbstractBorder {  
-	 	    private int lineHeight = 22;  
+	 	    private int lineHeight = 21;  
 	 	    private int characterHeight = 10;  
 	 	    private int characterWidth = 10;  
 	 	    private Color myColor;  
@@ -105,8 +105,8 @@ import javax.swing.border.AbstractBorder;
 	 	    }  
 	 	      
 	 	    public static JScrollPane obterScrolPane(JTextPane area, JScrollPane scroll) {  
-	 	     
-	 	        area.setBorder(new LinhaEditor());     
+	 	        LinhaEditor a = new LinhaEditor();
+	 	        area.setBorder(a);     
 	 	        scroll.setMinimumSize(new java.awt.Dimension(400, 300));
                         scroll.setPreferredSize(new java.awt.Dimension(400, 450)); 
                         scroll.setViewportView(area);               
