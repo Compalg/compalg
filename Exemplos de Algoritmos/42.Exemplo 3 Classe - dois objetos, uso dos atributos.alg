@@ -7,11 +7,14 @@ classe pessoa
         retorne a
     fimfuncao
 
+    construtor pessoa ( )
+    fimconstrutor
+
 fimclasse
 
 inicio
     escreva "Codigo principal \n"
-    pessoa b , a
+    pessoa b <- novo pessoa ( ) , a <- novo pessoa ( )
     a.nome <- "Yeny"
     a.idade <- 10
     b.nome <- "David"

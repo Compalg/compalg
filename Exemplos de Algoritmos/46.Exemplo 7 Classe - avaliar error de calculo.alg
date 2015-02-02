@@ -9,17 +9,20 @@ classe pessoa
         retorne hola ( a ) * 2
     fimfuncao
 
+    construtor pessoa ( )
+    fimconstrutor
+
 fimclasse
 
 inicio
     escreva "Codigo principal \n"
-    pessoa b , a
+    pessoa b <- novo pessoa ( ) , a <- novo pessoa ( )
     a.nome <- "Yeny"
     a.idade <- 10
     b.nome <- "David"
     b.idade <- 5
     b.idade <- a.hola ( 1 )
     escreva b.idade , "\n"
-    escreva a.hola2 ( 1 )  "\n"
+    escreva a.hola2 ( 1 ) , "\n"
 fimalgoritmo
 

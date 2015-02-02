@@ -36,7 +36,8 @@ fimclasse
 inicio
     escreva "Codigo principal \n"
     pessoa dsb <- novo pessoa ( "David" , 50 )
-    emprego profe
+    emprego profe <- novo emprego ( "profe" , dsb )
     escreva profe.apresentar ( ) , "\n"
+    escreva dsb.hola ( 2 ) , "\n"
 fimalgoritmo
 
